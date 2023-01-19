@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/17 21:02:04 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/01/17 21:02:35 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/01/19 15:56:29 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ namespace	ft {
 				_container = NULL;
 				if ( n ) {
 					_container = _alloc.allocate( n );
-					for ( int i = 0; i < n; i++ )
+					for ( std::size_t i = 0; i < n; i++ )
 						_alloc.construct( _container + i, type );
 				}
 			};
@@ -61,7 +61,7 @@ namespace	ft {
 				_container = NULL;
 				if ( _capacity )
 					_container = _alloc.allocate( _capacity );
-				for ( int i = 0; i < _size; i++ )
+				for ( std::size_t i = 0; i < _size; i++ )
 					_alloc.construct( _container + i, vec[ i ] );
 			};
 		/* ------------------------------------------------------------------------ */
@@ -85,7 +85,7 @@ namespace	ft {
 					_container = _alloc.allocate( _capacity );
 				}
 				_size = n;
-				for ( int i = 0; i < _size; i++ )
+				for ( std::size_t i = 0; i < _size; i++ )
 					_alloc.construct( _container + i, val );
 			};
 		/* ------------------------------------------------------------------------ */
@@ -119,7 +119,7 @@ namespace	ft {
 		/*                             ft::vector::clear                            */
 		/* -------------------------------- ..::.. -------------------------------- */
 			void clear( void ) {
-				for ( int i = 0; i < _size; i++ )
+				for ( std::size_t i = 0; i < _size; i++ )
 					_alloc.destroy( _container + i );
 				_size = 0;
 			};
@@ -171,7 +171,7 @@ namespace	ft {
 					_size = x.size();
 					_capacity = x.capacity();
 					_alloc = x.get_allocator();
-					for ( int i = 0; i < _size; i++ )
+					for ( std::size_t i = 0; i < _size; i++ )
 						_alloc.construct( _container + i, x[ i ] );
 				}
 				return ( *this );
@@ -191,7 +191,7 @@ namespace	ft {
 			void	push_back ( const T& val ) {
 				if ( _size == _capacity ) {
 					T	temp[ _size ];
-					for ( int i = 0; i < _size; i++ ) {
+					for ( std::size_t i = 0; i < _size; i++ ) {
 						temp[ i ] = _container[ i ];
 						_alloc.destroy( _container + i );
 					}
@@ -199,7 +199,7 @@ namespace	ft {
 						_alloc.deallocate( _container, _capacity );
 					_capacity += _capacity ? _capacity : 1;
 					_container = _alloc.allocate( _capacity );
-					for ( int i = 0; i < _size; i++ )
+					for ( std::size_t i = 0; i < _size; i++ )
 						_alloc.construct( _container + i, temp[ i ] );
 				}
 				_alloc.construct( _container + _size, val );
@@ -221,7 +221,7 @@ namespace	ft {
 			void	reserve ( std::size_t n ) {
 				if ( n > _capacity ) {
 					T	temp[ _size ];
-					for ( int i = 0; i < _size; i++ ) {
+					for ( std::size_t i = 0; i < _size; i++ ) {
 						temp[ i ] = _container[ i ];
 						_alloc.destroy( _container + i );
 					}
@@ -229,7 +229,7 @@ namespace	ft {
 						_alloc.deallocate( _container, _capacity );
 					_capacity = n;
 					_container = _alloc.allocate( _capacity );
-					for ( int i = 0; i < _size; i++ )
+					for ( std::size_t i = 0; i < _size; i++ )
 						_alloc.construct( _container + i, temp[ i ] );
 				}
 			};
@@ -238,11 +238,11 @@ namespace	ft {
 		/* -------------------------------- ..::.. -------------------------------- */
 			void	resize ( std::size_t n, T val = T() ) {
 				if ( n < _size )
-					for ( int i = _size; i < n; i++ )
+					for ( std::size_t i = _size; i < n; i++ )
 						_alloc.destroy( _container + i );
 				else if ( n > _size ) {
 					reserve( n );
-					for ( int i = _size; i < n; i++ )
+					for ( std::size_t i = _size; i < n; i++ )
 						_alloc.construct( _container + i, val );
 				}
 				_size = n;
@@ -262,13 +262,6 @@ namespace	ft {
 					*this = temp;
 				}
 			};
-
-
-// temporary
-	void	log( void ) {
-		for ( int i = 0; i < _size; i++ )
-			std::cout << "Container[" << i << "] : " << _container[ i ] << '\n';
-	} ;
 
 	};
 
