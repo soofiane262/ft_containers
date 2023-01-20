@@ -6,18 +6,15 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/17 21:02:04 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/01/19 15:56:29 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/01/20 21:09:38 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-# include <algorithm>
-# include <climits>
+# include <vector>
 # include <memory>
 # include <stdexcept>
-
-# include <iostream>
 
 namespace	ft {
 
@@ -33,6 +30,21 @@ namespace	ft {
 			T*				_container;
 
 		public:
+		/* ------------------------------------------------------------------------ */
+		/*                               Member types                               */
+		/* ------------------------------------------------------------------------ */
+			typedef T											value_type;
+			typedef Alloc										allocator_type;
+			typedef typename allocator_type::reference			reference;
+			typedef typename allocator_type::const_reference	const_reference;
+			typedef typename allocator_type::pointer			pointer;
+			typedef typename allocator_type::const_pointer		const_pointer;
+			// typedef iterator	a random access iterator to value_type	convertible to const_iterator
+			// typedef const_iterator	a random access iterator to const value_type	
+			// typedef reverse_iterator	reverse_iterator<iterator>	
+			// typedef const_reverse_iterator	reverse_iterator<const_iterator>	
+			// typedef difference_type	a signed integral type, identical to: iterator_traits<iterator>::difference_type	usually the same as ptrdiff_t
+			typedef std::size_t									size_type;
 		/* ------------------------------------------------------------------------ */
 		/*                               Constructors                               */
 		/* ------------------------------------------------------------------------ */
@@ -56,7 +68,7 @@ namespace	ft {
 			// template < class InputIterator > vector ( InputIterator first, InputIterator last, const Alloc& alloc = Alloc());
 			vector ( const vector& vec ) {
 				_size = vec.size();
-				_capacity = vec.capacity();
+				_capacity = _size;
 				_alloc = vec.get_allocator();
 				_container = NULL;
 				if ( _capacity )
@@ -167,9 +179,9 @@ namespace	ft {
 			vector&	operator = ( const vector& x ) {
 				if ( this != &x ) {
 					clear();
-					reserve( x.capacity() );
+					reserve( x.size() );
 					_size = x.size();
-					_capacity = x.capacity();
+					_capacity = x.size();
 					_alloc = x.get_allocator();
 					for ( std::size_t i = 0; i < _size; i++ )
 						_alloc.construct( _container + i, x[ i ] );
@@ -180,10 +192,8 @@ namespace	ft {
 		/*                           ft::vector::pop_back                           */
 		/* -------------------------------- ..::.. -------------------------------- */
 			void	pop_back( void ) {
-				if ( _size ) {
-					_size--;
-					_alloc.destroy( _container + _size );
-				}
+				_alloc.destroy( _container + _size - 1 );
+				_size--;
 			};
 		/* ------------------------------------------------------------------------ */
 		/*                           ft::vector::push_back                          */
@@ -258,11 +268,50 @@ namespace	ft {
 			void	swap ( vector& x ) {
 				if ( this != &x ) {
 					vector	temp = x;
-					x = *this;
-					*this = temp;
+					x._capacity = _capacity;
+					x._size = _size;
+					x._alloc = _alloc;
+					x._container = _container;
+					_capacity = temp._capacity;
+					_size = temp._size;
+					_alloc = temp._alloc;
+					_container = temp._container;
 				}
 			};
 
+	};
+
+	template < class T, class Alloc > bool operator	== ( const vector< T, Alloc >& lhs, const vector< T, Alloc >& rhs ) {
+		if ( lhs.size() != rhs.size() )
+			return ( false );
+		for ( std::size_t i = 0; i < lhs.size(); i++ )
+			if ( lhs[ i ] != rhs[ i ] )
+				return ( false );
+		return ( true );
+	};
+
+	template < class T, class Alloc > bool operator	!= ( const vector< T, Alloc >& lhs, const vector< T, Alloc >& rhs ) {
+		return ( ! ( lhs == rhs ) );
+	};
+
+	// template < class T, class Alloc > bool operator	<  ( const vector< T, Alloc >& lhs, const vector< T, Alloc >& rhs ) {
+		// return (  );
+	// };
+
+	// template < class T, class Alloc > bool operator	<= ( const vector< T, Alloc >& lhs, const vector< T, Alloc >& rhs ) {
+		// return (  );
+	// };
+
+	// template < class T, class Alloc > bool operator	>  ( const vector< T, Alloc >& lhs, const vector< T, Alloc >& rhs ) {
+		// return (  );
+	// };
+
+	// template < class T, class Alloc > bool operator	>= ( const vector< T, Alloc >& lhs, const vector< T, Alloc >& rhs ) {
+		// return (  );
+	// };
+
+	template < class T, class Alloc > void	swap ( vector< T, Alloc >& x, vector< T, Alloc >& y ) {
+		x.swap( y );
 	};
 
 }

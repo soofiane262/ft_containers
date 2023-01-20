@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 17:03:51 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/01/19 19:41:38 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/01/20 19:23:58 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include <stdexcept>
 # include <cstdlib>
 # include <ctime>
+# include <fstream>
 
 # define	RESET	"\e[0m"
 # define	RED		"\e[1;31m"
@@ -36,9 +37,9 @@ class	except : public std::runtime_error {
     	std::string msg;
 
 	public:
-    	except( const std::string &arg, const std::string &pb, int line ) : std::runtime_error( arg ) {
+    	except( const std::string &arg, int line ) : std::runtime_error( arg ) {
         	std::ostringstream o;
-        	o << pb << "\n\n" RED WARNING "  Error @ line " << line << " : " << arg << RESET "\n";
+        	o << "\n" RED WARNING "  Error @ line " << line << " : " << arg << RESET "\n";
         	msg = o.str();
     	}
     	~except() throw() {}
@@ -47,23 +48,22 @@ class	except : public std::runtime_error {
     }
 };
 
-template< class T > void	check( const ft::vector< T > ft_vec, const std::vector< T > std_vec, const int line ) {
-    std::stringstream o;
-	o << "ft_vec.size()\t\t: `" WHITE << ft_vec.size() << RESET "`\t\tstd_vec.size()\t\t: `" WHITE << std_vec.size() << RESET "`";
+template< class T > void	compare( const T& ft_vec, const T& std_vec, const int line ) {
+	std::cout << "\tft_vec\t\t: `" WHITE << ft_vec << RESET "`\t\t" << "std_vec\t\t\t: `" WHITE << std_vec << RESET "`\n";
+	if ( ft_vec != std_vec )
+		throw except( "Wrong vector value", line );
+};
+
+template< class T > void	check( const ft::vector< T >& ft_vec, const std::vector< T >& std_vec, const int line ) {
+	std::cout << "ft_vec.size()\t\t: `" WHITE << ft_vec.size() << RESET "`\t\tstd_vec.size()\t\t: `" WHITE << std_vec.size() << RESET "`\n";
 	if ( ft_vec.size() != std_vec.size() )
-		throw except( "Wrong vector size", o.str(), line );
-	std::cout << o.rdbuf() << '\n';
-	o.str( std::string() );
-	o << "ft_vec.capacity()\t: `" WHITE << ft_vec.capacity() << RESET "`\t\tstd_vec.capacity()\t: `" WHITE << std_vec.capacity() << RESET "`";
+		throw except( "Wrong vector size", line );
+	std::cout << "ft_vec.capacity()\t: `" WHITE << ft_vec.capacity() << RESET "`\t\tstd_vec.capacity()\t: `" WHITE << std_vec.capacity() << RESET "`\n\n";
 	if ( ft_vec.capacity() != std_vec.capacity() )
-		throw except( "Wrong vector capacity", o.str(), line );
-	std::cout << o.rdbuf() << "\n\n";
+		throw except( "Wrong vector capacity", line );
 	for ( std::size_t i = 0; i < std_vec.size(); i++ ) {
-		o.str( std::string() );
-		o << "ft_vec[" << i << "]\t\t: `" WHITE << ft_vec.at( i ) << RESET "`\t\t" << "std_vec[" << i << "]\t\t: `" WHITE << std_vec.at( i ) << RESET "`";
-		if ( ft_vec.at( i ) != std_vec.at( i ) )
-			throw except( "Wrong vector value", o.str(), line );
-		std::cout << o.rdbuf() << '\n' ;
+		std::cout << "@ " << i;
+		compare( ft_vec.at( i ), std_vec.at( i ), line );
 	}
-	std::cout << '\n';
+	std::cout << "\n";
 };
