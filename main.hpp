@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 17:03:51 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/01/20 19:23:58 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/01/22 19:59:27 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,7 @@ class	except : public std::runtime_error {
 };
 
 template< class T > void	compare( const T& ft_vec, const T& std_vec, const int line ) {
+	(void)line;
 	std::cout << "\tft_vec\t\t: `" WHITE << ft_vec << RESET "`\t\t" << "std_vec\t\t\t: `" WHITE << std_vec << RESET "`\n";
 	if ( ft_vec != std_vec )
 		throw except( "Wrong vector value", line );
