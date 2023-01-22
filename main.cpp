@@ -6,11 +6,12 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/14 17:37:52 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/01/20 20:43:54 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/01/22 11:30:10 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "main.hpp"
+#include <ostream>
 
 # define	compare( ctr1, ctr2 )	compare( ctr1, ctr2, __LINE__ )
 # define	check( ctr1, ctr2 )		check( ctr1, ctr2, __LINE__ )
@@ -29,6 +30,25 @@ void	testResult( int error_count, const int total_tests, const std::string ctr )
 		<< " succeeded all tests ---------------------- " CHECK RESET "\n\n";
 }
 
+void	printHead ( std::string str ) {
+	(void)str;
+	std::cout << BLUE;
+	for ( int i = 0; i < 4; i++ ) {
+		std::cout << "/* ";
+		for ( int j = 0; j < 74; j++ ) {
+			if ( i == 1 ) {
+				std::cout << ' ';
+			}
+			else
+				std::cout << '-';
+		}
+		std::cout << "*/\n";
+	}
+	std::cout << RESET "\n";
+}
+
+/*                                   vector                                  */
+
 int	main( void ) {
 
 	if ( ! std::system ( NULL ) ) {
@@ -44,11 +64,7 @@ int	main( void ) {
 	int					total_tests;
 
 	{
-		std::cout << BLUE
-		<< "/* ------------------------------------------------------------------------- */\n"
-		<< "/*                                   vector                                  */\n"
-		<< "/* ------------------------------------------------------------------------- */\n"
-		<< RESET "\n";
+
 		{
 			std::stringstream	ss;
 			std::system( "cat main.cpp | grep 'Vector Test' | wc -l | awk '{print $1}' > .logs" );
@@ -57,6 +73,7 @@ int	main( void ) {
 			ss >> total_tests;
 			total_tests--;
 		}
+		printHead( "vector" );
 		try { std::cout << MAGENTA "Vector Test " << ++test_idx << " of " << total_tests << RESET "\n\n";
 			// Default constructor
 			ft::vector< int >	ft_vec;
@@ -85,8 +102,9 @@ int	main( void ) {
 			error_count++;
 		} std::cout << WHITE << "Press \u21B5  to proceed with the next vector test" << RESET << std::endl;
 		while ( std::getchar() != '\n' );
-		std::system( "printf '\e[5;0H\e[J'" );
-		try { std::cout << MAGENTA "Vector Test " << ++test_idx << " of " << total_tests << RESET "\n";
+		std::system( "printf '\e[H\e[J\e[3J'" );
+		printHead( "vector" );
+		try { std::cout << MAGENTA "Vector Test " << ++test_idx << " of " << total_tests << RESET "\n\n";
 			int	size = ( rand() % 10 ) + 1;
 			int	value = ( rand() % 10 );
 			// Parametrized Constructor
@@ -105,7 +123,8 @@ int	main( void ) {
 			error_count++;
 		} std::cout << WHITE << "Press \u21B5  to proceed with the next vector test" << RESET << std::endl;
 		while ( std::getchar() != '\n' );
-		std::system( "printf '\e[5;0H\e[J'" );
+		std::system( "printf '\e[H\e[J\e[3J'" );
+		printHead( "vector" );
 		try { std::cout << MAGENTA "Vector Test " << ++test_idx << " of " << total_tests << RESET "\n\n";
 			// Default Constructor
 			ft::vector< int >	ft_vec;
@@ -136,7 +155,8 @@ int	main( void ) {
 			error_count++;
 		} std::cout << WHITE << "Press \u21B5  to proceed with the next vector test" << RESET << std::endl;
 		while ( std::getchar() != '\n' );
-		std::system( "printf '\e[5;0H\e[J'" );
+		std::system( "printf '\e[H\e[J\e[3J'" );
+		printHead( "vector" );
 		try { std::cout << MAGENTA "Vector Test " << ++test_idx << " of " << total_tests << RESET "\n\n";
 			int	size = ( rand() % 10 ) + 1;
 			int	value = ( rand() % 10 );
@@ -166,28 +186,8 @@ int	main( void ) {
 			error_count++;
 		} std::cout << WHITE << "Press \u21B5  to proceed with the next vector test" << RESET << std::endl;
 		while ( std::getchar() != '\n' );
-		std::system( "printf '\e[5;0H\e[J'" );
-		try { std::cout << MAGENTA "Vector Test " << ++test_idx << " of " << total_tests << RESET "\n\n";
-			// Default constructor
-			ft::vector< int >	ft_int_vec;
-			std::vector< int >	std_int_vec;
-			compare( ft_int_vec.max_size(), std_int_vec.max_size() );
-			// ft::vector< char >	ft_char_vec;
-			// std::vector< char >	std_char_vec;
-			// compare( ft_char_vec.max_size(), std_char_vec.max_size() );
-			ft::vector< std::string >	ft_string_vec;
-			std::vector< std::string >	std_string_vec;
-			compare( ft_string_vec.max_size(), std_string_vec.max_size() );
-			ft::vector< long long >	ft_ll_vec;
-			std::vector< long long >	std_ll_vec;
-			compare( ft_ll_vec.max_size(), std_ll_vec.max_size() );
-			std::cout << "\n" GREEN CHECK " Sucess" RESET "\n\n";
-		} catch ( std::exception& e ) {
-			std::cout << e.what() << '\n';
-			error_count++;
-		} std::cout << WHITE << "Press \u21B5  to proceed with the next vector test" << RESET << std::endl;
-		while ( std::getchar() != '\n' );
-		std::system( "printf '\e[5;0H\e[J'" );
+		std::system( "printf '\e[H\e[J\e[3J'" );
+		printHead( "vector" );
 		try { std::cout << MAGENTA "Vector Test " << ++test_idx << " of " << total_tests << RESET "\n\n";
 			// Default constructor
 			ft::vector< int >	ft_vec;
@@ -211,7 +211,8 @@ int	main( void ) {
 			error_count++;
 		} std::cout << WHITE << "Press \u21B5  to proceed with the next vector test" << RESET << std::endl;
 		while ( std::getchar() != '\n' );
-		std::system( "printf '\e[5;0H\e[J'" );
+		std::system( "printf '\e[H\e[J\e[3J'" );
+		printHead( "vector" );
 		try { std::cout << MAGENTA "Vector Test " << ++test_idx << " of " << total_tests << RESET "\n\n";
 			// Default constructor
 			ft::vector< int >	ft_vec;
@@ -237,7 +238,8 @@ int	main( void ) {
 			error_count++;
 		} std::cout << WHITE << "Press \u21B5  to proceed with the next vector test" << RESET << std::endl;
 		while ( std::getchar() != '\n' );
-		std::system( "printf '\e[5;0H\e[J'" );
+		std::system( "printf '\e[H\e[J\e[3J'" );
+		printHead( "vector" );
 		try { std::cout << MAGENTA "Vector Test " << ++test_idx << " of " << total_tests << RESET "\n\n";
 			// Default constructor
 			ft::vector< int >	ft_vec;
@@ -263,7 +265,8 @@ int	main( void ) {
 			error_count++;
 		} std::cout << WHITE << "Press \u21B5  to proceed with the next vector test" << RESET << std::endl;
 		while ( std::getchar() != '\n' );
-		std::system( "printf '\e[5;0H\e[J'" );
+		std::system( "printf '\e[H\e[J\e[3J'" );
+		printHead( "vector" );
 		try { std::cout << MAGENTA "Vector Test " << ++test_idx << " of " << total_tests << RESET "\n\n";
 			// Default constructor
 			ft::vector< int >	ft_vec;
@@ -292,7 +295,8 @@ int	main( void ) {
 			error_count++;
 		} std::cout << WHITE << "Press \u21B5  to proceed with the next vector test" << RESET << std::endl;
 		while ( std::getchar() != '\n' );
-		std::system( "printf '\e[5;0H\e[J'" );
+		std::system( "printf '\e[H\e[J\e[3J'" );
+		printHead( "vector" );
 		// endOf vector tests
 		testResult( error_count, total_tests, "vector");
 		std::cout << WHITE << "Press \u21B5  to proceed with the next container" << RESET << std::endl;
