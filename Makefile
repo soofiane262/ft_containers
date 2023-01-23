@@ -6,7 +6,7 @@
 #    By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/01/19 15:28:01 by sel-mars          #+#    #+#              #
-#    Updated: 2023/01/22 18:24:15 by sel-mars         ###   ########.fr        #
+#    Updated: 2023/01/23 19:28:47 by sel-mars         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,7 +16,7 @@ CPP		=	c++
 
 FLAGS	=	-Wall -Wextra -Werror -std=c++98
 
-HEADERS	=	main.hpp vector/vector.hpp iterators/*
+HEADERS	=	main.hpp vector/vector.hpp iterators/* utils/*
 
 SRCS	=	main.cpp
 
