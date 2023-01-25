@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/20 21:09:54 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/01/22 18:34:01 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/01/25 20:06:33 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ namespace ft {
 	template < class T > class vec_iterator {
 	  private:
 		T* _ptr;
-		// vec_iterator( const long x ) { ( void )x; };
+
 	  public:
 		typedef typename iterator_traits< T* >::value_type		  value_type;
 		typedef typename iterator_traits< T* >::difference_type	  difference_type;
@@ -28,50 +28,53 @@ namespace ft {
 		typedef typename iterator_traits< T* >::iterator_category iterator_category;
 		vec_iterator( void ) { _ptr = NULL; };
 		template < class iter > vec_iterator( const iter& other ) : _ptr( &*other ) {};
-		// vec_iterator( T* ptr ) {
-		// 	_ptr = ptr;
-		// };
 		vec_iterator& operator=( vec_iterator& other ) {
 			if ( this != &other ) _ptr = other._ptr;
-			return ( *this );
+			return *this;
 		};
 		vec_iterator& operator=( const vec_iterator& other ) {
 			if ( this != &other ) _ptr = other._ptr;
-			return ( *this );
+			return *this;
 		};
 		~vec_iterator( void ) { _ptr = NULL; };
 		vec_iterator& operator++( void ) {
 			_ptr++;
-			return ( *this );
+			return *this;
 		};
 		vec_iterator operator++( int ) {
 			vec_iterator tmp = *this;
 			++( *this );
-			return ( tmp );
+			return tmp;
 		};
 		vec_iterator& operator--( void ) {
 			_ptr--;
-			return ( *this );
+			return *this;
 		};
 		vec_iterator operator--( int ) {
 			vec_iterator tmp = *this;
 			_ptr--;
-			return ( tmp );
+			return tmp;
 		};
-		vec_iterator operator+( difference_type n ) const { return ( vec_iterator( _ptr + n ) ); };
-		vec_iterator operator-( difference_type n ) const { return ( vec_iterator( _ptr - n ) ); };
-		difference_type operator-( const vec_iterator& other ) const {
-			return ( _ptr - other._ptr );
+		vec_iterator  operator+( difference_type n ) const { return _ptr + n; };
+		vec_iterator  operator-( difference_type n ) const { return _ptr - n; };
+		vec_iterator& operator+=( difference_type n ) {
+			_ptr += n;
+			return *this;
 		};
-		reference operator*( void ) const { return ( *_ptr ); };
-		pointer	  operator->( void ) const { return ( _ptr ); };
-		reference operator[]( difference_type n ) const { return ( _ptr[ n ] ); };
-		bool	  operator==( const vec_iterator& other ) const { return ( _ptr == other._ptr ); };
-		bool	  operator!=( const vec_iterator& other ) const { return ( _ptr != other._ptr ); };
-		bool	  operator<( const vec_iterator& other ) const { return ( _ptr < other._ptr ); };
-		bool	  operator>( const vec_iterator& other ) const { return ( _ptr > other._ptr ); };
-		bool	  operator<=( const vec_iterator& other ) const { return ( _ptr <= other._ptr ); };
-		bool	  operator>=( const vec_iterator& other ) const { return ( _ptr >= other._ptr ); };
+		vec_iterator& operator-=( difference_type n ) {
+			_ptr -= n;
+			return *this;
+		};
+		difference_type operator-( const vec_iterator& other ) const { return _ptr - other._ptr; };
+		reference		operator*( void ) const { return *_ptr; };
+		pointer			operator->( void ) const { return _ptr; };
+		reference		operator[]( difference_type n ) const { return _ptr[ n ]; };
+		bool operator==( const vec_iterator& other ) const { return _ptr == other._ptr; };
+		bool operator!=( const vec_iterator& other ) const { return _ptr != other._ptr; };
+		bool operator<( const vec_iterator& other ) const { return _ptr < other._ptr; };
+		bool operator>( const vec_iterator& other ) const { return _ptr > other._ptr; };
+		bool operator<=( const vec_iterator& other ) const { return _ptr <= other._ptr; };
+		bool operator>=( const vec_iterator& other ) const { return _ptr >= other._ptr; };
 	};
 
 } // namespace ft

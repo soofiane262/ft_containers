@@ -6,38 +6,47 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 17:03:51 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/01/23 20:09:56 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/01/25 20:36:01 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "utils/algorithm.hpp"
-#include "vector/vector.hpp"
+#include "vector.hpp"
 
 #include <algorithm>
 #include <cstdlib>
 #include <ctime>
-#include <fstream>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>
+
+#define ESC "\e["
+// Cursor
+#define CURSOR( ln ) ESC ln "H"
+#define CURSOR_HOME	 CURSOR( "0" )
+// Erase
+#define ERASE( code ) ESC code "J"
+#define ERASE_DISP	  ERASE( "0" )
+#define ERASE_SAVED	  ERASE( "3" )
 //	Colors
-#define RESET	"\e[0m"
-#define RED		"\e[1;31m"
-#define GREEN	"\e[1;32m"
-#define BLUE	"\e[1;34m"
-#define MAGENTA "\e[1;35m"
-#define WHITE	"\e[1;37m"
+#define RESET	ESC "0m"
+#define RED		ESC "1;31m"
+#define GREEN	ESC "1;32m"
+#define BLUE	ESC "1;34m"
+#define MAGENTA ESC "1;35m"
+#define WHITE	ESC "1;37m"
 //	Modes
-#define DIM	   "\e[2m"
-#define ITALIC "\e[3m"
-#define ULINE  "\e[4m"
+#define DIM	   ESC "2m"
+#define ITALIC ESC "3m"
+#define ULINE  ESC "4m"
+#define STRIKE ESC "9m"
 //	Defs
 #define TITLE DIM ITALIC ULINE "~ "
 //	Special Characters
 #define WARNING "\u26A0"
-#define CHECK	"\u2713"
+
+#define CHECK "\u2713"
 
 class except : public std::runtime_error {
   private:
@@ -55,18 +64,24 @@ class except : public std::runtime_error {
 
 template < class T > void compare( const T ft, const T std, const std::string str,
 								   const std::string err, const int line ) {
-	std::cout << str << "\tft\t: `" WHITE << ft << RESET "`\t\t"
-			  << "std\t: `" WHITE << std << RESET "`\n";
-	if ( ft != std ) throw except( "Wrong " + err + " value", line );
+	std::cout << str << "\tft : `" WHITE << ft << RESET "`\t"
+			  << "std : `" WHITE << std << RESET "`\n";
+	if ( ft == std ) return;
+	throw except( "Wrong " + err + " value", line );
 };
 
 template < class T >
 void check( const ft::vector< T > &ft_vec, const std::vector< T > &std_vec, const int line ) {
 	compare( ft_vec.size(), std_vec.size(), "size\t", "size", line );
 	compare( ft_vec.capacity(), std_vec.capacity(), "capacity", "capacity", line );
+	if ( std_vec.size() ) {
+		std::cout << DIM STRIKE;
+		for ( int i = 0; i < 40; i++ ) std::cout << ' ';
+		std::cout << RESET "\n";
+	}
 	for ( std::size_t i = 0; i < std_vec.size(); i++ ) {
 		std::cout << "@ " << i;
-		compare( ft_vec.at( i ), std_vec.at( i ), "", "vector", line );
+		compare( ft_vec.at( i ), std_vec.at( i ), "\t", "vector", line );
 	}
 	std::cout << "\n";
 };

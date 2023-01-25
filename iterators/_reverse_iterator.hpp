@@ -19,7 +19,7 @@ namespace ft {
 	template < class T > class _reverse_iterator {
 	  private:
 		T _iter;
-		_reverse_iterator( const long x ) { (void)x; };
+		// _reverse_iterator( const long x ) { (void)x; };
 
 	  public:
 		typedef T															 iterator_type;
@@ -32,11 +32,10 @@ namespace ft {
 		explicit _reverse_iterator( iterator_type it ) : _iter( it ) {};
 		template < class Iter > _reverse_iterator( const _reverse_iterator< Iter >& rev_it )
 			: _iter( rev_it._iter ) {};
-		iterator_type	  base( void ) const { return ( _iter - 1 ); };
-		reference		  operator*( void ) const { return ( *base() ); };
+		iterator_type	  base( void ) const { return ( _iter ); };
+		reference		  operator*( void ) const { return ( *( base() - 1 ) ); };
 		_reverse_iterator operator+( difference_type n ) const {
-			_iter -= n;
-			return ( *this );
+			return _reverse_iterator( _iter - n );
 		};
 		_reverse_iterator& operator++( void ) {
 			_iter--;
@@ -52,8 +51,7 @@ namespace ft {
 			return ( *this );
 		};
 		_reverse_iterator operator-( difference_type n ) const {
-			_iter += n;
-			return ( *this );
+			return _reverse_iterator( _iter + n );
 		};
 		_reverse_iterator& operator--( void ) {
 			_iter++;
