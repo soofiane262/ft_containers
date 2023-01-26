@@ -6,18 +6,20 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 17:03:51 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/01/27 00:16:15 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/01/27 00:26:44 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../vector/vector.hpp"
+#include "stack.hpp"
 
 #include <algorithm>
 #include <cstdlib>
 #include <ctime>
-#include <fstream>
+#include <deque>
 #include <iostream>
+#include <list>
 #include <sstream>
+#include <stack>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -26,10 +28,6 @@
 // Cursor
 #define CURSOR( ln ) ESC ln "H"
 #define CURSOR_HOME	 CURSOR( "0" )
-// Erase
-#define ERASE( code ) ESC code "J"
-#define ERASE_DISP	  ERASE( "0" )
-#define ERASE_SAVED	  ERASE( "3" )
 //	Colors
 #define RESET	ESC "0m"
 #define RED		ESC "1;31m"
@@ -72,17 +70,28 @@ template < class T > void compare( const T ft, const T std, const std::string st
 	throw except( "Wrong " + err + " value", line );
 };
 
-template < class T >
-void check( const ft::vector< T > &ft_vec, const std::vector< T > &std_vec, const int line ) {
-	compare( ft_vec.size(), std_vec.size(), "size\t", "size", line );
-	compare( ft_vec.capacity(), std_vec.capacity(), "capacity", "capacity", line );
-	if ( !std_vec.empty() ) {
+template < class T, class ft_ctr, class std_ctr > void
+check( ft::stack< T, ft_ctr > &ft_stack, std::stack< T, std_ctr > &std_stack, const int line ) {
+	compare( ft_stack.size(), std_stack.size(), "size\t", "size", line );
+	if ( !std_stack.empty() ) {
 		std::cout << DIM STRIKE;
 		for ( int i = 0; i < 40; i++ ) std::cout << ' ';
 		std::cout << RESET "\n";
-		for ( std::size_t i = 0; i < std_vec.size(); i++ ) {
+		ft::stack< T, ft_ctr >	 ft_tmp;
+		std::stack< T, std_ctr > std_tmp;
+		while ( !std_stack.empty() ) {
+			ft_tmp.push( ft_stack.top() );
+			std_tmp.push( std_stack.top() );
+			ft_stack.pop();
+			std_stack.pop();
+		}
+		for ( std::size_t i = 0; !ft_tmp.empty(); i++ ) {
 			std::cout << "@ " << i;
-			compare( ft_vec.at( i ), std_vec.at( i ), "\t", "vector", line );
+			compare( ft_tmp.top(), std_tmp.top(), "\t", "vector", line );
+			ft_stack.push( ft_tmp.top() );
+			std_stack.push( std_tmp.top() );
+			ft_tmp.pop();
+			std_tmp.pop();
 		}
 	}
 	std::cout << "\n";

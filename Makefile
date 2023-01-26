@@ -6,38 +6,42 @@
 #    By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/01/19 15:28:01 by sel-mars          #+#    #+#              #
-#    Updated: 2023/01/25 20:47:00 by sel-mars         ###   ########.fr        #
+#    Updated: 2023/01/26 23:11:51 by sel-mars         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
-
-NAME	=	ft_containers
 
 CPP		=	c++
 
 FLAGS	=	-Wall -Wextra -Werror -std=c++98
 
-HEADERS	=	vector/main.hpp iterators/iterator_traits.hpp iterators/vec_iterator.hpp\
-			iterators/_reverse_iterator.hpp vector/vector.hpp utils/utils.hpp
+SRCS	=	main.cpp main.hpp
 
-SRCS	=	vector/main.cpp
+TESTS	=	utils vector stack
 
-CTRS	=	ft_vector ft_utils
+BINS	=	$(addprefix ft_,$(TESTS))
 
-all: $(NAME)
+all: | $(TESTS)
 
-$(NAME): ft_vector
-	@cat ft_vector > $(NAME)
-	@chmod +x $(NAME)
+utils: ft_utils
 
-ft_vector:	$(SRCS) $(HEADERS)
+ft_utils: $(addprefix utils/,$(SRCS) utils.hpp)
+	@$(CPP) $(FLAGS) $< -o $@
+
+vector: ft_vector
+
+ft_vector: $(addprefix vector/,$(SRCS) vector.hpp)
+	@$(CPP) $(FLAGS) $< -o $@
+
+stack: ft_stack
+
+ft_stack: $(addprefix stack/,$(SRCS) stack.hpp)
 	@$(CPP) $(FLAGS) $< -o $@
 
 clean:
-	@rm -f ft_vector
+	@rm -f $(BINS) .logs
 
 fclean: clean
-	@rm -f $(NAME)
 
 re: fclean all
 
-.PHONY: all vector clean fclean re
+.PHONY: all $(TESTS) clean fclean re

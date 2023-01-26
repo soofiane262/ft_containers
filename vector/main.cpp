@@ -6,18 +6,20 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/14 17:37:52 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/01/25 20:36:18 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/01/27 00:10:13 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "main.hpp"
 
+#include <cstddef>
+
 #define compare( ctr1, ctr2, str, err ) compare( ctr1, ctr2, str, err, __LINE__ )
 #define check( ctr1, ctr2 )				check( ctr1, ctr2, __LINE__ )
 
-void testResult( int error_count, const std::string ctr ) {
-	std::string cmd[ 2 ] = { "leaks " + ctr + " | grep '0 leaks' > .logs; rm -f .logs",
-							 "leaks " + ctr + " | tail -n +17" };
+void testResult( int error_count, const std::string ctr, const std::string executable ) {
+	std::string cmd[ 2 ] = { "leaks " + executable + " | grep '0 leaks' > .logs; rm -f .logs",
+							 "leaks " + executable + " | tail -n +17" };
 	if ( std::system( cmd[ 0 ].c_str() ) ) error_count++;
 	std::system( cmd[ 1 ].c_str() );
 	if ( error_count )
@@ -27,8 +29,6 @@ void testResult( int error_count, const std::string ctr ) {
 	else
 		std::cout << GREEN CHECK " ---------------------- " << ctr
 				  << " succeeded all tests ---------------------- " CHECK RESET "\n\n";
-	std::cout << WHITE << "Press \u21B5  to proceed with the next container" << RESET "\n";
-	while ( std::getchar() != '\n' ) continue;
 }
 
 void printHead( std::string str ) {
@@ -44,9 +44,9 @@ void printHead( std::string str ) {
 			for ( int j = 0, end = in_length - in_length / 2; j < end; j++ ) std::cout << ' ';
 			std::cout << " */\n";
 		} else {
-			std::cout << "/* ";
-			for ( int j = 0; j < length; j++ ) std::cout << '-';
-			std::cout << " */\n";
+			std::cout << "/* " STRIKE;
+			for ( int j = 0; j < length; j++ ) std::cout << ' ';
+			std::cout << _STRIKE " */\n";
 		}
 	}
 	std::cout << RESET "\n";
@@ -61,28 +61,28 @@ void waitForTests( std::string str, bool state ) {
 }
 
 void catchExcept( std::exception &e, int &error_count ) {
-	std::cout << e.what() << '\n';
+	std::cout << RED << e.what() << '\n';
 	error_count++;
-	std::cout << WHITE << "Press \u21B5  to proceed with the next test" << RESET;
+	std::cout << WHITE << "Press \u21B5  to proceed" << RESET;
 	while ( std::getchar() != '\n' ) continue;
 	std::cout << "\n";
 }
 
-int main( void ) {
-	std::cout << CURSOR_HOME ERASE_DISP ERASE_SAVED;
+void vectorTest( const std::string executable ) {
 	if ( !std::system( NULL ) ) {
 		std::cout << RED "No command processor available\n";
 		exit( 1 );
 	}
+	std::system( "clear" );
 	std::cout.imbue( std::locale( "en_US.UTF-8" ) );
 	std::cout << std::boolalpha;
 	srand( time( NULL ) );
 
+	int			error_count = 0;
+	std::string testName	= "Vector";
 	{
-		int			error_count = 0;
-		int			test_idx	= 0;
-		bool		waitState	= false;
-		std::string testName	= "ft_vector";
+		int	 test_idx  = 0;
+		bool waitState = true;
 		printHead( testName );
 		try {
 			std::cout << MAGENTA << testName << " Test " << ++test_idx << RESET "\n\n";
@@ -111,6 +111,36 @@ int main( void ) {
 			ft_vec4	 = ft_vec;
 			std_vec4 = std_vec;
 			check( ft_vec4, std_vec4 );
+			std::cout << "\n" GREEN CHECK " Test " << test_idx << " : Sucess" RESET "\n\n";
+		} catch ( std::exception &e ) { catchExcept( e, error_count ); }
+		waitForTests( testName, waitState );
+		try {
+			std::cout << MAGENTA << testName << " Test " << ++test_idx << RESET "\n\n";
+			int size = ( rand() % 10 ) + 5;
+			std::cout << TITLE "Parametrized Constructor : vec( " << size << " )" RESET "\n\n";
+			ft::vector< int >  ft_vec( size );
+			std::vector< int > std_vec( size );
+			check( ft_vec, std_vec );
+			std::cout << TITLE "rbegin() & rend()" RESET "\n\n";
+			ft::vector< int >::reverse_iterator	 ft_rit	 = ft_vec.rbegin();
+			std::vector< int >::reverse_iterator std_rit = std_vec.rbegin();
+			for ( int n; std_rit != std_vec.rend(); std_rit++, ft_rit++ ) {
+				n		 = ( rand() % 10 );
+				*ft_rit	 = n;
+				*std_rit = n;
+			}
+			check( ft_vec, std_vec );
+			std::cout << TITLE "operator []" RESET "\n\n";
+			for ( std::size_t i = 0; i < std_vec.size(); i++ ) {
+				std::cout << "[ " << i << " ]";
+				compare( ft_vec[ i ], std_vec[ i ], "\t", testName );
+			}
+			std::cout << "\n" TITLE "at(" << ft_vec.size() << ")" RESET "\n\n";
+			try {
+				std::cout << ft_vec.at( ft_vec.size() ) << "\n";
+			} catch ( std::exception &e ) {
+				std::cout << "at() threw `" WHITE << e.what() << RESET "` exception\n";
+			}
 			std::cout << "\n" GREEN CHECK " Test " << test_idx << " : Sucess" RESET "\n\n";
 		} catch ( std::exception &e ) { catchExcept( e, error_count ); }
 		waitForTests( testName, waitState );
@@ -188,12 +218,16 @@ int main( void ) {
 			ft::vector< int >  ft_vec( size, value );
 			std::vector< int > std_vec( size, value );
 			check( ft_vec, std_vec );
+			std::cout << TITLE "empty()" RESET "\n\n";
+			compare( ft_vec.empty(), std_vec.empty(), "\t", testName );
 			size  = ( rand() % 10 ) + 1;
 			value = ( rand() % 10 );
 			std::cout << TITLE "clear()" RESET "\n\n";
 			ft_vec.clear();
 			std_vec.clear();
 			check( ft_vec, std_vec );
+			std::cout << TITLE "empty()" RESET "\n\n";
+			compare( ft_vec.empty(), std_vec.empty(), "\t", testName );
 			std::cout << TITLE "push_back() inside loop" RESET "\n\n";
 			for ( int i = 0, end = ( rand() % 10 ) + 1, n; i < end; i++ ) {
 				n = ( rand() % 10 );
@@ -297,7 +331,12 @@ int main( void ) {
 			}
 			check( ft_vec, std_vec );
 			check( ft_vec2, std_vec2 );
-			std::cout << TITLE "swap()" RESET "\n\n";
+			std::cout << TITLE "member swap()" RESET "\n\n";
+			ft_vec.swap( ft_vec2 );
+			std_vec.swap( std_vec2 );
+			check( ft_vec, std_vec );
+			check( ft_vec2, std_vec2 );
+			std::cout << TITLE "non-member swap()" RESET "\n\n";
 			ft::swap( ft_vec, ft_vec2 );
 			std::swap( std_vec, std_vec2 );
 			check( ft_vec, std_vec );
@@ -395,6 +434,31 @@ int main( void ) {
 		waitForTests( testName, waitState );
 		try {
 			std::cout << MAGENTA << testName << " Test " << ++test_idx << RESET "\n\n";
+			std::cout << TITLE "Default Constructor" RESET "\n\n";
+			ft::vector< int > ft_vec( 2, 100 ), ft_vec2( 2, 100 ), ft_vec3( 3, 50 ),
+				ft_vec4( 4, 200 );
+			std::vector< int > std_vec( 2, 100 ), std_vec2( 2, 100 ), std_vec3( 3, 50 ),
+				std_vec4( 4, 200 );
+			check( ft_vec, std_vec );
+			check( ft_vec2, std_vec2 );
+			check( ft_vec3, std_vec3 );
+			check( ft_vec4, std_vec4 );
+			std::cout << TITLE "relational operators" RESET "\n\n";
+			compare( ft_vec == ft_vec2, std_vec == std_vec2, "==\t2", testName );
+			compare( ft_vec != ft_vec2, std_vec != std_vec2, "!=\t2", testName );
+			compare( ft_vec < ft_vec3, std_vec < std_vec3, "<\t3", testName );
+			compare( ft_vec < ft_vec4, std_vec < std_vec4, "<\t4", testName );
+			compare( ft_vec > ft_vec3, std_vec > std_vec3, ">\t3", testName );
+			compare( ft_vec > ft_vec4, std_vec > std_vec4, ">\t4", testName );
+			compare( ft_vec <= ft_vec2, std_vec <= std_vec2, "<=\t2", testName );
+			compare( ft_vec <= ft_vec3, std_vec <= std_vec3, "<=\t3", testName );
+			compare( ft_vec >= ft_vec2, std_vec >= std_vec2, ">=\t2", testName );
+			compare( ft_vec >= ft_vec4, std_vec >= std_vec4, ">=\t4", testName );
+			std::cout << "\n" GREEN CHECK " Test " << test_idx << " : Sucess" RESET "\n\n";
+		} catch ( std::exception &e ) { catchExcept( e, error_count ); }
+		waitForTests( testName, waitState );
+		try {
+			std::cout << MAGENTA << testName << " Test " << ++test_idx << RESET "\n\n";
 			std::cout << TITLE "max_size()" << RESET "\n\n";
 			compare( ft::vector< char >().max_size(), std::vector< char >().max_size(), "char\t\t",
 					 "max_size" );
@@ -438,12 +502,26 @@ int main( void ) {
 			compare( ft::vector< unsigned long int >().max_size(),
 					 std::vector< unsigned long int >().max_size(), "unsigned long int",
 					 "max_size" );
+			compare( ft::vector< char * >().max_size(), std::vector< char * >().max_size(),
+					 "char*\t\t", "max_size" );
+			compare( ft::vector< std::string >().max_size(),
+					 std::vector< std::string >().max_size(), "std::string\t", "max_size" );
+			compare( ft::vector< std::vector< int > >().max_size(),
+					 std::vector< std::vector< int > >().max_size(), "std::vector<int>",
+					 "max_size" );
+			compare( ft::vector< ft::vector< int > >().max_size(),
+					 std::vector< ft::vector< int > >().max_size(), "ft::vector<int>\t",
+					 "max_size" );
 			std::cout << "\n" GREEN CHECK " Test " << test_idx << " : Sucess" RESET "\n\n";
 		} catch ( std::exception &e ) { catchExcept( e, error_count ); }
 		waitForTests( testName, waitState );
 		//
 		std::cout << MAGENTA << testName << " Test " << ++test_idx << RESET "\n\n";
 	} // vector
+	testResult( error_count, testName, executable );
+}
 
+int main( void ) {
+	vectorTest( "ft_vector" );
 	return ( 0 );
 }

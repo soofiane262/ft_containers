@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/17 21:02:04 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/01/25 20:06:39 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/01/26 22:45:22 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -389,11 +389,11 @@ namespace ft {
 	};
 	template < class T, class Alloc >
 	bool operator<=( const vector< T, Alloc > &lhs, const vector< T, Alloc > &rhs ) {
-		return !( rhs > lhs );
+		return !( lhs > rhs );
 	};
 	template < class T, class Alloc >
 	bool operator>( const vector< T, Alloc > &lhs, const vector< T, Alloc > &rhs ) {
-		return rhs < lhs;
+		return lexicographical_compare( rhs.begin(), rhs.end(), lhs.begin(), lhs.end() );
 	};
 	template < class T, class Alloc >
 	bool operator>=( const vector< T, Alloc > &lhs, const vector< T, Alloc > &rhs ) {

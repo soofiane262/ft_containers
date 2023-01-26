@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/23 17:18:08 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/01/25 20:06:37 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/01/26 22:45:23 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,7 +128,7 @@ namespace ft {
 	};
 	template < class T1, class T2 >
 	bool operator>( const pair< T1, T2 >& lhs, const pair< T1, T2 >& rhs ) {
-		return rhs < lhs;
+		return rhs.first < lhs.first || ( !( lhs.first < rhs.first ) && rhs.second < lhs.second );
 	};
 	template < class T1, class T2 >
 	bool operator>=( const pair< T1, T2 >& lhs, const pair< T1, T2 >& rhs ) {

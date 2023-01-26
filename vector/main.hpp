@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 17:03:51 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/01/25 20:36:01 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/01/27 00:15:42 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,10 +25,6 @@
 // Cursor
 #define CURSOR( ln ) ESC ln "H"
 #define CURSOR_HOME	 CURSOR( "0" )
-// Erase
-#define ERASE( code ) ESC code "J"
-#define ERASE_DISP	  ERASE( "0" )
-#define ERASE_SAVED	  ERASE( "3" )
 //	Colors
 #define RESET	ESC "0m"
 #define RED		ESC "1;31m"
@@ -37,10 +33,11 @@
 #define MAGENTA ESC "1;35m"
 #define WHITE	ESC "1;37m"
 //	Modes
-#define DIM	   ESC "2m"
-#define ITALIC ESC "3m"
-#define ULINE  ESC "4m"
-#define STRIKE ESC "9m"
+#define DIM		ESC "2m"
+#define ITALIC	ESC "3m"
+#define ULINE	ESC "4m"
+#define STRIKE	ESC "9m"
+#define _STRIKE ESC "29m"
 //	Defs
 #define TITLE DIM ITALIC ULINE "~ "
 //	Special Characters
@@ -74,14 +71,14 @@ template < class T >
 void check( const ft::vector< T > &ft_vec, const std::vector< T > &std_vec, const int line ) {
 	compare( ft_vec.size(), std_vec.size(), "size\t", "size", line );
 	compare( ft_vec.capacity(), std_vec.capacity(), "capacity", "capacity", line );
-	if ( std_vec.size() ) {
+	if ( !std_vec.empty() ) {
 		std::cout << DIM STRIKE;
 		for ( int i = 0; i < 40; i++ ) std::cout << ' ';
 		std::cout << RESET "\n";
-	}
-	for ( std::size_t i = 0; i < std_vec.size(); i++ ) {
-		std::cout << "@ " << i;
-		compare( ft_vec.at( i ), std_vec.at( i ), "\t", "vector", line );
+		for ( std::size_t i = 0; i < std_vec.size(); i++ ) {
+			std::cout << "@ " << i;
+			compare( ft_vec.at( i ), std_vec.at( i ), "\t", "vector", line );
+		}
 	}
 	std::cout << "\n";
 };
