@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 17:03:51 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/01/27 00:26:44 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/01/27 19:45:11 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,8 @@
 #define DIM		ESC "2m"
 #define ITALIC	ESC "3m"
 #define ULINE	ESC "4m"
+#define BLINK	ESC "5m"
+#define _BLINK	ESC "25m"
 #define STRIKE	ESC "9m"
 #define _STRIKE ESC "29m"
 //	Defs

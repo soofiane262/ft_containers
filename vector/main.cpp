@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/14 17:37:52 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/01/27 00:10:13 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/01/27 19:13:38 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,13 +22,20 @@ void testResult( int error_count, const std::string ctr, const std::string execu
 							 "leaks " + executable + " | tail -n +17" };
 	if ( std::system( cmd[ 0 ].c_str() ) ) error_count++;
 	std::system( cmd[ 1 ].c_str() );
-	if ( error_count )
-		std::cout << RED WARNING "  ---------------------- " << ctr << " failed " << error_count
-				  << " test" << ( error_count == 1 ? "" : "s" )
-				  << " ---------------------- " WARNING RESET "\n\n";
-	else
-		std::cout << GREEN CHECK " ---------------------- " << ctr
-				  << " succeeded all tests ---------------------- " CHECK RESET "\n\n";
+	if ( error_count ) {
+		std::cout << RED BLINK WARNING _BLINK << "  " << STRIKE;
+		for ( int i = 0; i < 25; i++ ) std::cout << ' ';
+		std::cout << _STRIKE " " << ctr << " failed " << error_count << " test"
+				  << ( error_count == 1 ? "" : "s" ) << " " STRIKE;
+		for ( int i = 0; i < 25; i++ ) std::cout << ' ';
+		std::cout << _STRIKE " " BLINK WARNING RESET "\n\n";
+	} else {
+		std::cout << GREEN CHECK << " " << STRIKE;
+		for ( int i = 0; i < 25; i++ ) std::cout << ' ';
+		std::cout << _STRIKE " " << ctr << " succeeded all tests " STRIKE;
+		for ( int i = 0; i < 25; i++ ) std::cout << ' ';
+		std::cout << _STRIKE " " CHECK RESET "\n\n";
+	}
 }
 
 void printHead( std::string str ) {
@@ -82,7 +89,7 @@ void vectorTest( const std::string executable ) {
 	std::string testName	= "Vector";
 	{
 		int	 test_idx  = 0;
-		bool waitState = true;
+		bool waitState = false;
 		printHead( testName );
 		try {
 			std::cout << MAGENTA << testName << " Test " << ++test_idx << RESET "\n\n";
@@ -139,7 +146,7 @@ void vectorTest( const std::string executable ) {
 			try {
 				std::cout << ft_vec.at( ft_vec.size() ) << "\n";
 			} catch ( std::exception &e ) {
-				std::cout << "at() threw `" WHITE << e.what() << RESET "` exception\n";
+				std::cout << "at() threw an exception: `" WHITE << e.what() << RESET "`\n";
 			}
 			std::cout << "\n" GREEN CHECK " Test " << test_idx << " : Sucess" RESET "\n\n";
 		} catch ( std::exception &e ) { catchExcept( e, error_count ); }
@@ -360,12 +367,16 @@ void vectorTest( const std::string executable ) {
 			std_it = std_vec.insert( std_vec.begin() + 1, val );
 			ft_it  = ft_vec.insert( ft_vec.begin() + 1, val );
 			check( ft_vec, std_vec );
+			compare( *ft_it, *std_it, "iter\t", "insert return" );
+			std::cout << "\n";
 			val = ( rand() % 100 ) + 1;
 			std::cout << TITLE "insert ( `return of last insert()`, " << val << " )"
 					  << RESET "\n\n";
 			std_it = std_vec.insert( std_it, val );
 			ft_it  = ft_vec.insert( ft_it, val );
 			check( ft_vec, std_vec );
+			compare( *ft_it, *std_it, "iter\t", "insert return" );
+			std::cout << "\n";
 			n	= ( rand() % 10 ) + 1;
 			val = ( rand() % 100 ) + 1;
 			std::cout << TITLE "insert ( `return of last insert()`, " << n << ", " << val << " )"
@@ -373,6 +384,7 @@ void vectorTest( const std::string executable ) {
 			std_vec.insert( std_it, n, val );
 			ft_vec.insert( ft_it, n, val );
 			check( ft_vec, std_vec );
+			std::cout << "\n";
 			n	= ( rand() % 10 ) + 1;
 			val = ( rand() % 100 ) + 1;
 			std::cout << TITLE "Parametrized Constructor : vec2( " << n << ", " << val
@@ -385,6 +397,7 @@ void vectorTest( const std::string executable ) {
 			std_vec.insert( std_vec.begin() + 2, std_vec2.begin(), std_vec2.end() );
 			ft_vec.insert( ft_vec.begin() + 2, ft_vec2.begin(), ft_vec2.end() );
 			check( ft_vec, std_vec );
+			std::cout << "\n";
 			n = ( rand() % 10 ) + 1;
 			std::cout << TITLE "int arr [] = { " << n << ", " << n + 1 << ", " << n + 2 << " }"
 					  << RESET "\n\n";

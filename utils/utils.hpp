@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/23 17:18:08 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/01/26 22:45:23 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/01/27 15:27:30 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,12 +74,12 @@ namespace ft {
 	/* ------------------------------------------------------------------------- */
 	/*                                  is_same                                  */
 	/* ------------------------------------------------------------------------- */
-	template < class T, class U > struct is_same {
-		static const bool value = false;
-	};
-	template < class T > struct is_same< T, T > {
-		static const bool value = true;
-	};
+	// template < class T, class U > struct is_same {
+	// 	static const bool value = false;
+	// };
+	// template < class T > struct is_same< T, T > {
+	// 	static const bool value = true;
+	// };
 	/* ------------------------------------------------------------------------- */
 	/*                                is_integral                                */
 	/* ------------------------------------------------------------------------- */
