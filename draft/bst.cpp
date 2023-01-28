@@ -1,3 +1,4 @@
+#include <ios>
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -34,6 +35,18 @@ struct node {
 				right->insert( n );
 		}
 	};
+	bool find( const int n ) {
+		if ( n == _n ) return true;
+		else if ( n < _n ) {
+			if ( !left ) return false;
+			else
+				return left->find( n );
+		} else {
+			if ( !right ) return false;
+			else
+				return right->find( n );
+		}
+	};
 	struct node *left, *right;
 };
 
@@ -57,6 +70,27 @@ class bst {
 		vec.push_back( output( x ) );
 		_log( vec, x->right, lvl + 1 );
 	};
+	void _log2( std::vector< output > &vec ) {
+		for ( int lvl = 0, i = -1, lsl = -1; lvl <= output::lvls; lvl++, i = -1, lsl = -1 ) {
+			while ( ++i < vec.size() ) {
+				if ( vec[ i ]._nd->_lvl != lvl ) continue;
+				for ( int j = 0; j < i - lsl; j++ ) std::cout << ' ';
+				std::cout << vec[ i ]._nd->_n;
+				lsl = i;
+			}
+			std::cout << '\n';
+			i	= -1;
+			lsl = -1;
+			while ( ++i < vec.size() ) {
+				if ( vec[ i ]._nd->_lvl != lvl ) continue;
+				for ( int j = 0; j < i - lsl; j++ ) std::cout << ' ';
+				if ( vec[ i ]._nd->left ) std::cout << '/';
+				if ( vec[ i ]._nd->right ) std::cout << '\\';
+				lsl = i;
+			}
+			std::cout << '\n';
+		}
+	};
 	node *root;
 
   public:
@@ -68,32 +102,23 @@ class bst {
 		else
 			root->insert( n );
 	};
+	bool find( const int n ) {
+		if ( !root ) return false;
+		else
+			return root->find( n );
+	};
 	void log( void ) {
 		if ( !root ) return;
 		std::vector< output > vec;
 		_log( vec, root, 0 );
-		for ( int lvl = 0, i = -1; lvl <= output::lvls; lvl++, i = -1 ) {
-			while ( ++i < vec.size() ) {
-				if ( vec[ i ]._nd->_lvl != lvl ) continue;
-				for ( int j = 0; j < output::lvls - vec[ i ]._nd->_lvl; j++ ) std::cout << ' ';
-				std::cout << ' ' << vec[ i ]._nd->_n;
-			}
-			std::cout << '\n';
-			i = -1;
-			while ( ++i < vec.size() ) {
-				if ( vec[ i ]._nd->_lvl != lvl ) continue;
-				for ( int j = 0; j < output::lvls - vec[ i ]._nd->_lvl; j++ ) std::cout << ' ';
-				if ( vec[ i ]._nd->left ) std::cout << "/ ";
-				if ( vec[ i ]._nd->right ) std::cout << "\\  ";
-			}
-			std::cout << '\n';
-		}
+		_log2( vec );
 	};
 };
 
 int main( void ) {
 	bst x;
 	bst y;
+	std::cout << std::boolalpha;
 	x.insert( 5 );
 	x.insert( 3 );
 	x.insert( 7 );
@@ -101,8 +126,12 @@ int main( void ) {
 	x.insert( 4 );
 	x.insert( 6 );
 	x.insert( 8 );
-	for ( int i = 0; i < 8; i++ ) y.insert( i );
 	x.log();
+	/*
+	for ( int i = 0; i < 15; i++ ) std::cout << "x.find( " << i << " ) : " << x.find( i ) << '\n';
+	for ( int i = 0; i < 8; i++ ) y.insert( i );
 	y.log();
+	for ( int i = 0; i < 15; i++ ) std::cout << "y.find( " << i << " ) : " << y.find( i ) << '\n';
+	*/
 	return 0;
 }
