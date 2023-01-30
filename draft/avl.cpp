@@ -78,8 +78,6 @@ class avl {
 	void _insert( struct node *&nd, const int n ) {
 		if ( !nd ) {
 			nd = new node( n );
-			std::cout << "before balance :\n";
-			log();
 			return;
 		} else if ( n < nd->_n )
 			_insert( nd->left, n );
@@ -91,38 +89,52 @@ class avl {
 		int bal	 = getBalance( nd );
 		if ( bal > 1 && nd->left->left ) rightRotation( nd );
 		else if ( bal > 1 && nd->left->right ) {
-			std::cout << "\n" << nd->_n << "\n\n";
 			leftRotation( nd->left );
 			rightRotation( nd );
-		} else if ( bal < -1 && nd->right->left ) {
-			std::cout << "\nright left " << nd->_n << "\n\n";
-			rightRotation( nd->right );
-			leftRotation( nd );
 		} else if ( bal < -1 && nd->right->right )
 			leftRotation( nd );
+		else if ( bal < -1 && nd->right->left ) {
+			rightRotation( nd->right );
+			leftRotation( nd );
+		}
 	};
 	void _del( struct node *&nd, const int n ) {
 		if ( !nd ) return;
-		else if ( n == nd->_n ) {
+		else if ( n < nd->_n )
+			_del( nd->left, n );
+		else if ( n > nd->_n )
+			_del( nd->right, n );
+		else {
 			if ( !nd->left && !nd->right ) {
 				delete nd;
 				nd = NULL;
+				return;
 			} else if ( !nd->left || !nd->right ) {
 				struct node *tmp = nd->left ? nd->left : nd->right;
-				tmp->_lvl--;
+				tmp->_lvl		 = std::max( lvl( nd->left ), lvl( nd->right ) );
 				delete nd;
 				nd = tmp;
+				return;
 			} else {
 				struct node *tmp = nd->right;
 				while ( tmp->left ) tmp = tmp->left;
 				nd->_n = tmp->_n;
-				tmp->_lvl--;
 				_del( nd->right, nd->_n );
+				return;
 			}
-		} else if ( n < nd->_n )
-			_del( nd->left, n );
-		else if ( n > nd->_n )
-			_del( nd->right, n );
+		}
+		nd->_lvl = std::max( lvl( nd->left ), lvl( nd->right ) ) + 1;
+		int bal	 = getBalance( nd );
+		if ( bal > 1 && nd->left->left ) rightRotation( nd );
+		else if ( bal > 1 && nd->left->right ) {
+			leftRotation( nd->left );
+			rightRotation( nd );
+		} else if ( bal < -1 && nd->right->right )
+			leftRotation( nd );
+		else if ( bal < -1 && nd->right->left ) {
+			rightRotation( nd->right );
+			leftRotation( nd );
+		}
 	};
 	void _log( std::vector< output > &vec, node *x, const int lvl ) {
 		if ( !x ) return;
@@ -134,21 +146,22 @@ class avl {
 		for ( int lvl = 0, i = -1, lsl = -1; lvl <= output::lvls; lvl++, i = -1, lsl = -1 ) {
 			while ( ++i < vec.size() ) {
 				if ( vec[ i ]._lvl != lvl ) continue;
-				for ( int j = 0; j < i - lsl - 1; j++ ) std::cout << "  ";
+				for ( int j = 0; j < i - lsl - 1; j++ ) std::cout << " ";
 				std::cout << vec[ i ]._nd->_n;
 				lsl = i;
 			}
 			std::cout << '\n';
-			i	= -1;
-			lsl = -1;
-			while ( ++i < vec.size() ) {
-				if ( vec[ i ]._lvl != lvl ) continue;
-				for ( int j = 0; j < i - lsl - 1; j++ ) std::cout << "  ";
-				if ( vec[ i ]._nd->left ) std::cout << '/';
-				if ( vec[ i ]._nd->right ) std::cout << " \\";
-				lsl = i;
-			}
-			std::cout << '\n';
+
+			// i	= -1;
+			// lsl = -1;
+			// while ( ++i < vec.size() ) {
+			// 	if ( vec[ i ]._lvl != lvl ) continue;
+			// 	for ( int j = 0; j < i - lsl - 1; j++ ) std::cout << " ";
+			// 	if ( vec[ i ]._nd->left ) std::cout << '/';
+			// 	if ( vec[ i ]._nd->right ) std::cout << "\\";
+			// 	lsl = i;
+			// }
+			// std::cout << '\n';
 		}
 	};
 	node *root;
@@ -157,11 +170,7 @@ class avl {
 	avl( void ) { root = NULL; };
 	avl( const int n ) { root = new node( n /*, 'b'*/ ); };
 	~avl( void ) { delete root; };
-	void insert( const int n ) {
-		_insert( root, n );
-		std::cout << "after balance :\n";
-		log();
-	};
+	void insert( const int n ) { _insert( root, n ); };
 	bool find( const int n ) {
 		if ( !root ) return false;
 		else
@@ -174,25 +183,43 @@ class avl {
 		logTree( vec );
 		std::cout << "\n";
 	};
-	void del( const int n ) {
-		if ( !root ) return;
-		_del( root, n );
-	};
+	void del( const int n ) { _del( root, n ); };
 };
 
 int main( void ) {
 	{
-		avl x;
-		avl y;
-		std::cout << std::boolalpha;
-		x.insert( 8 );
-		x.insert( 6 );
-		x.insert( 1 );
-		x.insert( 4 );
-		x.insert( 2 );
-		x.insert( 7 );
-		x.insert( 3 );
-		x.insert( 5 );
+		// avl n;
+
+		// n.insert( 1 );
+		// n.insert( 2 );
+		// n.insert( 3 );
+		// n.insert( 4 );
+		// n.insert( 5 );
+		// n.insert( 6 );
+		// n.log();
+		// n.del( 4 );
+		// n.del( 6 );
+		// n.del( 2 );
+		// n.log();
+		// avl x;
+		// avl y;
+		// std::cout << std::boolalpha;
+		// x.insert( 8 );
+		// x.insert( 6 );
+		// x.insert( 1 );
+		// x.insert( 4 );
+		// x.insert( 2 );
+		// x.insert( 7 );
+		// x.insert( 3 );
+		// x.insert( 5 );
+		// x.log();
+
+		// std::cout << "-- del 7:\n";
+		// x.del( 7 );
+		// std::cout << "-- del 2:\n";
+		// x.del( 2 );
+		// std::cout << "-- del 1:\n";
+		// x.del( 1 );
 
 		// std::cout << "x.del( 8 )\n";
 		// x.del( 8 );
