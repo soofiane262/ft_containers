@@ -151,25 +151,20 @@ class avl {
 				lsl = i;
 			}
 			std::cout << '\n';
-
-			// i	= -1;
-			// lsl = -1;
-			// while ( ++i < vec.size() ) {
-			// 	if ( vec[ i ]._lvl != lvl ) continue;
-			// 	for ( int j = 0; j < i - lsl - 1; j++ ) std::cout << " ";
-			// 	if ( vec[ i ]._nd->left ) std::cout << '/';
-			// 	if ( vec[ i ]._nd->right ) std::cout << "\\";
-			// 	lsl = i;
-			// }
-			// std::cout << '\n';
 		}
+	};
+	void destruct( node *&nd ) {
+		if ( nd->left ) destruct( nd->left );
+		if ( nd->right ) destruct( nd->right );
+		delete nd;
+		nd = NULL;
 	};
 	node *root;
 
   public:
 	avl( void ) { root = NULL; };
-	avl( const int n ) { root = new node( n /*, 'b'*/ ); };
-	~avl( void ) { delete root; };
+	avl( const int n ) { root = new node( n ); };
+	~avl( void ) { destruct( root ); };
 	void insert( const int n ) { _insert( root, n ); };
 	bool find( const int n ) {
 		if ( !root ) return false;

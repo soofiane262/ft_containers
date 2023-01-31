@@ -121,12 +121,18 @@ class bst {
 			std::cout << '\n';
 		}
 	};
+	void destruct( node *&nd ) {
+		if ( nd->left ) destruct( nd->left );
+		if ( nd->right ) destruct( nd->right );
+		delete nd;
+		nd = NULL;
+	};
 	node *root;
 
   public:
 	bst( void ) { root = NULL; };
 	bst( const int n ) { root = new node( n, 'b', 0 ); };
-	~bst( void ) { delete root; };
+	~bst( void ) { destruct( root ); };
 	void insert( const int n ) {
 		if ( !root ) root = new node( n, 'b', 0 );
 		else
