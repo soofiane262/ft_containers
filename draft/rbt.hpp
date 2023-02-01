@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/31 17:55:21 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/01/31 19:25:39 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/01 19:38:14 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,60 +20,40 @@
 
 template < class T > struct node {
 	T		   _elt;
-	int		   _lvl;
 	bool	   _color;
-	node< T > *left, *right;
-	node( const T &elt = T() ) {
-		_elt   = elt;
-		_lvl   = 0;
-		_color = BLACK_NODE;
-		left   = NULL;
-		right  = NULL;
-		// left->_color  = BLACK_NODE;
-		// right->_color = BLACK_NODE;
+	node< T > *_parent, *_left, *_right;
+	node( const T &elt, node< T > *parent ) {
+		_elt	= elt;
+		_color	= RED_NODE;
+		_left	= NULL;
+		_right	= NULL;
+		_parent = parent;
 	};
+	void recolour( void ) { _color = !_color; };
 };
 
 template < class T > class rbt {
   private:
-	int lvl( node< T > *nd ) {
-		if ( !nd ) return -1;
-		return nd->_lvl;
+	node< T > *getGrandfather( node< T > *nd ) {
+		return nd->_parent ? nd->_parent->_parent : NULL;
 	};
-	int getBalance( node< T > *nd ) {
-		if ( !nd ) return 0;
-		return lvl( nd->left ) - lvl( nd->right );
-	};
-	void rightRotation( node< T > *&nd ) {
-		struct node< T > *l = nd->left, *lr = l->right;
-		l->right = nd;
-		nd->left = lr;
-		nd->_lvl = std::max( lvl( nd->left ), lvl( nd->right ) ) + 1;
-		l->_lvl	 = std::max( lvl( l->left ), lvl( l->right ) ) + 1;
-		nd		 = l;
+	node< T > *getUncle( node< T > *nd ) {
+		node< T > *grandFather = getGrandfather( nd );
+		if ( nd->_parent == grandFather->_left ) return grandFather->_right;
+		return grandFather->_left;
 	};
 	void leftRotation( node< T > *&nd ) {
-		struct node< T > *r = nd->right, *rl = r->left;
-		r->left	  = nd;
-		nd->right = rl;
-		nd->_lvl  = std::max( lvl( nd->left ), lvl( nd->right ) ) + 1;
-		r->_lvl	  = std::max( lvl( r->left ), lvl( r->right ) ) + 1;
-		nd		  = r;
+		struct node< T > *r = nd->_right, *rl = r->_left;
+		r->_left   = nd;
+		nd->_right = rl;
+		nd		   = r;
 	};
-	void balance( node< T > *&nd ) {
-		nd->_lvl = std::max( lvl( nd->left ), lvl( nd->right ) ) + 1;
-		int bal	 = getBalance( nd );
-		if ( bal > 1 && nd->left->left ) rightRotation( nd );
-		else if ( bal > 1 && nd->left->right ) {
-			leftRotation( nd->left );
-			rightRotation( nd );
-		} else if ( bal < -1 && nd->right->right )
-			leftRotation( nd );
-		else if ( bal < -1 && nd->right->left ) {
-			rightRotation( nd->right );
-			leftRotation( nd );
-		}
-	}
+	void rightRotation( node< T > *&nd ) {
+		struct node< T > *l = nd->_left, *lr = l->_right;
+		l->_right = nd;
+		nd->_left = lr;
+		nd		  = l;
+	};
 	bool find( node< T > &nd, const T &elt ) {
 		if ( elt == nd._elt ) return true;
 		else if ( elt < nd._elt ) {
@@ -86,63 +66,70 @@ template < class T > class rbt {
 				return find( *( nd.right ), elt );
 		}
 	};
-	void _insert( node< T > *&nd, const T &elt ) {
-		if ( !nd ) {
-			nd = new node< T >( elt );
-			return;
-		} else if ( elt < nd->_elt )
-			_insert( nd->left, elt );
+	void _insert( node< T > *&nd, const T &elt, node< T > *parent ) {
+		if ( !nd ) nd = new node< T >( elt, parent );
+		else if ( elt < nd->_elt )
+			_insert( nd->_left, elt, nd );
 		else if ( elt > nd->_elt )
-			_insert( nd->right, elt );
+			_insert( nd->_right, elt, nd );
 		else
 			return;
-		balance( nd );
-	};
-	void _del( struct node< T > *&nd, const T &elt ) {
-		if ( !nd ) return;
-		else if ( elt < nd->_elt )
-			_del( nd->left, elt );
-		else if ( elt > nd->_elt )
-			_del( nd->right, elt );
-		else {
-			if ( !nd->left && !nd->right ) {
-				delete nd;
-				nd = NULL;
-				return;
-			} else if ( !nd->left || !nd->right ) {
-				node< T > *tmp = nd->left ? nd->left : nd->right;
-				tmp->_lvl	   = std::max( lvl( nd->left ), lvl( nd->right ) );
-				delete nd;
-				nd = tmp;
-				return;
+		node< T > *grandfather = getGrandfather( nd );
+		if ( !nd->_parent ) nd->_color = BLACK_NODE;
+		if ( !grandfather ) return;
+		std::cout << "i am " << nd->_elt << "\nmy parent is " << ( parent ? parent->_elt : NULL )
+				  << "\n";
+		node< T > *uncle = getUncle( nd );
+		std::cout << "my grandfather is " << ( grandfather ? grandfather->_elt : NULL )
+				  << "\nand my uncle is " << ( uncle ? uncle->_elt : NULL ) << '\n';
+		if ( nd->_parent->_color == RED_NODE && uncle ) {
+			if ( uncle->_color == RED_NODE ) {
+				nd->_parent->_color = BLACK_NODE;
+				uncle->_color		= BLACK_NODE;
+				grandfather->_color = RED_NODE;
 			} else {
-				node< T > *tmp = nd->right;
-				while ( tmp->left ) tmp = tmp->left;
-				nd->_elt = tmp->_elt;
-				_del( nd->right, nd->_elt );
-				return;
+				// if ( grandfather && nd == grandfather->_left->_left ) {
+				// 	rightRotation( grandfather );
+				// 	bool tmpColor				= nd->_parent->_color;
+				// 	nd->_parent->_color			= nd->_parent->_right->_color;
+				// 	nd->_parent->_right->_color = tmpColor;
+				// }
 			}
 		}
-		balance( nd );
 	};
 	void destruct( node< T > *&nd ) {
-		if ( nd->left ) destruct( nd->left );
-		if ( nd->right ) destruct( nd->right );
+		if ( nd->_left ) destruct( nd->_left );
+		if ( nd->_right ) destruct( nd->_right );
 		delete nd;
 		nd = NULL;
 	};
-	node< T > *root;
+	void _log( node< T > *x, const int lvl ) {
+		if ( !x ) return;
+		_log( x->_right, lvl + 1 );
+		for ( int i = 0; i < lvl * 4; i++ ) std::cout << ' ';
+		std::cout << ( x->_color == BLACK_NODE ? "\e[1;37m" : "\e[1;31m" ) << x->_elt << "\e[0m\n";
+		_log( x->_left, lvl + 1 );
+	};
 
   public:
+	node< T > *root;
 	rbt( void ) { root = NULL; };
 	rbt( const T &n ) { root = new node< T >( n ); };
 	~rbt( void ) { destruct( root ); };
-	void insert( const T &elt ) { _insert( root, elt ); };
-	bool find( const T &elt ) {
-		if ( !root ) return false;
-		else
-			return find( *root, elt );
+	void insert( const T &elt ) {
+		_insert( root, elt, NULL );
+		// temporary
+		log();
+		//
 	};
-	void log( void );
-	void del( const T &elt ) { _del( root, elt ); };
+	// bool find( const T &elt ) {
+	// 	if ( !root ) return false;
+	// 	else
+	// 		return find( *root, elt );
+	// };
+	// void del( const T &elt ) { _del( root, elt ); };
+	void log( void ) {
+		_log( root, 0 );
+		std::cout << "\n";
+	};
 };
