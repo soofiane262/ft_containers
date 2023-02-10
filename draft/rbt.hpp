@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/31 17:55:21 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/09 19:29:24 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/10 17:39:21 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,10 +15,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <iostream>
-
-// tmp
 #include <unistd.h>
-//
 
 #define RED			 0
 #define BLACK		 1
@@ -33,13 +30,41 @@ template < class T > struct node {
 	int		   _nil;
 	node< T > *_parent, *_left, *_right;
 	node( const T &elt, node< T > *parent ) {
-		_elt	= elt;
-		_color	= RED;
+		_elt   = elt;
+		_color = RED;
+		// tmp
+		// _color = BLACK;
+		//
 		_rotate = 0;
 		_nil	= 0;
 		_left	= NULL;
 		_right	= NULL;
 		_parent = parent;
+	};
+	bool hasThisChild( int color ) {
+		if ( ( _left && _left->_color == color ) || ( _right && _right->_color == color ) )
+			return true;
+		return false;
+	};
+	bool hasThisNiece( int dir, int color ) {
+		if ( ( dir == LEFT && _left && _left->_color == color ) ||
+			 ( dir == RIGHT && _right && _right->_color == color ) )
+			return true;
+		return false;
+	};
+	bool hasThisNephew( int dir, int color ) {
+		if ( ( dir == LEFT && _right && _right->_color == color ) ||
+			 ( dir == RIGHT && _left && _left->_color == color ) )
+			return true;
+		return false;
+	};
+	node *&getThisNiece( int dir, int color ) {
+		if ( dir == LEFT ) return _left;
+		return _right;
+	};
+	node *&getThisNephew( int dir, int color ) {
+		if ( dir == LEFT ) return _right;
+		return _left;
 	};
 };
 
@@ -142,7 +167,7 @@ template < class T > class rbt {
 			nd->_parent->_color = RED;
 		}
 	};
-	void fixDBRotate( node *&nd ) {
+	void fixDBRotate( node *&nd, bool colorSwap ) {
 		if ( !nd->_rotate ) return;
 		node *parent = nd->_parent;
 		int	  dir	 = 0;
@@ -152,87 +177,209 @@ template < class T > class rbt {
 			dir = -1;
 		else
 			dir = 1;
-		rotate( nd, false );
+		rotate( nd, colorSwap );
 		if ( dir == -1 ) parent->_left = nd;
 		else if ( dir == 1 )
 			parent->_right = nd;
 		else
 			root = nd;
 	};
+	void fixNieceRotate( node *&nd, node *parent, bool colorSwap ) {
+		if ( !nd->_rotate ) return;
+		int dir = 0;
+		if ( nd == parent->_left ) dir = -1;
+		else
+			dir = 1;
+		rotate( nd, colorSwap );
+		if ( dir == -1 ) parent->_left = nd;
+		else if ( dir == 1 )
+			parent->_right = nd;
+	};
 	void fixDB( node *&nd ) {
-		fixDBRotate( nd );
+		// std::cout << "\e[1;34mfixDB\e[0m\n";
+		// _log( nd, 0 );
+		// std::cout << "\e[1;34m// fixDB\e[0m\n";
+		fixDBRotate( nd, false );
+		if ( !nd->_parent ) nd->_color = BLACK;
 		if ( nd->_color != DOUBLE_BLACK && !nd->_nil ) return;
-		else if ( !nd->_parent )
-			nd->_color = BLACK;
 		else {
 			node *DBsibling = getDBSibling( nd );
 			int	  DBdir		= ( nd->_nil ? nd->_nil : ( nd == nd->_parent->_left ? LEFT : RIGHT ) );
-			if ( DBsibling->_color == BLACK ) {
-				if ( ( !DBsibling->_left && !DBsibling->_right ) ||
-					 ( DBsibling->_left && DBsibling->_left->_color == BLACK && DBsibling->_right &&
-					   DBsibling->_right->_color == BLACK ) ) {
-					DBsibling->_color--;
-					if ( nd->_nil ) {
-						nd->_color++;
-						nd->_nil = 0;
-						fixDB( nd );
-					} else {
-						nd->_color--;
-						nd->_parent->_color++;
-						fixDB( nd->_parent );
-					}
-				} else if ( ( DBdir == LEFT && DBsibling->_right &&
-							  DBsibling->_right->_color == RED ) ||
-							( DBdir == RIGHT && DBsibling->_left &&
-							  DBsibling->_left->_color == RED ) ) {
-					node *farRed = ( DBdir == LEFT ? DBsibling->_right : DBsibling->_left );
-					if ( nd->_nil ) {
-						int tmpColor	  = nd->_color;
-						nd->_color		  = DBsibling->_color;
+			if ( !DBsibling || DBsibling->_color == BLACK ) {
+				if ( DBsibling && DBsibling->hasThisChild( RED ) ) {
+					int tmpColor =
+						( nd->_color == DOUBLE_BLACK ? nd->_parent->_color : nd->_color );
+					if ( DBsibling->hasThisNiece( DBdir, RED ) ) {
+						node *niece = DBsibling->getThisNiece( DBdir, RED );
+						// std::cout << "i am " << nd->_elt
+						// 		  << ( nd->_parent ? ", my parent is " : ", i am root" )
+						// 		  << ( nd->_parent ? nd->_parent->_elt : 0 ) << '\n';
+						// std::cout << "niece is " << niece->_elt << ", its parent is "
+						// 		  << niece->_parent->_elt << '\n';
+						niece->_color	   = tmpColor;
+						DBsibling->_rotate = ( DBdir == LEFT ? RIGHT : LEFT );
+						// std::cout << "before " << DBsibling->_elt << ' '
+						// 		  << ( DBsibling->_rotate == LEFT ? "left" : "right" )
+						// 		  << " rotation\n";
+						// _log( nd, 0 );
+						fixNieceRotate( DBsibling, ( nd->_nil ? nd : nd->_parent ), false );
+						// std::cout << "after\n";
+						// _log( nd, 0 );
+						if ( nd->_color == DOUBLE_BLACK ) {
+							nd->_color			 = BLACK;
+							nd->_parent->_color	 = BLACK;
+							nd->_parent->_rotate = DBdir;
+							// std::cout << DBdir << '\n';
+							fixDBRotate( nd->_parent, false );
+							// _log( nd, 0 );
+						} else {
+							nd->_color	= BLACK;
+							nd->_nil	= 0;
+							nd->_rotate = DBdir;
+							fixDBRotate( nd, false );
+						}
+					} else if ( DBsibling->hasThisNephew( DBdir, RED ) ) {
+						node *nephew	  = DBsibling->getThisNephew( DBdir, RED );
+						nephew->_color	  = BLACK;
 						DBsibling->_color = tmpColor;
-						nd->_rotate		  = DBdir;
-						nd->_nil		  = 0;
-						farRed->_color++;
-						fixDBRotate( nd );
-					} else {
-						std::cout << "here\n";
-						int tmpColor		 = nd->_parent->_color;
-						nd->_parent->_color	 = DBsibling->_color;
-						DBsibling->_color	 = tmpColor;
-						nd->_parent->_rotate = DBdir;
-						nd->_color--;
-						farRed->_color++;
-						fixDB( nd->_parent );
+						if ( nd->_color == DOUBLE_BLACK ) {
+							nd->_color			 = BLACK;
+							nd->_parent->_color	 = BLACK;
+							nd->_parent->_rotate = DBdir;
+							fixDBRotate( nd->_parent, false );
+						} else {
+							nd->_color	= BLACK;
+							nd->_nil	= 0;
+							nd->_rotate = DBdir;
+							fixDBRotate( nd, false );
+						}
 					}
 				} else {
-					int tmpColor	  = DBsibling->_color;
-					DBsibling->_color = ( DBsibling->_left && DBsibling->_left->_color == RED ?
-											  DBsibling->_left->_color :
-											  DBsibling->_right->_color );
-					( DBsibling->_left && DBsibling->_left->_color == RED ?
-						  DBsibling->_left->_color :
-						  DBsibling->_right->_color ) = tmpColor;
-					DBsibling->_rotate				  = ( DBdir == LEFT ? RIGHT : LEFT );
-					fixDBRotate( DBsibling );
-					fixDB( nd );
+					if ( DBsibling ) DBsibling->_color = RED;
+					if ( nd->_color == DOUBLE_BLACK ) {
+						nd->_color = BLACK;
+						nd->_parent->_color++;
+						_log( nd, 0 );
+						fixDB( nd->_parent );
+					} else {
+						nd->_nil = 0;
+						nd->_color++;
+						fixDB( nd );
+					}
 				}
 			} else {
-				if ( nd->_nil ) {
-					int tmpColor	  = nd->_color;
-					nd->_color		  = DBsibling->_color;
-					DBsibling->_color = tmpColor;
-					nd->_rotate		  = DBdir;
-					fixDBRotate( nd );
-				} else {
-					int tmpColor		 = nd->_parent->_color;
-					nd->_parent->_color	 = DBsibling->_color;
-					DBsibling->_color	 = tmpColor;
+				node *DB = nd, *parent = DB->_parent;
+				if ( nd->_color == DOUBLE_BLACK ) {
 					nd->_parent->_rotate = DBdir;
-					fixDB( nd->_parent );
+					fixDBRotate( nd->_parent, true );
+					DB->_parent = parent;
+				} else {
+					nd->_rotate = DBdir;
+					fixDBRotate( nd, true );
 				}
+				// sleep( 1 );
+				fixDB( DB );
 			}
 		}
 	};
+	// void fixDB( node *&nd ) {
+	// 	fixDBRotate( nd );
+	// 	std::cout << "\e[1;34m"
+	// 			  << "fixDB"
+	// 			  << "\e[0m\n";
+	// 	_log( nd, 0 );
+	// 	std::cout << "\e[1;34m"
+	// 			  << "// fixDB"
+	// 			  << "\e[0m\n";
+	// 	if ( nd->_color != DOUBLE_BLACK && !nd->_nil ) return;
+	// 	else if ( !nd->_parent )
+	// 		nd->_color = BLACK;
+	// 	else {
+	// 		node *DBsibling = getDBSibling( nd );
+	// 		int	  DBdir		= ( nd->_nil ? nd->_nil : ( nd == nd->_parent->_left ? LEFT : RIGHT ) );
+	// 		if ( !DBsibling || DBsibling->_color == BLACK ) {
+	// 			std::cout << "\e[1;35m"
+	// 					  << "DBsibling is BLACK"
+	// 					  << "\e[0m\n";
+	// 			if ( !DBsibling || ( !DBsibling->_left && !DBsibling->_right ) ||
+	// 				 ( DBsibling->_left && DBsibling->_left->_color == BLACK && DBsibling->_right &&
+	// 				   DBsibling->_right->_color == BLACK ) ) {
+	// 				std::cout << "\e[1;36m"
+	// 						  << "!DBsibling || DBsibling's children are NULL / BLACK"
+	// 						  << "\e[0m\n";
+	// 				if ( DBsibling ) DBsibling->_color--;
+	// 				if ( nd->_nil ) {
+	// 					nd->_color++;
+	// 					nd->_nil = 0;
+	// 					fixDB( nd );
+	// 				} else {
+	// 					nd->_color--;
+	// 					nd->_parent->_color++;
+	// 					fixDB( nd->_parent );
+	// 				}
+	// 			} else if ( ( DBdir == LEFT && DBsibling->_right &&
+	// 						  DBsibling->_right->_color == BLACK && DBsibling->_left &&
+	// 						  DBsibling->_left->_color == RED ) ||
+	// 						( DBdir == RIGHT && DBsibling->_left &&
+	// 						  DBsibling->_left->_color == BLACK && DBsibling->_right &&
+	// 						  DBsibling->_right->_color == RED ) ) {
+	// 				std::cout << "\e[1;36m"
+	// 						  << "else"
+	// 						  << "\e[0m\n";
+	// 				int tmpColor	  = DBsibling->_color;
+	// 				DBsibling->_color = ( DBsibling->_left && DBsibling->_left->_color == RED ?
+	// 										  DBsibling->_left->_color :
+	// 										  DBsibling->_right->_color );
+	// 				( DBsibling->_left && DBsibling->_left->_color == RED ?
+	// 					  DBsibling->_left->_color :
+	// 					  DBsibling->_right->_color ) = tmpColor;
+	// 				DBsibling->_rotate				  = ( DBdir == LEFT ? RIGHT : LEFT );
+	// 				fixDBRotate( DBsibling );
+	// 				fixDB( nd );
+	// 			} else {
+	// 				std::cout << "\e[1;36m"
+	// 						  << "DBsibling's far child is RED"
+	// 						  << "\e[0m\n";
+	// 				node *farRed = ( DBdir == LEFT ? DBsibling->_right : DBsibling->_left );
+	// 				std::cout << "farRed is " << farRed->_elt << '\n';
+	// 				if ( nd->_nil ) {
+	// 					int tmpColor	  = nd->_color;
+	// 					nd->_color		  = DBsibling->_color;
+	// 					DBsibling->_color = tmpColor;
+	// 					nd->_rotate		  = DBdir;
+	// 					nd->_nil		  = 0;
+	// 					farRed->_color++;
+	// 					fixDBRotate( nd );
+	// 				} else {
+	// 					int tmpColor		 = nd->_parent->_color;
+	// 					nd->_parent->_color	 = DBsibling->_color;
+	// 					DBsibling->_color	 = tmpColor;
+	// 					nd->_parent->_rotate = DBdir;
+	// 					nd->_color--;
+	// 					farRed->_color++;
+	// 					fixDB( nd->_parent );
+	// 				}
+	// 			}
+	// 		} else {
+	// 			std::cout << "\e[1;35m"
+	// 					  << "DBsibling is RED"
+	// 					  << "\e[0m\n";
+	// 			if ( nd->_nil ) {
+	// 				int tmpColor	  = nd->_color;
+	// 				nd->_color		  = DBsibling->_color;
+	// 				DBsibling->_color = tmpColor;
+	// 				nd->_rotate		  = DBdir;
+	// 				fixDBRotate( nd );
+	// 			} else {
+	// 				int tmpColor		 = nd->_parent->_color;
+	// 				nd->_parent->_color	 = DBsibling->_color;
+	// 				DBsibling->_color	 = tmpColor;
+	// 				nd->_parent->_rotate = DBdir;
+	// 				fixDB( nd->_parent );
+	// 			}
+	// 		}
+	// 	}
+	// };
 	void _del( node **nd, const T &elt ) {
 		if ( !*nd ) return;
 		else if ( elt < ( *nd )->_elt )
@@ -246,7 +393,7 @@ template < class T > class rbt {
 					parent->_nil = ( ( *nd ) == parent->_left ? LEFT : RIGHT );
 				delete *nd;
 				*nd = NULL;
-				fixDB( parent );
+				if ( parent ) fixDB( parent );
 			} else if ( !( *nd )->_left || !( *nd )->_right ) {
 				node *tmp	 = *nd;
 				node *sub	 = ( *nd )->_left ? ( *nd )->_left : ( *nd )->_right;
@@ -261,7 +408,7 @@ template < class T > class rbt {
 				_del( &( *nd )->_right, sub->_elt );
 			}
 		}
-		if ( *nd ) fixDB( *nd );
+		// if ( *nd ) fixDB( *nd );
 	};
 	void destruct( node *&nd ) {
 		if ( nd->_left ) destruct( nd->_left );
