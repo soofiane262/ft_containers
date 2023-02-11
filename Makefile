@@ -6,13 +6,13 @@
 #    By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/01/19 15:28:01 by sel-mars          #+#    #+#              #
-#    Updated: 2023/01/26 23:11:51 by sel-mars         ###   ########.fr        #
+#    Updated: 2023/02/11 13:26:35 by sel-mars         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 CPP		=	c++
 
-FLAGS	=	-Wall -Wextra -Werror -std=c++98
+FLAGS	=	-g -Wall -Wextra -Werror -std=c++98
 
 SRCS	=	main.cpp main.hpp
 
