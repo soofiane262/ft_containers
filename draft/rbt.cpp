@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/31 17:57:44 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/11 16:55:26 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/12 18:43:24 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,18 +82,22 @@ int main( void ) {
 	// simple test
 	{
 		rbt< int > n;
-		for ( int i = 0; i < 10; i++ ) n.insert( i );
+		for ( int i = 1; i < 9; i++ ) n.insert( i );
+		n.insert( 10 );
+		n.insert( 9 );
+		n.insert( 11 );
+		// for ( int i = 10; i >= 0; i-- ) n.insert( i );
 		n.log();
-		std::cout << "find 0\t: " << n.find( 0 ) << '\n';
-		std::cout << "find 1\t: " << n.find( 1 ) << '\n';
-		std::cout << "find 9\t: " << n.find( 9 ) << '\n';
-		std::cout << "find 10\t: " << n.find( 10 ) << '\n';
-		n.del( 8 );
-		n.log();
-		n.del( 6 );
-		n.log();
-		n.del( 4 );
-		n.log();
+		// std::cout << "find 0\t: " << n.find( 0 ) << '\n';
+		// std::cout << "find 1\t: " << n.find( 1 ) << '\n';
+		// std::cout << "find 9\t: " << n.find( 9 ) << '\n';
+		// std::cout << "find 10\t: " << n.find( 10 ) << '\n';
+		// n.del( 8 );
+		// n.log();
+		// n.del( 6 );
+		// n.log();
+		// n.del( 4 );
+		// n.log();
 	}
 
 	// case 1 --> if ( elt != 5 && elt != 30 && elt != 38 ) _color = BLACK; ==> OK
