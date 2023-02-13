@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/31 17:55:21 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/12 18:55:55 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/13 18:15:31 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,9 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
+#include <iomanip>
 #include <iostream>
+#include <sstream>
 #include <unistd.h>
 
 enum e_colors { RED, BLACK, DOUBLE_BLACK };
@@ -47,16 +49,10 @@ template < class T > struct node {
 	bool hasRedNiece( void ) {
 		node *sibling = getSibling();
 		if ( sibling && sibling->hasRedChild() &&
-			 ( ( _elt < _parent->_elt && sibling->_left && sibling->_left->_color == RED ) ||
-			   ( _elt > _parent->_elt && sibling->_right && sibling->_right->_color == RED ) ) )
-			return true;
-		return false;
-	};
-	bool hasRedNephew( void ) {
-		node *sibling = getSibling();
-		if ( sibling && sibling->hasRedChild() &&
-			 ( ( _elt < _parent->_elt && sibling->_right && sibling->_right->_color == RED ) ||
-			   ( _elt > _parent->_elt && sibling->_left && sibling->_left->_color == RED ) ) )
+			 ( ( sibling->_elt < _parent->_elt && sibling->_right &&
+				 sibling->_right->_color == RED ) ||
+			   ( sibling->_elt > _parent->_elt && sibling->_left &&
+				 sibling->_left->_color == RED ) ) )
 			return true;
 		return false;
 	};
@@ -66,24 +62,25 @@ template < class T > struct node {
 		if ( _elt < _parent->_elt ) return sibling->_left;
 		return sibling->_right;
 	};
-	node *RedNephew( void ) {
-		if ( !hasRedNiece() ) return NULL;
-		node *sibling = getSibling();
-		if ( _elt < _parent->_elt ) return sibling->_right;
-		return sibling->_left;
-	};
 };
 
 template < class T > struct output {
-	node< T > *_nd;
-	bool	   _nil;
-	int		   _lvl;
-	int		   _spaces;
-	static int total_lvls;
-	output( node< T > *nd, int lvl, bool nil = false ) : _nd( nd ), _lvl( lvl ), _nil( nil ) {};
+	node< T >	*_nd;
+	int			 _lvl;
+	int			 _spaces;
+	int			 _addit;
+	int			 _length;
+	e_directions _dir;
+	static int	 total_lvls;
+	static int	 total_diff;
+	static int	 _width;
+	output( node< T > *nd, int lvl, int length, e_directions dir )
+		: _nd( nd ), _lvl( lvl ), _length( length ? length : 1 ), _dir( dir ), _addit( 0 ) {};
 };
 
 template < class T > int output< T >::total_lvls = 0;
+template < class T > int output< T >::total_diff = 2;
+template < class T > int output< T >::_width	 = 0;
 
 template < class T > class rbt {
   private:
@@ -118,20 +115,22 @@ template < class T > class rbt {
 		nd->_parent = l;
 		return l;
 	};
-	void rotate( node *&nd, const bool colorSwap ) {
+	node *rotate( node *nd, const bool colorSwap ) {
+		node		*ret	= nd;
 		e_directions rotDir = nd->_rotate;
 		nd->_rotate			= DEFAULT;
 		switch ( rotDir ) {
-			case DEFAULT: return;
+			case DEFAULT: break;
 			case RIGHT:
-				nd = rightRotation( nd );
-				if ( colorSwap ) swapColors( nd, nd->_right );
-				return;
+				ret = rightRotation( nd );
+				if ( colorSwap ) swapColors( ret, ret->_right );
+				break;
 			case LEFT:
-				nd = leftRotation( nd );
-				if ( colorSwap ) swapColors( nd, nd->_left );
-				return;
+				ret = leftRotation( nd );
+				if ( colorSwap ) swapColors( ret, ret->_left );
+				break;
 		}
+		return ret;
 	};
 	bool find( node &nd, const T &elt ) {
 		if ( elt == nd._elt ) return true;
@@ -155,8 +154,9 @@ template < class T > class rbt {
 			_insert( nd->_right, elt, nd );
 		else
 			return;
-		rotate( nd, true );
+		nd			  = rotate( nd, true );
 		node *sibling = nd->getSibling();
+		if ( !nd->_parent ) root->_color = BLACK;
 		if ( !nd->_parent || nd->_color == BLACK ||
 			 ( ( !nd->_left || nd->_left->_color == BLACK ) &&
 			   ( !nd->_right || nd->_right->_color == BLACK ) ) )
@@ -166,12 +166,12 @@ template < class T > class rbt {
 			else if ( nd == nd->_parent->_right && elt > nd->_elt )
 				nd->_parent->_rotate = LEFT;
 			else if ( nd == nd->_parent->_left && elt > nd->_elt ) {
-				nd->_rotate = LEFT;
-				rotate( nd, false );
+				nd->_rotate			 = LEFT;
+				nd					 = rotate( nd, false );
 				nd->_parent->_rotate = RIGHT;
 			} else {
-				nd->_rotate = RIGHT;
-				rotate( nd, false );
+				nd->_rotate			 = RIGHT;
+				nd					 = rotate( nd, false );
 				nd->_parent->_rotate = LEFT;
 			}
 		} else {
@@ -180,33 +180,35 @@ template < class T > class rbt {
 			nd->_parent->_color = RED;
 		}
 	};
-	void fixDoubleBlack( node *&nd ) {
+	void fixDoubleBlack( node *nd ) {
 		if ( nd->_color != DOUBLE_BLACK ) return;
 		else if ( !nd->_parent )
 			nd->_color = BLACK;
 		else {
-			node *sibling = nd->getSibling();
-			int	  dir	  = ( nd->_elt < nd->_parent->_elt ? LEFT : RIGHT );
+			node		*sibling = nd->getSibling();
+			e_directions DBdir	 = ( nd->_elt < nd->_parent->_elt ? LEFT : RIGHT );
 			if ( !sibling || ( sibling->_color == BLACK && !sibling->hasRedChild() ) ) {
-				std::cout << "\e[1;34m--> "
-						  << "black sibling with no/black children"
-						  << " \e[0m\n";
 				if ( sibling ) sibling->_color = RED;
 				nd->_color			= BLACK;
 				nd->_parent->_color = e_colors( nd->_parent->_color + 1 );
 				fixDoubleBlack( nd->_parent );
-			} else if ( sibling->_color == BLACK && nd->hasRedNiece() ) {
-				std::cout << "\e[1;34m--> "
-						  << "black sibling with red niece"
-						  << " \e[0m\n";
-			} else if ( sibling->_color == BLACK && nd->hasRedNephew() ) {
-				std::cout << "\e[1;34m--> "
-						  << "black sibling with red nephew"
-						  << " \e[0m\n";
+			} else if ( sibling->_color == BLACK && sibling->hasRedChild() ) {
+				log();
+				node *rot = nd;
+				if ( sibling->_color == BLACK && nd->hasRedNiece() ) {
+					sibling->_rotate = DBdir == LEFT ? RIGHT : LEFT;
+					rot				 = rotate( sibling, false );
+				}
+				rot->_parent->_rotate = DBdir;
+				rot					  = rotate( rot->_parent, true );
+				nd->_color			  = BLACK;
+				if ( rot->_left ) rot->_left->_color = BLACK;
+				if ( rot->_right ) rot->_right->_color = BLACK;
 			} else {
-				std::cout << "\e[1;34m--> "
-						  << "red sibling"
-						  << " \e[0m\n";
+				nd->_parent->_rotate = DBdir;
+				node *rot			 = rotate( nd->_parent, true );
+				nd->_parent			 = ( DBdir == LEFT ? rot->_left : rot->_right );
+				fixDoubleBlack( nd );
 			}
 		}
 	};
@@ -245,106 +247,93 @@ template < class T > class rbt {
 		delete nd;
 		nd = NULL;
 	};
-	void _store( node *x, std::vector< output > &out, const int lvl ) {
+	void _getTotalLvls( node *x, const int lvl ) {
 		if ( !x ) return;
-		else if ( lvl > output::total_lvls )
-			output::total_lvls = lvl;
-		_store( x->_left, out, lvl + 1 );
-		out.push_back( output( x, lvl ) );
-		_store( x->_right, out, lvl + 1 );
+		else if ( lvl >= output::total_lvls )
+			output::total_lvls = lvl + 1;
+		_getTotalLvls( x->_left, lvl + 1 );
+		_getTotalLvls( x->_right, lvl + 1 );
 	};
-	void _fixNil( std::vector< output > &out ) {
-		if ( !out.size() ) return;
-		std::cout << "output::total_lvls " << output::total_lvls << "\nout.size() " << out.size()
-				  << "\n\n";
-		// tmp
-		for ( int i = 0; i < out.size(); i++ )
-			std::cout << "@ " << i << "\t:\t" << out[ i ]._nd->_elt << " has lvl " << out[ i ]._lvl
-					  << "\n";
-		std::cout << '\n';
-		//
-		typename std::vector< output >::iterator it = out.begin();
-		for ( int i = 0; i < 2; i++, it = out.begin() + i ) {
-			if ( !out[ i ]._nil ) {
-				int diff = output::total_lvls - out[ i ]._lvl;
-				int cond = 0;
-				if ( i - diff < 0 || out[ i ]._lvl != out[ i - diff ]._lvl + 1 ||
-					 !out[ i - diff ]._nil )
-					cond = 1;
-				else if ( i + diff >= out.size() || out[ i ]._lvl != out[ i + diff ]._lvl + 1 ||
-						  !out[ i + diff ]._nil )
-					cond = 2;
-				if ( cond ) {
-					node *nd;
-					if ( out[ i ]._lvl == output::total_lvls - 1 ) nd = NULL;
-					else
-						nd = new node( T(), NULL );
-					out.insert( ( cond == 2 ? it + 1 : it ),
-								output( nd, out[ i ]._lvl - 1, true ) );
-				}
-			} else if ( out[ i ]._nd ) {
-				std::cout << "nil parent\n";
-			} else {
-				std::cout << "nil leaf\n";
-			}
-			std::cout << "@ " << i << "\t:\t" << ( !out[ i ]._nil ? out[ i ]._nd->_elt : 0 )
-					  << " has lvl " << out[ i ]._lvl << "\n";
-		}
-		std::cout << '\n';
-		// tmp
-		for ( int i = 0; i < out.size(); i++ )
-			std::cout << "@ " << i << "\t:\t" << ( !out[ i ]._nil ? out[ i ]._nd->_elt : 0 )
-					  << " has lvl " << out[ i ]._lvl << "\n";
-		std::cout << '\n';
-		//
+	void _store( node *x, std::vector< output > &out, const int lvl, e_directions dir ) {
+		if ( lvl == output::total_lvls ) return;
+		_store( ( x ? x->_left : x ), out, lvl + 1, LEFT );
+		std::stringstream ss;
+		if ( x ) ss << x->_elt;
+		out.push_back( output( x, lvl, ss.str().length(), dir ) );
+		_store( ( x ? x->_right : x ), out, lvl + 1, RIGHT );
 	};
 	void _log( std::vector< output > out ) {
-		if ( !out.size() ) return;
+		if ( !out.size() ) {
+			std::cout << "empty rbt\n";
+			return;
+		}
 		int indent = 2;
-		for ( int l = output::total_lvls - 1, i = -1, lsl = -1; l >= 0; l--, i = -1, lsl = -1 ) {
+		for ( int l = output::total_lvls - 1, i = -1, lsl = -1, diff = 2; l >= 0;
+			  l--, i = -1, lsl = -1, diff *= 2 ) {
 			while ( ++i < out.size() ) {
 				if ( l != out[ i ]._lvl ) continue;
-				else if ( lsl == -1 && l == output::total_lvls - 1 )
-					out[ i ]._spaces = 0;
+				if ( lsl == -1 && l == output::total_lvls - 1 ) out[ i ]._spaces = 0;
 				else
-					out[ i ]._spaces = indent;
-				if ( lsl == -1 ) indent *= 2;
+					out[ i ]._spaces = indent + out[ i ]._addit;
+				out[ i ]._addit += out[ i ]._length;
+				if ( out[ i ]._dir == RIGHT && out[ i - ( diff / 2 ) ]._dir == RIGHT )
+					out[ i - ( diff / 2 ) ]._addit +=
+						out[ i ]._addit + ( out[ i ]._length + out[ i - diff ]._length ) / 2;
+				if ( lsl == -1 ) indent *= ( indent ? 2 : 1 );
 				lsl = i;
 			}
+			output::total_diff = diff;
 		}
-		for ( int l = 0, i = -1, lsl = -1; l < output::total_lvls; l++, i = -1, lsl = -1 ) {
+		// std::cout << std::setw( 5 ) << "@|" << std::setw( 11 ) << "nb|" << std::setw( 7 ) <<
+		// "lvl|"
+		// 		  << std::setw( 7 ) << "sp|" << std::setw( 7 ) << "addit|" << '\n';
+		// for ( int i = 0; i < out.size(); i++ )
+		// 	std::cout << std::setw( 4 ) << i << "|" << std::setw( 10 )
+		// 			  << ( out[ i ]._nd ? out[ i ]._nd->_elt : 0 ) << "|" << std::setw( 6 )
+		// 			  << out[ i ]._lvl << "|" << std::setw( 6 ) << out[ i ]._spaces << "|"
+		// 			  << std::setw( 6 ) << out[ i ]._addit << "|" << '\n';
+		for ( int l = 0, i = -1, diff = output::total_diff, width = 0; l < output::total_lvls;
+			  l++, i = -1, diff /= 2, width = 0 ) {
 			if ( l != 0 ) {
+				std::cout << "\e[2m";
 				while ( ++i < out.size() ) {
 					if ( l != out[ i ]._lvl ) continue;
-					for ( int s = 0; s < out[ i ]._spaces; s++ )
-						if ( lsl == -1 || out[ i ]._nil ||
-							 out[ i ]._nd->_elt < out[ i ]._nd->_parent->_elt )
-							std::cout << ' ';
-						else
+					for ( int s = 0, end = out[ i ]._spaces + out[ i ]._length / 2; s < end; s++ ) {
+						if ( out[ i ]._dir == RIGHT && out[ i ]._nd && out[ i - diff ]._nd )
 							std::cout << "─";
-					if ( out[ i ]._nil ) std::cout << ' ';
-					else if ( out[ i ]._nd->_elt < out[ i ]._nd->_parent->_elt )
-						std::cout << "┌";
+						else if ( out[ i ]._dir == RIGHT && out[ i ]._nd && !out[ i - diff ]._nd &&
+								  s > end / 2 )
+							std::cout << ( s == end / 2 + 1 ? "└" : "─" );
+						else if ( out[ i ]._dir == RIGHT && !out[ i ]._nd && out[ i - diff ]._nd &&
+								  s < end / 2 )
+							std::cout << ( s == end / 2 - 1 ? "┘" : "─" );
+						else
+							std::cout << " ";
+					}
+					if ( out[ i ]._nd ) std::cout << ( out[ i ]._dir == LEFT ? "┌" : "┐" );
 					else
-						std::cout << "┐";
-					lsl = i;
+						std::cout << ' ';
 				}
-				std::cout << '\n';
+				std::cout << "\e[22m\n";
 			}
-			i	= -1;
-			lsl = -1;
+			i = -1;
 			while ( ++i < out.size() ) {
 				if ( l != out[ i ]._lvl ) continue;
-				for ( int s = 0; s < out[ i ]._spaces; s++ ) std::cout << ' ';
-				if ( out[ i ]._nil ) std::cout << '.';
-				else
+				for ( int s = 0; s < out[ i ]._spaces; s++, width++ ) std::cout << ' ';
+				if ( out[ i ]._nd )
 					std::cout << ( out[ i ]._nd->_color == RED ? "\e[1;31m" : "\e[1;37m" )
 							  << ( out[ i ]._nd->_color == DOUBLE_BLACK ? "\e[4m" : "" )
 							  << out[ i ]._nd->_elt << "\e[0m";
-				lsl = i;
+				else
+					std::cout << ' ';
+				width += out[ i ]._length;
 			}
+			output::_width = std::max( width + 10, output::_width );
 			std::cout << '\n';
 		}
+		std::cout << "\e[2m";
+		for ( int i = 0; i < output::_width; i++ ) std::cout << "─";
+		std::cout << "\e[22m\n";
 	};
 	// void _log( node *x, const int lvl ) {
 	// 	if ( !x ) return;
@@ -359,11 +348,8 @@ template < class T > class rbt {
   public:
 	rbt( void ) { root = NULL; };
 	rbt( const T n ) { root = new node( n ); };
-	~rbt( void ) { destruct( root ); };
-	void insert( const T elt ) {
-		_insert( root, elt, NULL );
-		root->_color = BLACK;
-	};
+	~rbt( void ) { /*destruct( root );*/ };
+	void insert( const T elt ) { _insert( root, elt, NULL ); };
 	bool find( const T &elt ) {
 		if ( !root ) return false;
 		else
@@ -375,16 +361,13 @@ template < class T > class rbt {
 	// tmp
 	void log( void ) {
 		if ( !root ) return;
+		output::total_lvls = 0;
+		output::total_diff = 2;
+		output::_width	   = 0;
 		std::vector< output > out;
-		_store( root, out, 0 );
-		_fixNil( out );
-		output::total_lvls++;
-		std::cout << "----------------------\n";
+		_getTotalLvls( root, 0 );
+		_store( root, out, 0, DEFAULT );
 		// _log( out );
-		std::cout << "----------------------\n";
-		// std::cout << "----------------------\n";
-		// _log( root, 0 );
-		// std::cout << "----------------------\n";
 	};
 	void logAdr( void ) {
 		if ( !root ) return;

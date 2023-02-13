@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/31 17:57:44 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/12 18:43:24 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/13 17:30:30 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,81 +24,78 @@ int main( void ) {
 	srand( time( NULL ) );
 
 	// {
-	// 	int		   sz	 = 30;
-	// 	int		   in[]	 = { 5,	 66, 35, 64, 26, 40, 78, 35, 32, 21, 61, 86, 9,	 55, 1,
-	// 						 93, 47, 61, 0,	 67, 49, 72, 34, 66, 32, 20, 1,	 50, 64, 47 };
-	// 	int		   out[] = { 47, 72, 9,	 47, 9,	 64, 86, 93, 1, 93, 9,	32, 32, 64, 50,
-	// 						 35, 49, 35, 35, 47, 20, 0,	 67, 0, 64, 86, 86, 55, 47, 78 };
+	// 	int sz	  = 15;
+	// 	int in[]  = { 15, 62, 12, 93, 81, 33, 49, 39, 54, 68, 97, 54, 49, 86, 26 };
+	// 	int out[] = { 49, 49, 86, 33, 26, 97, 81 };
+	// 	std::cout << "insert ";
+	// 	for ( int i = 0; i < sz; i++ ) std::cout << in[ i ] << ' ';
+	// 	std::cout << "\ndelete ";
+	// 	for ( int i = 0; i < sz / 2; i++ ) std::cout << out[ i ] << ' ';
+	// 	std::cout << '\n';
 	// 	rbt< int > n;
 	// 	for ( int i = 0; i < sz; i++ ) n.insert( in[ i ] );
-	// 	// n.log();
-	// 	for ( int i = 0; i < sz; i++ ) {
-	// 		// std::cout << "before del " << out[ i ] << "\n";
-	// 		// n.log();
+	// 	n.log();
+	// 	for ( int i = 0; i < sz / 2; i++ ) {
+	// 		std::cout << "before del " << out[ i ] << "\n";
 	// 		n.log();
-	// 		n.logAdr();
-	// 		std::cout << "del " << out[ i ] << "\n";
 	// 		n.del( out[ i ] );
+	// 		std::cout << "after del " << out[ i ] << "\n";
 	// 		n.log();
-	// 		n.logAdr();
-	// 		// std::cout << "after del " << out[ i ] << "\n";
-	// 		// n.log();
 	// 	}
-	// 	std::cout << "hi\n";
-	// 	// n.log();
-	// 	// n.logAdr();
 	// }
 	// std::system( "leaks a.out" );
 
 	// random
-	// {
-	// 	while ( 1 ) {
-	// 		{
-	// 			int				   sz = 30;
-	// 			std::vector< int > vec[ 2 ];
-	// 			for ( int i = 0; i < sz; i++ ) vec[ 0 ].push_back( rand() % 100 );
-	// 			for ( int i = 0; i < sz; i++ )
-	// 				vec[ 1 ].push_back( vec[ 0 ][ rand() % vec[ 0 ].size() ] );
-	// 			std::cout << "insert ";
-	// 			for ( int i = 0; i < sz; i++ ) std::cout << vec[ 0 ][ i ] << ' ';
-	// 			std::cout << "\ndelete ";
-	// 			for ( int i = 0; i < sz; i++ ) std::cout << vec[ 1 ][ i ] << ' ';
-	// 			std::cout << '\n';
-	// 			rbt< int > n;
-	// 			for ( int i = 0; i < sz; i++ ) n.insert( vec[ 0 ][ i ] );
-	// 			// n.log();
-	// 			for ( int i = 0; i < sz; i++ ) {
-	// 				// std::cout << "deleting"
-	// 				n.del( vec[ 1 ][ i ] );
-	// 				// n.log();
-	// 			}
-	// 			// sleep( 1 );
-	// 			// std::system( "clear" );
-	// 		}
-	// 	}
-	// }
-	// std::system( "leaks a.out" );
+	{
+		while ( 1 ) {
+			{
+				int				   sz = 1000000;
+				std::vector< int > vec[ 2 ];
+				for ( int i = 0; i < sz; i++ ) vec[ 0 ].push_back( rand() % 100 );
+				for ( int i = 0; i < sz / 2; i++ )
+					vec[ 1 ].push_back( vec[ 0 ][ rand() % vec[ 0 ].size() ] );
+				std::cout << "insert ";
+				for ( int i = 0; i < sz; i++ ) std::cout << vec[ 0 ][ i ] << ' ';
+				std::cout << "\ndelete ";
+				for ( int i = 0; i < sz / 2; i++ ) std::cout << vec[ 1 ][ i ] << ' ';
+				std::cout << '\n';
+				rbt< int > n;
+				for ( int i = 0; i < sz; i++ ) n.insert( vec[ 0 ][ i ] );
+				// n.log();
+				for ( int i = 0; i < sz / 2; i++ ) {
+					std::cout << "deleting " << vec[ 1 ][ i ] << "\n";
+					n.del( vec[ 1 ][ i ] );
+				}
+				// n.log();
+			}
+		}
+	}
 
 	// simple test
-	{
-		rbt< int > n;
-		for ( int i = 1; i < 9; i++ ) n.insert( i );
-		n.insert( 10 );
-		n.insert( 9 );
-		n.insert( 11 );
-		// for ( int i = 10; i >= 0; i-- ) n.insert( i );
-		n.log();
-		// std::cout << "find 0\t: " << n.find( 0 ) << '\n';
-		// std::cout << "find 1\t: " << n.find( 1 ) << '\n';
-		// std::cout << "find 9\t: " << n.find( 9 ) << '\n';
-		// std::cout << "find 10\t: " << n.find( 10 ) << '\n';
-		// n.del( 8 );
-		// n.log();
-		// n.del( 6 );
-		// n.log();
-		// n.del( 4 );
-		// n.log();
-	}
+	// {
+	// 	rbt< int > n;
+	// 	for ( int i = 10; i < 20; i++ ) n.insert( i );
+	// 	for ( int i = 1; i < 10; i++ ) n.insert( i );
+	// 	// n.insert( 12011 );
+	// 	// n.insert( 130000 );
+	// 	// n.insert( 1100 );
+	// 	// n.insert( 1200000 );
+	// 	// n.insert( 1300000 );
+	// 	// n.insert( 110 );
+	// 	// n.insert( 120 );
+	// 	// for ( int i = 10; i >= 0; i-- ) n.insert( i );
+	// 	n.log();
+	// 	// std::cout << "find 0\t: " << n.find( 0 ) << '\n';
+	// 	// std::cout << "find 1\t: " << n.find( 1 ) << '\n';
+	// 	// std::cout << "find 9\t: " << n.find( 9 ) << '\n';
+	// 	// std::cout << "find 10\t: " << n.find( 10 ) << '\n';
+	// 	// n.del( 8 );
+	// 	// n.log();
+	// 	// n.del( 6 );
+	// 	// n.log();
+	// 	// n.del( 4 );
+	// 	// n.log();
+	// }
 
 	// case 1 --> if ( elt != 5 && elt != 30 && elt != 38 ) _color = BLACK; ==> OK
 	// {
