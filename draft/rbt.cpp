@@ -6,9 +6,15 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/31 17:57:44 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/13 17:30:30 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/13 18:50:35 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+// for checker
+#include <algorithm>
+#include <random>
+#include <set>
+// end
 
 #include "rbt.hpp"
 
@@ -49,23 +55,32 @@ int main( void ) {
 	{
 		while ( 1 ) {
 			{
-				int				   sz = 1000000;
+				int				   sz = 10000;
 				std::vector< int > vec[ 2 ];
-				for ( int i = 0; i < sz; i++ ) vec[ 0 ].push_back( rand() % 100 );
+				for ( int i = 0; i < sz; i++ ) vec[ 0 ].push_back( rand() % 2147483648 );
 				for ( int i = 0; i < sz / 2; i++ )
 					vec[ 1 ].push_back( vec[ 0 ][ rand() % vec[ 0 ].size() ] );
-				std::cout << "insert ";
-				for ( int i = 0; i < sz; i++ ) std::cout << vec[ 0 ][ i ] << ' ';
-				std::cout << "\ndelete ";
-				for ( int i = 0; i < sz / 2; i++ ) std::cout << vec[ 1 ][ i ] << ' ';
+				// std::cout << "insert ";
+				// for ( int i = 0; i < sz; i++ ) std::cout << vec[ 0 ][ i ] << ' ';
+				// std::cout << "\ndelete ";
+				// for ( int i = 0; i < sz / 2; i++ ) std::cout << vec[ 1 ][ i ] << ' ';
 				std::cout << '\n';
 				rbt< int > n;
-				for ( int i = 0; i < sz; i++ ) n.insert( vec[ 0 ][ i ] );
+				std::system( "clear" );
+				std::cout << "\e[1;34m-------------> STARTING INSERTION <-------------\e[0m\n";
+				sleep( 2 );
+				for ( int i = 0; i < sz; i++ ) n.insert( vec[ 0 ][ i ], /* tmp */ i );
+				std::system( "clear" );
+				std::cout << "\e[1;32m-------------> INSERTION SUCCESS <-------------\e[0m\n";
+				sleep( 4 );
 				// n.log();
-				for ( int i = 0; i < sz / 2; i++ ) {
-					std::cout << "deleting " << vec[ 1 ][ i ] << "\n";
-					n.del( vec[ 1 ][ i ] );
-				}
+				std::system( "clear" );
+				std::cout << "\e[1;34m-------------> STARTING DELETION <-------------\e[0m\n";
+				sleep( 2 );
+				for ( int i = 0; i < sz / 2; i++ ) n.del( vec[ 1 ][ i ], /* tmp */ i );
+				std::system( "clear" );
+				std::cout << "\e[1;32m-------------> DELETION SUCCESS <-------------\e[0m\n";
+				sleep( 4 );
 				// n.log();
 			}
 		}

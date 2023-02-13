@@ -6,11 +6,19 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/31 17:55:21 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/13 18:15:31 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/13 18:45:36 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
+
+// for ckecker
+#include <cstddef>
+#include <map>
+#include <ostream>
+#include <queue>
+#include <vector>
+// end
 
 #include <algorithm>
 #include <cmath>
@@ -193,7 +201,6 @@ template < class T > class rbt {
 				nd->_parent->_color = e_colors( nd->_parent->_color + 1 );
 				fixDoubleBlack( nd->_parent );
 			} else if ( sibling->_color == BLACK && sibling->hasRedChild() ) {
-				log();
 				node *rot = nd;
 				if ( sibling->_color == BLACK && nd->hasRedNiece() ) {
 					sibling->_rotate = DBdir == LEFT ? RIGHT : LEFT;
@@ -212,7 +219,7 @@ template < class T > class rbt {
 			}
 		}
 	};
-	void _del( node *&nd, const T &elt ) {
+	void _del( node *&nd, const T elt ) {
 		if ( !nd ) return;
 		else if ( elt < nd->_elt )
 			_del( nd->_left, elt );
@@ -348,14 +355,30 @@ template < class T > class rbt {
   public:
 	rbt( void ) { root = NULL; };
 	rbt( const T n ) { root = new node( n ); };
-	~rbt( void ) { /*destruct( root );*/ };
-	void insert( const T elt ) { _insert( root, elt, NULL ); };
+	~rbt( void ) { destruct( root ); };
 	bool find( const T &elt ) {
 		if ( !root ) return false;
 		else
 			return find( *root, elt );
 	};
-	void del( const T &elt ) { _del( root, elt ); };
+	void insert( const T elt, /* tmp */ const int i ) {
+		_insert( root, elt, NULL );
+		// checking time!
+		std::map< node *, std::vector< int > > mp;
+		std::cout << "\e[1;31m";
+		assert( check( root, mp ) );
+		std::cout << "\e[0m";
+		std::cout << "idx\t" << i << "\tINSERTED\t" << elt << "\tSUCCESSFULLY" << std::endl;
+	};
+	void del( const T elt, /* tmp */ const int i ) {
+		_del( root, elt );
+		// checking time!
+		std::map< node *, std::vector< int > > mp;
+		std::cout << "\e[1;31m";
+		assert( check( root, mp ) );
+		std::cout << "\e[0m";
+		std::cout << "idx\t" << i << "\tDELETED\t" << elt << "\tSUCCESSFULLY" << std::endl;
+	};
 	//
 	//
 	// tmp
@@ -367,12 +390,56 @@ template < class T > class rbt {
 		std::vector< output > out;
 		_getTotalLvls( root, 0 );
 		_store( root, out, 0, DEFAULT );
-		// _log( out );
+		_log( out );
 	};
-	void logAdr( void ) {
-		if ( !root ) return;
-		std::cout << "----------------------\n";
-		_logAdr( root );
-		std::cout << "----------------------\n";
-	};
+
+	// checker {made by: jalalium}
+	bool check( node *nd, std::map< node *, std::vector< int > > &mp ) {
+		bool ok = true;
+		if ( nd->_left != NULL ) {
+			if ( nd->_elt <= nd->_left->_elt ) {
+				std::cout << "LEFT CHILD LARGER OR EQUAL TO PARENT " << nd->_elt << " "
+						  << nd->_left->_elt << std::endl;
+				return false;
+			}
+			if ( nd->_color == RED && nd->_left->_color == RED ) {
+				std::cout << "RED PARENT WITH RED CHILD: " << nd->_elt << " " << nd->_left->_elt
+						  << std::endl;
+				return false;
+			}
+			ok &= check( nd->_left, mp );
+		}
+		if ( nd->_right != NULL ) {
+			if ( nd->_elt >= nd->_right->_elt ) {
+				std::cout << "RIGHT CHILD SMALLER OR EQUAL TO PARENT " << nd->_elt << " "
+						  << nd->_left->_elt << std::endl;
+				return false;
+			}
+			if ( nd->_color == RED && nd->_right->_color == RED ) {
+				std::cout << "RED PARENT WITH RED CHILD: " << nd->_elt << " " << nd->_right->_elt
+						  << std::endl;
+				return false;
+			}
+			ok &= check( nd->_right, mp );
+		}
+		std::vector< int > tmp;
+		if ( nd->_left != NULL ) {
+			for ( int z : mp[ nd->_left ] ) tmp.push_back( z );
+		} else
+			tmp.push_back( 0 );
+		if ( nd->_right != NULL ) {
+			for ( int z : mp[ nd->_right ] ) tmp.push_back( z );
+		} else
+			tmp.push_back( 0 );
+		std::sort( tmp.begin(), tmp.end() );
+		for ( int &z : tmp ) z += ( nd->_color == BLACK );
+		mp[ nd ] = tmp;
+		if ( tmp[ 0 ] != tmp.back() ) {
+			std::cout << "NODE " << nd->_elt << std::endl;
+			for ( int z : tmp ) std::cout << z << " ";
+			std::cout << std::endl;
+		}
+		return ( ok & ( tmp[ 0 ] == tmp.back() ) );
+	}
+	// end of checker!
 };
