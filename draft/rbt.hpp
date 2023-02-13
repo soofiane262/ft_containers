@@ -219,6 +219,7 @@ template < class T > class rbt {
 			}
 		}
 	};
+
 	void _del( node *&nd, const T elt ) {
 		if ( !nd ) return;
 		else if ( elt < nd->_elt )
@@ -363,21 +364,28 @@ template < class T > class rbt {
 	};
 	void insert( const T elt, /* tmp */ const int i ) {
 		_insert( root, elt, NULL );
-		// checking time!
+		// checking
 		std::map< node *, std::vector< int > > mp;
 		std::cout << "\e[1;31m";
 		assert( check( root, mp ) );
 		std::cout << "\e[0m";
-		std::cout << "idx\t" << i << "\tINSERTED\t" << elt << "\tSUCCESSFULLY" << std::endl;
+		std::cout << "idx " << std::setw( 10 ) << i << " INSERTED " << std::setw( 16 ) << elt
+				  << " SUCCESSFULLY" << std::endl;
 	};
 	void del( const T elt, /* tmp */ const int i ) {
 		_del( root, elt );
-		// checking time!
+		if ( !root ) {
+			std::cout << "idx " << std::setw( 10 ) << i << " DELETED " << std::setw( 16 ) << elt
+					  << " SUCCESSFULLY" << std::endl;
+			return;
+		}
+		// checking
 		std::map< node *, std::vector< int > > mp;
 		std::cout << "\e[1;31m";
 		assert( check( root, mp ) );
 		std::cout << "\e[0m";
-		std::cout << "idx\t" << i << "\tDELETED\t" << elt << "\tSUCCESSFULLY" << std::endl;
+		std::cout << "idx " << std::setw( 10 ) << i << " DELETED " << std::setw( 16 ) << elt
+				  << " SUCCESSFULLY" << std::endl;
 	};
 	//
 	//

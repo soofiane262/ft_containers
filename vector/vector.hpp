@@ -97,7 +97,7 @@ namespace ft {
 		/* ------------------------------ Destructor ------------------------------ */
 		~vector( void ) {
 			clear();
-			_alloc.deallocate( _container, _capacity );
+			if ( _container ) _alloc.deallocate( _container, _capacity );
 			_container = NULL;
 		}
 		/* ------------------------------ operator = ------------------------------ */

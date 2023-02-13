@@ -12,6 +12,7 @@
 
 // for checker
 #include <algorithm>
+#include <climits>
 #include <random>
 #include <set>
 // end
@@ -28,6 +29,8 @@ int main( void ) {
 	std::system( "clear" );
 	std::cout << std::boolalpha;
 	srand( time( NULL ) );
+	std::random_device rd;
+	std::mt19937	   mt( rd() );
 
 	// {
 	// 	int sz	  = 15;
@@ -53,36 +56,42 @@ int main( void ) {
 
 	// random
 	{
-		while ( 1 ) {
-			{
-				int				   sz = 10000;
-				std::vector< int > vec[ 2 ];
-				for ( int i = 0; i < sz; i++ ) vec[ 0 ].push_back( rand() % 2147483648 );
-				for ( int i = 0; i < sz / 2; i++ )
-					vec[ 1 ].push_back( vec[ 0 ][ rand() % vec[ 0 ].size() ] );
-				// std::cout << "insert ";
-				// for ( int i = 0; i < sz; i++ ) std::cout << vec[ 0 ][ i ] << ' ';
-				// std::cout << "\ndelete ";
-				// for ( int i = 0; i < sz / 2; i++ ) std::cout << vec[ 1 ][ i ] << ' ';
-				std::cout << '\n';
-				rbt< int > n;
-				std::system( "clear" );
-				std::cout << "\e[1;34m-------------> STARTING INSERTION <-------------\e[0m\n";
-				sleep( 2 );
-				for ( int i = 0; i < sz; i++ ) n.insert( vec[ 0 ][ i ], /* tmp */ i );
-				std::system( "clear" );
-				std::cout << "\e[1;32m-------------> INSERTION SUCCESS <-------------\e[0m\n";
-				sleep( 4 );
-				// n.log();
-				std::system( "clear" );
-				std::cout << "\e[1;34m-------------> STARTING DELETION <-------------\e[0m\n";
-				sleep( 2 );
-				for ( int i = 0; i < sz / 2; i++ ) n.del( vec[ 1 ][ i ], /* tmp */ i );
-				std::system( "clear" );
-				std::cout << "\e[1;32m-------------> DELETION SUCCESS <-------------\e[0m\n";
-				sleep( 4 );
-				// n.log();
-			}
+		for ( int test = 0, total_tests = 5, sz = 100000; test < 5; test++ ) {
+			std::system( "clear" );
+			std::vector< int > in;
+			for ( int i = 0, range = INT_MAX / sz; i < sz; i++ )
+				in.push_back( rand() % range + range * i );
+			std::vector< int > out( in );
+			std::shuffle( in.begin(), in.end(), mt );
+			std::shuffle( out.begin(), out.end(), mt );
+			// std::cout << "insert ";
+			// for ( int i = 0; i < sz; i++ ) std::cout << in.at( i ) << ' ';
+			// std::cout << '\n';
+			// std::cout << "delete ";
+			// for ( int i = 0; i < sz; i++ ) std::cout << out.at( i ) << ' ';
+			// std::cout << '\n';
+			// exit( 0 );
+			rbt< int > n;
+			std::cout << "\e[1;34m"
+					  << "───────────────>    STARTING INSERTION    <───────────────"
+					  << "\e[0m\n";
+			sleep( 2 );
+			for ( int i = 0; i < sz; i++ ) n.insert( in.at( i ), /* tmp */ i );
+			std::cout << "\e[1;32m"
+					  << "───────────────>    INSERTION SUCCESS    <───────────────"
+					  << "\e[0m\n";
+			sleep( 2 );
+			// n.log();
+			std::cout << "\e[1;34m"
+					  << "───────────────>    STARTING DELETION    <───────────────"
+					  << "\e[0m\n";
+			sleep( 2 );
+			for ( int i = 0; i < sz; i++ ) n.del( out.at( i ), /* tmp */ i );
+			std::cout << "\e[1;32m"
+					  << "───────────────>    DELETION SUCCESS    <───────────────"
+					  << "\e[0m\n";
+			sleep( 2 );
+			// n.log();
 		}
 	}
 

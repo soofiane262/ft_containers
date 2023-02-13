@@ -28,6 +28,7 @@ namespace ft {
 		typedef typename iterator_traits< T* >::iterator_category iterator_category;
 		vec_iterator( void ) { _ptr = NULL; };
 		template < class iter > vec_iterator( const iter& other ) : _ptr( &*other ) {};
+		template < class iter > vec_iterator( iter& other ) : _ptr( &*other ) {};
 		vec_iterator& operator=( vec_iterator& other ) {
 			if ( this != &other ) _ptr = other._ptr;
 			return *this;
@@ -55,7 +56,8 @@ namespace ft {
 			_ptr--;
 			return tmp;
 		};
-		vec_iterator  operator+( difference_type n ) const { return _ptr + n; };
+		vec_iterator operator+( difference_type n ) const { return _ptr + n; };
+		// vec_iterator  operator+( difference_type, difference_type n ) const { return _ptr + n; };
 		vec_iterator  operator-( difference_type n ) const { return _ptr - n; };
 		vec_iterator& operator+=( difference_type n ) {
 			_ptr += n;
