@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/31 17:55:21 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/13 18:45:36 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/14 09:04:37 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -370,22 +370,20 @@ template < class T > class rbt {
 		assert( check( root, mp ) );
 		std::cout << "\e[0m";
 		std::cout << "idx " << std::setw( 10 ) << i << " INSERTED " << std::setw( 16 ) << elt
-				  << " SUCCESSFULLY" << std::endl;
+				  << " SUCCESSFULLY\n\e[F\e[K";
+		return;
 	};
 	void del( const T elt, /* tmp */ const int i ) {
 		_del( root, elt );
-		if ( !root ) {
-			std::cout << "idx " << std::setw( 10 ) << i << " DELETED " << std::setw( 16 ) << elt
-					  << " SUCCESSFULLY" << std::endl;
-			return;
+		if ( root ) {
+			// checking
+			std::map< node *, std::vector< int > > mp;
+			std::cout << "\e[1;31m";
+			assert( check( root, mp ) );
+			std::cout << "\e[0m";
 		}
-		// checking
-		std::map< node *, std::vector< int > > mp;
-		std::cout << "\e[1;31m";
-		assert( check( root, mp ) );
-		std::cout << "\e[0m";
 		std::cout << "idx " << std::setw( 10 ) << i << " DELETED " << std::setw( 16 ) << elt
-				  << " SUCCESSFULLY" << std::endl;
+				  << " SUCCESSFULLY\n\e[F\e[K";
 	};
 	//
 	//

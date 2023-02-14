@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 17:03:51 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/01/27 13:34:13 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/14 16:18:47 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,12 @@
 //	Special Characters
 #define WARNING "\u26A0"
 #define CHECK	"\u2713"
+
+struct s_randomStruct {
+	int			i;
+	char	   *char_ptr;
+	std::string str;
+};
 
 class except : public std::runtime_error {
   private:

@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/31 17:57:44 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/13 18:50:35 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/14 13:51:57 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,8 +56,14 @@ int main( void ) {
 
 	// random
 	{
-		for ( int test = 0, total_tests = 5, sz = 100000; test < 5; test++ ) {
-			std::system( "clear" );
+		std::system( "clear" );
+		for ( int test = 0, total_tests = 1, sz = 30000; test < total_tests; test++ ) {
+			std::cout << "\e[s\e[1;37m"
+					  << "────────────────────────>"
+					  << "     TEST " << test + 1 << " of " << total_tests
+					  << " START    "
+						 "<────────────────────────"
+					  << "\e[0m\n";
 			std::vector< int > in;
 			for ( int i = 0, range = INT_MAX / sz; i < sz; i++ )
 				in.push_back( rand() % range + range * i );
@@ -73,26 +79,36 @@ int main( void ) {
 			// exit( 0 );
 			rbt< int > n;
 			std::cout << "\e[1;34m"
-					  << "───────────────>    STARTING INSERTION    <───────────────"
+					  << "────────>    STARTING INSERTION    "
 					  << "\e[0m\n";
-			sleep( 2 );
+			sleep( 1 );
 			for ( int i = 0; i < sz; i++ ) n.insert( in.at( i ), /* tmp */ i );
-			std::cout << "\e[1;32m"
-					  << "───────────────>    INSERTION SUCCESS    <───────────────"
+			std::cout << "\e[F\e[J\e[1;32m"
+					  << "────────>    INSERTION SUCCESS    "
 					  << "\e[0m\n";
-			sleep( 2 );
+			sleep( 1 );
 			// n.log();
 			std::cout << "\e[1;34m"
-					  << "───────────────>    STARTING DELETION    <───────────────"
+					  << "────────>    STARTING DELETION    "
 					  << "\e[0m\n";
-			sleep( 2 );
+			sleep( 1 );
 			for ( int i = 0; i < sz; i++ ) n.del( out.at( i ), /* tmp */ i );
-			std::cout << "\e[1;32m"
-					  << "───────────────>    DELETION SUCCESS    <───────────────"
+			std::cout << "\e[F\e[J\e[1;32m"
+					  << "────────>    DELETION SUCCESS    "
 					  << "\e[0m\n";
-			sleep( 2 );
+			sleep( 1 );
+			std::cout << "\e[u\e[J\e[0;32m"
+					  << "────────────────────────>"
+					  << "    TEST " << test + 1 << " of " << total_tests
+					  << " SUCCESS   "
+						 "<────────────────────────"
+					  << "\e[0m\n";
 			// n.log();
 		}
+		std::cout << "\e[1;32m"
+				  << "────────────────────────>    SUCCEEDED ALL TESTS   "
+					 "<────────────────────────"
+				  << "\e[0m\n";
 	}
 
 	// simple test

@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/14 17:37:52 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/01/27 19:13:38 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/14 17:16:07 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,6 +117,18 @@ void vectorTest( const std::string executable ) {
 			std::cout << TITLE "Copy assignment operator : new4 = old" RESET "\n\n";
 			ft_vec4	 = ft_vec;
 			std_vec4 = std_vec;
+			check( ft_vec4, std_vec4 );
+			int n = rand() % 10 + 1;
+			std::cout << TITLE "Copy assignment operator : new4 = vector( vec4.size() * 2, " << n
+					  << " )" RESET "\n\n";
+			ft_vec4	 = ft::vector< int >( ft_vec4.size() * 2, n );
+			std_vec4 = std::vector< int >( std_vec4.size() * 2, n );
+			check( ft_vec4, std_vec4 );
+			std::cout << TITLE "Copy assignment operator : new4 = vector( vec4.size() / 2, " << n
+					  << " )" RESET "\n\n";
+			n		 = rand() % 10 + 1;
+			ft_vec4	 = ft::vector< int >( ft_vec4.size() / 2, n );
+			std_vec4 = std::vector< int >( std_vec4.size() / 2, n );
 			check( ft_vec4, std_vec4 );
 			std::cout << "\n" GREEN CHECK " Test " << test_idx << " : Sucess" RESET "\n\n";
 		} catch ( std::exception &e ) { catchExcept( e, error_count ); }
@@ -377,6 +389,12 @@ void vectorTest( const std::string executable ) {
 			check( ft_vec, std_vec );
 			compare( *ft_it, *std_it, "iter\t", "insert return" );
 			std::cout << "\n";
+			std::vector< int > std_emptyvec;
+			ft::vector< int >  ft_emptyvec;
+			std::cout << TITLE "insert ( begin(), begin(), begin() )" << RESET "\n\n";
+			std_emptyvec.insert( std_emptyvec.begin(), std_emptyvec.begin(), std_emptyvec.begin() );
+			ft_emptyvec.insert( ft_emptyvec.begin(), ft_emptyvec.begin(), ft_emptyvec.begin() );
+			check( ft_vec, std_vec );
 			n	= ( rand() % 10 ) + 1;
 			val = ( rand() % 100 ) + 1;
 			std::cout << TITLE "insert ( `return of last insert()`, " << n << ", " << val << " )"

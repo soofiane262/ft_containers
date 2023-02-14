@@ -6,12 +6,15 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/23 17:18:08 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/01/27 15:27:30 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/14 19:28:54 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
+#include <algorithm>
+#include <cstddef>
+#include <iterator>
 #include <limits>
 
 namespace ft {
@@ -74,12 +77,24 @@ namespace ft {
 	/* ------------------------------------------------------------------------- */
 	/*                                  is_same                                  */
 	/* ------------------------------------------------------------------------- */
-	// template < class T, class U > struct is_same {
-	// 	static const bool value = false;
-	// };
-	// template < class T > struct is_same< T, T > {
-	// 	static const bool value = true;
-	// };
+	template < class T, class U > struct is_same {
+		static const bool value = false;
+	};
+	template < class T > struct is_same< T, T > {
+		static const bool value = true;
+	};
+	template < class T >
+	typename enable_if< typeid( typename std::iterator_traits< T >::iterator_category ) !=
+							typeid( std::input_iterator_tag ),
+						std::size_t >::type
+	getNewCapacityForInputIterator( std::size_t cp1, std::size_t cp2 ) {
+		return std::max( cp1, cp2 );
+	};
+	template < class T >
+	std::size_t getNewCapacityForInputIterator( std::size_t cp1, std::size_t cp2 ) {
+		(void)cp2;
+		return cp1;
+	};
 	/* ------------------------------------------------------------------------- */
 	/*                                is_integral                                */
 	/* ------------------------------------------------------------------------- */

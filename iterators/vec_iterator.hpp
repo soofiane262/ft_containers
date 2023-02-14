@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/20 21:09:54 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/01/26 20:00:05 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/14 15:30:28 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,9 +26,13 @@ namespace ft {
 		typedef typename iterator_traits< T* >::pointer			  pointer;
 		typedef typename iterator_traits< T* >::reference		  reference;
 		typedef typename iterator_traits< T* >::iterator_category iterator_category;
+		/* ------------------------------ Constructor ----------------------------- */
 		vec_iterator( void ) { _ptr = NULL; };
 		template < class iter > vec_iterator( const iter& other ) : _ptr( &*other ) {};
 		template < class iter > vec_iterator( iter& other ) : _ptr( &*other ) {};
+		/* ------------------------------ Destructor ------------------------------ */
+		~vec_iterator( void ) { _ptr = NULL; };
+		/* ----------------------- Copy assignment operator ----------------------- */
 		vec_iterator& operator=( vec_iterator& other ) {
 			if ( this != &other ) _ptr = other._ptr;
 			return *this;
@@ -37,27 +41,30 @@ namespace ft {
 			if ( this != &other ) _ptr = other._ptr;
 			return *this;
 		};
-		~vec_iterator( void ) { _ptr = NULL; };
+		/* ------------------------------ Conversion ------------------------------ */
+		reference operator*( void ) const { return *_ptr; };
+		pointer	  operator->( void ) const { return &( operator*() ); };
+
 		vec_iterator& operator++( void ) {
-			_ptr++;
+			++_ptr;
 			return *this;
 		};
 		vec_iterator operator++( int ) {
 			vec_iterator tmp = *this;
-			++( *this );
+			++_ptr;
 			return tmp;
 		};
 		vec_iterator& operator--( void ) {
-			_ptr--;
+			--_ptr;
 			return *this;
 		};
 		vec_iterator operator--( int ) {
 			vec_iterator tmp = *this;
-			_ptr--;
+			--_ptr;
 			return tmp;
 		};
-		vec_iterator operator+( difference_type n ) const { return _ptr + n; };
-		// vec_iterator  operator+( difference_type, difference_type n ) const { return _ptr + n; };
+
+		vec_iterator  operator+( difference_type n ) const { return _ptr + n; };
 		vec_iterator  operator-( difference_type n ) const { return _ptr - n; };
 		vec_iterator& operator+=( difference_type n ) {
 			_ptr += n;
@@ -68,8 +75,6 @@ namespace ft {
 			return *this;
 		};
 		difference_type operator-( const vec_iterator& other ) const { return _ptr - other._ptr; };
-		reference		operator*( void ) const { return *_ptr; };
-		pointer			operator->( void ) const { return _ptr; };
 		reference		operator[]( difference_type n ) const { return _ptr[ n ]; };
 		bool operator==( const vec_iterator& other ) const { return _ptr == other._ptr; };
 		bool operator!=( const vec_iterator& other ) const { return _ptr != other._ptr; };
@@ -79,4 +84,9 @@ namespace ft {
 		bool operator>=( const vec_iterator& other ) const { return _ptr >= other._ptr; };
 	};
 
+	template < class Iterator >
+	vec_iterator< Iterator > operator+( typename vec_iterator< Iterator >::difference_type n,
+										const vec_iterator< Iterator >&					   it ) {
+		return it + n;
+	};
 } // namespace ft

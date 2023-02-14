@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/17 21:02:04 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/01/27 19:33:37 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/14 19:30:29 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <iostream>
+#include <iterator>
 #include <memory>
 #include <stdexcept>
 
@@ -73,16 +75,32 @@ namespace ft {
 		template < class InputIterator > vector(
 			typename enable_if< !is_integral< InputIterator >::value, InputIterator >::type first,
 			InputIterator last, const Allocator &alloc = Allocator() ) {
-			_size	   = 0;
-			_capacity  = 0;
-			_alloc	   = alloc;
-			_container = NULL;
-			for ( InputIterator it = first; it != last; it++ ) _size++;
-			for ( InputIterator it = first; it != last; it++ ) _capacity++;
+			size_type cp = 0;
+			_size		 = 0;
+			_capacity	 = 0;
+			_alloc		 = alloc;
+			_container	 = NULL;
+			vector< value_type > tmp;
+			// InputIterator		 it = first;
+			// std::cout << *it << '\n';
+			// std::cout << *first << '\n';
+			for ( ; first != last; _size++, cp += ( cp < _size ? ( cp ? cp : 1 ) : 0 ) ) {
+				tmp.push_back( *first++ );
+			}
+			if ( typeid( typename std::iterator_traits< InputIterator >::iterator_category ) ==
+				 typeid( std::input_iterator_tag ) )
+				_capacity = std::max( cp, _size );
+			else
+				_capacity = _size;
+			// first = it;
+			// std::cout << *it << '\n';
+			// std::cout << *first << '\n';
+			// _capacity = it == first ? _size : std::max( cp, _size );
+			// _capacity = getNewCapacityForInputIterator< InputIterator >( _size, cp );
 			if ( _capacity ) {
 				_container = _alloc.allocate( _capacity );
 				for ( size_type i = 0; i < _size; i++ )
-					_alloc.construct( _container + i, *first++ );
+					_alloc.construct( _container + i, tmp[ i ] );
 			}
 		};
 		/* --------------------------- Copy Constructor --------------------------- */
@@ -96,17 +114,18 @@ namespace ft {
 		};
 		/* ------------------------------ Destructor ------------------------------ */
 		~vector( void ) {
+			if ( !_capacity ) return;
 			clear();
-			if ( _container ) _alloc.deallocate( _container, _capacity );
+			_alloc.deallocate( _container, _capacity );
 			_container = NULL;
 		}
 		/* ------------------------------ operator = ------------------------------ */
 		vector< T, Allocator > &operator=( const vector< T, Allocator > &x ) {
 			if ( this != &x ) {
 				clear();
-				reserve( x.size() );
+				reserve( std::max( _capacity, x.size() ) );
 				_size	  = x.size();
-				_capacity = x.size();
+				_capacity = std::max( _capacity, x.size() );
 				_alloc	  = x.get_allocator();
 				for ( size_type i = 0; i < _size; i++ ) _alloc.construct( _container + i, x[ i ] );
 			}
@@ -117,15 +136,18 @@ namespace ft {
 		typename enable_if< !is_integral< InputIterator >::value, void >::type
 		assign( InputIterator first, InputIterator last ) {
 			clear();
-			size_type n = 0;
-			for ( InputIterator it = first; it != last; it++ ) n++;
+			size_type			 n	= 0;
+			size_type			 cp = 0;
+			vector< value_type > tmp;
+			for ( ; first != last; n++, cp += ( cp < n ? ( cp ? cp : 1 ) : 0 ) )
+				tmp.push_back( *first++ );
 			if ( n > _capacity ) {
 				if ( _capacity ) _alloc.deallocate( _container, _capacity );
-				_capacity  = n;
+				_capacity  = std::max( cp, n );
 				_container = _alloc.allocate( _capacity );
 			}
 			_size = n;
-			for ( size_type i = 0; i < _size; i++ ) _alloc.construct( _container + i, *first++ );
+			for ( size_type i = 0; i < _size; i++ ) _alloc.construct( _container + i, tmp[ i ] );
 		};
 		void assign( size_type n, const T &val ) {
 			clear();
@@ -284,8 +306,8 @@ namespace ft {
 					_alloc.construct( _container + i, temp[ i ] );
 				for ( size_type i = pos + n; i != _size; i++ )
 					_alloc.construct( _container + i, temp[ i - n ] );
-			} else {
-				for ( size_type i = _size + n - 1; i != pos; i-- ) {
+			} else if ( n ) {
+				for ( size_type i = _size + n - 1; i >= pos + n; i-- ) {
 					_alloc.construct( _container + i, _container[ i - n ] );
 					_alloc.destroy( _container + i - n );
 				}
@@ -296,9 +318,10 @@ namespace ft {
 		template < class InputIterator >
 		typename enable_if< !is_integral< InputIterator >::value, void >::type
 		insert( iterator position, InputIterator first, InputIterator last ) {
-			size_type pos = position - begin();
-			size_type n	  = 0;
-			for ( InputIterator it = first; it != last; it++ ) n++;
+			size_type			 pos = position - begin();
+			size_type			 n	 = 0;
+			vector< value_type > tmp;
+			for ( ; first != last; n++ ) tmp.push_back( *first++ );
 			if ( _size + n > _capacity ) {
 				value_type temp[ _size ];
 				for ( size_type i = 0; i < _size; i++ ) {
@@ -313,16 +336,15 @@ namespace ft {
 					_alloc.construct( _container + i, temp[ i ] );
 				for ( size_type i = pos + n; i != _size; i++ )
 					_alloc.construct( _container + i, temp[ i - n ] );
-			} else {
-				for ( size_type i = _size + n - 1; i != pos; i-- ) {
+			} else if ( n ) {
+				for ( size_type i = _size + n - 1; i >= pos + n; i-- ) {
 					_alloc.construct( _container + i, _container[ i - n ] );
 					_alloc.destroy( _container + i - n );
 				}
 				_size += n;
 			}
-			for ( size_type i = pos; i != pos + n; i++ ) {
-				_alloc.construct( _container + i, *first++ );
-			}
+			for ( size_type i = pos; i != pos + n; i++ )
+				_alloc.construct( _container + i, tmp[ i - pos ] );
 		};
 		/* --------------------------------- erase -------------------------------- */
 		iterator erase( iterator position ) {
@@ -331,6 +353,7 @@ namespace ft {
 				_alloc.destroy( _container + i );
 				_alloc.construct( _container + i, _container[ i + 1 ] );
 			}
+			_alloc.destroy( _container + _size - 1 );
 			_size--;
 			return begin() + pos;
 		};
@@ -342,6 +365,7 @@ namespace ft {
 				_alloc.destroy( _container + i );
 				if ( i + n < _size ) _alloc.construct( _container + i, _container[ i + n ] );
 			}
+			_alloc.destroy( _container + _size - 1 );
 			_size -= n;
 			return begin() + pos;
 		};
