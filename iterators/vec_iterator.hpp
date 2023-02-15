@@ -6,18 +6,34 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/20 21:09:54 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/15 11:03:54 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/15 19:45:27 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
+#include "../utils/utils.hpp"
 #include "iterator_traits.hpp"
 
 namespace ft {
+	template < class T > struct is_pointer {
+		static const bool value = false;
+	};
 
+	template < class T > struct is_pointer< T* > {
+		static const bool value = true;
+	};
+	template < class T > struct is_pointer< T* const > {
+		static const bool value = true;
+	};
 	template < class T > class vec_iterator {
 	  private:
+		template < class T_Iter, class U_Iter > friend bool operator==(
+			const typename ft::enable_if< !ft::is_pointer< T_Iter >::value, T_Iter >::type*& lhs,
+			const U_Iter*&																	 rhs );
+		template < class T_Iter, class U_Iter > friend bool operator!=(
+			const typename ft::enable_if< !ft::is_pointer< T_Iter >::value, T_Iter >::type*& lhs,
+			const U_Iter*&																	 rhs );
 		template < class T_Iter, class U_Iter >
 		friend bool operator==( const T_Iter& lhs, const U_Iter& rhs );
 		template < class T_Iter, class U_Iter >
@@ -98,6 +114,16 @@ namespace ft {
 	template < class T_Iter, class U_Iter >
 	bool operator!=( const T_Iter& lhs, const U_Iter& rhs ) {
 		return lhs._ptr != rhs._ptr;
+	}
+	template < class T_Iter, class U_Iter > bool operator==(
+		const typename ft::enable_if< !ft::is_pointer< T_Iter >::value, T_Iter >::type*& lhs,
+		const U_Iter*&																	 rhs ) {
+		return lhs->_ptr == rhs->_ptr;
+	}
+	template < class T_Iter, class U_Iter > bool operator!=(
+		const typename ft::enable_if< !ft::is_pointer< T_Iter >::value, T_Iter >::type*& lhs,
+		const U_Iter*&																	 rhs ) {
+		return lhs->_ptr != rhs->_ptr;
 	}
 	template < class T_Iter, class U_Iter > bool operator<( const T_Iter& lhs, const U_Iter& rhs ) {
 		return lhs._ptr < rhs._ptr;
