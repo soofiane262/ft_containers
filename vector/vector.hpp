@@ -6,14 +6,14 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/17 21:02:04 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/15 18:37:20 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/16 19:47:46 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
+#include "../iterators/random_access_iterator.hpp"
 #include "../iterators/reverse_iterator.hpp"
-#include "../iterators/vec_iterator.hpp"
 #include "../utils/utils.hpp"
 
 #include <algorithm>
@@ -24,6 +24,10 @@
 #include <memory>
 #include <stdexcept>
 
+#define LENGTH_EXCPT \
+	throw std::length_error( "ft::vector<T> : 'new_capacity' exceeds maximum supported size" );
+#define RANGE_EXCPT throw std::out_of_range( "ft::vector<T> : range_check" );
+
 namespace ft {
 	template < class T, class Allocator = std::allocator< T > > class vector {
 	  public:
@@ -32,8 +36,8 @@ namespace ft {
 		/* ------------------------------------------------------------------------ */
 		typedef typename Allocator::reference		   reference;
 		typedef typename Allocator::const_reference	   const_reference;
-		typedef ft::vec_iterator< T >				   iterator;
-		typedef ft::vec_iterator< const T >			   const_iterator;
+		typedef ft::random_access_iterator< T >		   iterator;
+		typedef ft::random_access_iterator< const T >  const_iterator;
 		typedef std::size_t							   size_type;
 		typedef std::ptrdiff_t						   difference_type;
 		typedef T									   value_type;
@@ -55,97 +59,100 @@ namespace ft {
 		/*                             Helper Functions                             */
 		/* ------------------------------------------------------------------------ */
 		/* --------------------------- Range Constructor -------------------------- */
+		template < class Iterator > size_type ctorRangeHelper( Iterator first, Iterator last,
+															   std::random_access_iterator_tag ) {
+			return last - first;
+		} // ctor_range_helper : random_access_iterator
 		template < class Iterator >
-		void ctorRangeHelper( Iterator first, Iterator last, std::random_access_iterator_tag ) {
-			_capacity = _size = last - first;
-			if ( !_capacity ) return;
-			_container = _alloc.allocate( _capacity );
-			for ( size_type i = 0; i < _size; i++ ) _alloc.construct( _container + i, *first++ );
-		}
-		template < class Iterator >
-		void ctorRangeHelper( Iterator first, Iterator last,
-							  typename ft::iterator_traits< Iterator >::iterator_category ) {
+		size_type ctorRangeHelper( Iterator first, Iterator last,
+								   typename ft::iterator_traits< Iterator >::iterator_category ) {
 			for ( ; first != last; ) push_back( *first++ );
-		}
-		/* -------------------------------- realloc ------------------------------- */
-		ft::vector< value_type > realloc( size_type n ) {
-			ft::vector< value_type > temp;
-			if ( n > _capacity ) {
-				temp.reserve( _size );
-				for ( size_type i = 0; i < _size; i++ ) {
-					temp[ i ] = _container[ i ];
-					_alloc.destroy( _container + i );
-				}
-				if ( _capacity ) _alloc.deallocate( _container, _capacity );
-				_capacity  = n;
-				_container = _alloc.allocate( _capacity );
-			}
-			return temp;
-		};
+			return 0;
+		} // ctor_range_helper : single_pass_iterators
 		/* ----------------------------- assign range ----------------------------- */
 		template < class Iterator >
 		void assignRangeHelper( Iterator first, Iterator last, std::random_access_iterator_tag ) {
 			size_type n = last - first;
 			if ( n > _capacity ) {
-				if ( _capacity ) _alloc.deallocate( _container, _capacity );
-				_capacity  = n;
-				_container = _alloc.allocate( _capacity );
+				if ( n > max_size() ) LENGTH_EXCPT;
+				size_type	tmp_size	 = _size;
+				size_type	tmp_capacity = _capacity;
+				value_type *tmp_ctr		 = _container;
+				_container				 = _alloc.allocate( n );
+				_size					 = 0;
+				_capacity				 = n;
+				for ( ; _size < tmp_size; _size++ ) {
+					_alloc.construct( _container + _size, *first++ );
+					_alloc.destroy( tmp_ctr + _size );
+				}
+				for ( ; _size < n; _size++ ) _alloc.construct( _container + _size, *first++ );
+				if ( tmp_capacity ) _alloc.deallocate( tmp_ctr, tmp_capacity );
+			} else {
+				for ( size_type i = 0, end = std::min( _size, n ); i < end; i++ ) {
+					_alloc.destroy( _container + i );
+					_alloc.construct( _container + i, *first++ );
+				}
+				for ( ; _size < n; _size++ ) _alloc.construct( _container + _size, *first++ );
+				for ( size_type i = n; i < _size; i++ ) _alloc.destroy( _container + i );
+				_size = n;
 			}
-			_size = n;
-			for ( size_type i = 0; i < _size; i++ ) _alloc.construct( _container + i, *first++ );
-		}
+		} // assign_range_helper : random_access_iterator
 		template < class Iterator >
 		void assignRangeHelper( Iterator first, Iterator last,
 								typename ft::iterator_traits< Iterator >::iterator_category ) {
+			clear();
 			for ( ; first != last; ) push_back( *first++ );
-		}
-		/* -------------------------------- insert -------------------------------- */
+		} // assign_range_helper: single_pass_iterators
+		  /* -------------------------------- insert -------------------------------- */
 		size_type insertHelper( iterator position, size_type n ) {
-			if ( n > max_size() )
-				throw std::length_error( "vector : 'new_capacity' exceeds maximum supported size" );
-			size_type pos = position - begin();
-			if ( _size + n > _capacity ) {
-				ft::vector< T > temp;
-				temp.reserve( _size );
-				for ( size_type i = 0; i < _size; i++ ) {
-					temp[ i ] = _container[ i ];
-					_alloc.destroy( _container + i );
+			size_type pos	  = position - begin();
+			size_type newSize = _size + n;
+			if ( newSize > _capacity ) {
+				size_type new_capacity = std::max( _capacity * 2, newSize );
+				if ( newSize > max_size() ) LENGTH_EXCPT;
+				size_type	tmp_capacity = _capacity;
+				size_type	tmp_size	 = _size;
+				value_type *tmp_ctr		 = _container;
+				_container				 = _alloc.allocate( new_capacity );
+				_size					 = 0;
+				_capacity				 = new_capacity;
+				for ( ; _size < pos; _size++ ) {
+					_alloc.construct( _container + _size, tmp_ctr[ _size ] );
+					_alloc.destroy( tmp_ctr + _size );
 				}
-				if ( _capacity ) _alloc.deallocate( _container, _capacity );
-				_capacity  = _capacity ? std::max( _size + n, _capacity * 2 ) : n;
-				_container = _alloc.allocate( _capacity );
-				_size += n;
-				for ( size_type i = 0; i != pos; i++ )
-					_alloc.construct( _container + i, temp[ i ] );
-				for ( size_type i = pos + n; i != _size; i++ )
-					_alloc.construct( _container + i, temp[ i - n ] );
+				for ( ; _size < tmp_size; _size++ ) {
+					_alloc.construct( _container + _size + n, tmp_ctr[ _size ] );
+					_alloc.destroy( tmp_ctr + _size );
+				}
+				if ( tmp_capacity ) _alloc.deallocate( tmp_ctr, tmp_capacity );
 			} else if ( n ) {
 				for ( size_type i = _size + n - 1; i >= pos + n; i-- ) {
 					_alloc.construct( _container + i, _container[ i - n ] );
 					_alloc.destroy( _container + i - n );
 				}
-				_size += n;
 			}
 			return pos;
-		}
+		}; // insert_helper
 		template < class Iterator > void insertRangeHelper( iterator position, Iterator first,
 															Iterator last,
 															std::random_access_iterator_tag ) {
-			size_type n	  = last - first;
-			size_type pos = insertHelper( position, n );
-			for ( size_type i = pos; i != pos + n; i++ )
-				_alloc.construct( _container + i, *first++ );
-		}
+			size_type n		  = last - first;
+			size_type pos	  = insertHelper( position, n );
+			size_type newSize = _size + n;
+			for ( ; _size < newSize; pos++, _size++ )
+				_alloc.construct( _container + pos, *first++ );
+		} // insert_range_helper : random_access_iterator
 		template < class Iterator >
 		void insertRangeHelper( iterator position, Iterator first, Iterator last,
 								typename ft::iterator_traits< Iterator >::iterator_category ) {
 			size_type				 n = 0;
 			ft::vector< value_type > tmp;
 			for ( ; first != last; n++ ) tmp.push_back( *first++ );
-			size_type pos = insertHelper( position, n );
-			for ( size_type i = pos; i != pos + n; i++ )
-				_alloc.construct( _container + i, tmp[ i - pos ] );
-		}
+			size_type pos	  = insertHelper( position, n );
+			size_type newSize = _size + n;
+			for ( size_type i = 0; _size < newSize; i++, pos++, _size++ )
+				_alloc.construct( _container + pos, tmp[ i ] );
+		} // insert_range_helper : single_pass_iterators
 
 	  public:
 		/* ------------------------------------------------------------------------ */
@@ -153,219 +160,251 @@ namespace ft {
 		/*                                  ..::..                                  */
 		/* -------------------------- Default Constructor ------------------------- */
 		explicit vector( const Allocator &alloc = Allocator() ) {
-			_size	   = 0;
-			_capacity  = 0;
-			_alloc	   = alloc;
-			_container = NULL;
-		}
+			_size = _capacity = 0;
+			_alloc			  = alloc;
+			_container		  = NULL;
+		} // ctor_default
 		/* --------------------------- Fill Constructor --------------------------- */
 		explicit vector( size_type n, const T &value = T(), const Allocator &alloc = Allocator() ) {
-			_size	   = n;
+			_capacity = _size = 0;
+			_container		  = NULL;
+			_alloc			  = alloc;
+			if ( !n ) return;
+			else if ( n > max_size() )
+				LENGTH_EXCPT;
+			_container = _alloc.allocate( n );
 			_capacity  = n;
-			_alloc	   = alloc;
-			_container = NULL;
-			if ( !_capacity ) return;
-			_container = _alloc.allocate( _capacity );
-			for ( size_type i = 0; i < _size; i++ ) _alloc.construct( _container + i, value );
-		}
+			for ( ; _size < n; _size++ ) _alloc.construct( _container + _size, value );
+		} // ctor_fill
 		/* --------------------------- Range Constructor -------------------------- */
 		template < class InputIterator >
 		vector( typename ft::enable_if< !ft::is_integral< InputIterator >::value,
 										InputIterator >::type first,
 				InputIterator last, const Allocator &alloc = Allocator() ) {
-			_size	   = 0;
-			_capacity  = 0;
-			_alloc	   = alloc;
-			_container = NULL;
-			ctorRangeHelper( first, last,
-							 typename ft::iterator_traits< InputIterator >::iterator_category() );
-		}
+			_size = _capacity = 0;
+			_container		  = NULL;
+			_alloc			  = alloc;
+			size_type n		  = ctorRangeHelper(
+				  first, last, typename ft::iterator_traits< InputIterator >::iterator_category() );
+			if ( !n ) return;
+			else if ( n > max_size() )
+				LENGTH_EXCPT;
+			_container = _alloc.allocate( n );
+			_capacity  = n;
+			for ( ; _size < n; _size++ ) _alloc.construct( _container + _size, *first++ );
+		} // ctor_range
 		/* --------------------------- Copy Constructor --------------------------- */
 		vector( const ft::vector< T, Allocator > &vec ) {
-			_size	   = vec.size();
-			_capacity  = _size;
-			_alloc	   = vec.get_allocator();
-			_container = NULL;
-			if ( _capacity ) _container = _alloc.allocate( _capacity );
-			for ( size_type i = 0; i < _size; i++ ) _alloc.construct( _container + i, vec[ i ] );
-		}
+			_capacity = _size = 0;
+			_container		  = NULL;
+			_alloc			  = vec.get_allocator();
+			size_type n		  = vec.size();
+			if ( !n ) return;
+			else if ( n > max_size() )
+				LENGTH_EXCPT;
+			_container = _alloc.allocate( n );
+			_capacity  = n;
+			for ( ; _size < n; _size++ ) _alloc.construct( _container + _size, vec[ _size ] );
+		} // ctor_copy
 		/* ------------------------------ Destructor ------------------------------ */
 		~vector( void ) {
 			if ( !_capacity ) return;
 			clear();
 			_alloc.deallocate( _container, _capacity );
+			_capacity  = 0;
 			_container = NULL;
-		}
+		} // dtor
 		/* ------------------------------ operator = ------------------------------ */
-		vector< T, Allocator > &operator=( const ft::vector< T, Allocator > &x ) {
-			if ( this != &x ) {
-				clear();
-				reserve( std::max( _capacity, x.size() ) );
-				_size	  = x.size();
-				_capacity = std::max( _capacity, x.size() );
-				_alloc	  = x.get_allocator();
-				for ( size_type i = 0; i < _size; i++ ) _alloc.construct( _container + i, x[ i ] );
+		vector< T, Allocator > &operator=( const ft::vector< T, Allocator > &vec ) {
+			if ( this != &vec ) {
+				size_type n = vec.size();
+				if ( n > _capacity ) {
+					if ( n > max_size() ) LENGTH_EXCPT;
+					size_type	   tmp_size		= _size;
+					size_type	   tmp_capacity = _capacity;
+					value_type	  *tmp_ctr		= _container;
+					allocator_type tmp_alloc	= _alloc;
+					allocator_type new_alloc	= vec.get_allocator();
+					_container					= new_alloc.allocate( n );
+					_size						= 0;
+					_capacity					= n;
+					_alloc						= new_alloc;
+					for ( ; _size < tmp_size; _size++ ) {
+						_alloc.construct( _container + _size, vec[ _size ] );
+						tmp_alloc.destroy( tmp_ctr + _size );
+					}
+					for ( ; _size < n; _size++ )
+						_alloc.construct( _container + _size, vec[ _size ] );
+					if ( tmp_capacity ) tmp_alloc.deallocate( tmp_ctr, tmp_capacity );
+				} else {
+					for ( size_type i = 0, end = std::min( _size, n ); i < end; i++ ) {
+						_alloc.destroy( _container + i );
+						_alloc.construct( _container + i, vec[ i ] );
+					}
+					for ( ; _size < n; _size++ )
+						_alloc.construct( _container + _size, vec[ _size ] );
+					for ( size_type i = n; i < _size; i++ ) _alloc.destroy( _container + i );
+					_size = n;
+				}
 			}
 			return *this;
-		}
+		} // assignment
 		/* -------------------------------- assign -------------------------------- */
+		void assign( size_type n, const T &val ) {
+			if ( n > _capacity ) {
+				if ( n > max_size() ) LENGTH_EXCPT;
+				size_type	tmp_size	 = _size;
+				size_type	tmp_capacity = _capacity;
+				value_type *tmp_ctr		 = _container;
+				_container				 = _alloc.allocate( n );
+				_size					 = 0;
+				_capacity				 = n;
+				for ( ; _size < tmp_size; _size++ ) {
+					_alloc.construct( _container + _size, val );
+					_alloc.destroy( tmp_ctr + _size );
+				}
+				for ( ; _size < n; _size++ ) _alloc.construct( _container + _size, val );
+				if ( tmp_capacity ) _alloc.deallocate( tmp_ctr, tmp_capacity );
+			} else {
+				for ( size_type i = 0, end = std::min( _size, n ); i < end; i++ ) {
+					_alloc.destroy( _container + i );
+					_alloc.construct( _container + i, val );
+				}
+				for ( ; _size < n; _size++ ) _alloc.construct( _container + _size, val );
+				for ( size_type i = n; i < _size; i++ ) _alloc.destroy( _container + i );
+				_size = n;
+			}
+		} // assign
 		template < class InputIterator >
 		typename ft::enable_if< !ft::is_integral< InputIterator >::value, void >::type
 		assign( InputIterator first, InputIterator last ) {
-			clear();
 			assignRangeHelper( first, last,
 							   typename ft::iterator_traits< InputIterator >::iterator_category() );
-		}
-		void assign( size_type n, const T &val ) {
-			clear();
-			if ( n > _capacity ) {
-				if ( _capacity ) _alloc.deallocate( _container, _capacity );
-				_capacity  = n;
-				_container = _alloc.allocate( _capacity );
-			}
-			_size = n;
-			for ( size_type i = 0; i < _size; i++ ) _alloc.construct( _container + i, val );
-		}
+		} // assign_range
 		/* ----------------------------- get_allocator ---------------------------- */
-		allocator_type get_allocator( void ) const { return _alloc; }
+		allocator_type get_allocator( void ) const { return _alloc; } // get_allocator
 		/* ------------------------------------------------------------------------ */
 		/*                                 Iterators                                */
 		/*                                  ..::..                                  */
 		/* --------------------------------- begin -------------------------------- */
-		iterator	   begin( void ) { return iterator( _container ); }
-		const_iterator begin( void ) const { return const_iterator( _container ); }
-		/* ---------------------------------- end --------------------------------- */
-		iterator	   end( void ) { return iterator( _container + _size ); }
-		const_iterator end( void ) const { return const_iterator( _container + _size ); }
-		/* -------------------------------- rbegin -------------------------------- */
-		reverse_iterator	   rbegin( void ) { return reverse_iterator( end() ); }
-		const_reverse_iterator rbegin( void ) const { return const_reverse_iterator( end() ); }
-		/* --------------------------------- rend --------------------------------- */
-		reverse_iterator	   rend( void ) { return reverse_iterator( begin() ); }
-		const_reverse_iterator rend( void ) const { return const_reverse_iterator( begin() ); }
+		iterator			   begin( void ) { return _container; }					// begin
+		const_iterator		   begin( void ) const { return _container; }			// const_begin
+		iterator			   end( void ) { return _container + _size; }			// end
+		const_iterator		   end( void ) const { return _container + _size; }		// const_end
+		reverse_iterator	   rbegin( void ) { return reverse_iterator( end() ); } // rbegin
+		const_reverse_iterator rbegin( void ) const {
+			return const_reverse_iterator( end() );
+		}																			// const_rbegin
+		reverse_iterator	   rend( void ) { return reverse_iterator( begin() ); } // rend
+		const_reverse_iterator rend( void ) const {
+			return const_reverse_iterator( begin() );
+		} // const_rend
 		/* ------------------------------------------------------------------------ */
 		/*                                 Capacity                                 */
 		/*                                  ..::..                                  */
 		/* --------------------------------- size --------------------------------- */
-		size_type size( void ) const { return _size; }
+		size_type size( void ) const { return _size; } // size
 		/* ------------------------------- max_size ------------------------------- */
 		size_type max_size( void ) const {
 			return std::min(
 				_alloc.max_size(),
 				static_cast< size_type >( std::numeric_limits< difference_type >::max() ) );
-		}
+		} // max_size
 		/* -------------------------------- resize -------------------------------- */
 		void resize( size_type n, T val = T() ) {
 			if ( n < _size )
 				for ( size_type i = n; i < _size; i++ ) _alloc.destroy( _container + i );
 			else if ( n > _size ) {
-				if ( n > _capacity ) reserve( std::max( _capacity * 2, n ) );
-				for ( size_type i = _size; i < n; i++ ) _alloc.construct( _container + i, val );
+				if ( n > _capacity ) {
+					if ( n > max_size() ) LENGTH_EXCPT;
+					size_type	tmp_size	 = _size;
+					size_type	tmp_capacity = _capacity;
+					value_type *tmp_ctr		 = _container;
+					size_type	new_capacity = std::max( _capacity * 2, n );
+					_container				 = _alloc.allocate( new_capacity );
+					_size					 = 0;
+					_capacity				 = new_capacity;
+					for ( ; _size < tmp_size; _size++ ) {
+						_alloc.construct( _container + _size, tmp_ctr[ _size ] );
+						_alloc.destroy( tmp_ctr + _size );
+					}
+					for ( ; _size < n; _size++ ) _alloc.construct( _container + _size, val );
+					if ( tmp_capacity ) _alloc.deallocate( tmp_ctr, tmp_capacity );
+				} else
+					for ( size_type i = _size; i < n; i++ ) _alloc.construct( _container + i, val );
 			}
 			_size = n;
-		}
+		} // resize
 		/* ------------------------------- capacity ------------------------------- */
-		size_type capacity( void ) const { return _capacity; }
+		size_type capacity( void ) const { return _capacity; } // capacity
 		/* --------------------------------- empty -------------------------------- */
-		bool empty( void ) const { return !_size; }
+		bool empty( void ) const { return _size == 0; } // size
 		/* -------------------------------- reserve ------------------------------- */
 		void reserve( size_type n ) {
-			if ( n > max_size() )
-				throw std::length_error( "vector : 'new_capacity' exceeds maximum supported size" );
-			else if ( n <= _capacity )
-				return;
-			ft::vector< T > temp;
-			temp.reserve( _size );
+			if ( n <= _capacity ) return;
+			else if ( n > max_size() )
+				LENGTH_EXCPT;
+			size_type	tmp_capacity = _capacity;
+			value_type *tmp_ctr		 = _container;
+			_container				 = _alloc.allocate( n );
+			_capacity				 = n;
 			for ( size_type i = 0; i < _size; i++ ) {
-				temp[ i ] = _container[ i ];
-				_alloc.destroy( _container + i );
+				_alloc.construct( _container + i, tmp_ctr[ i ] );
+				_alloc.destroy( tmp_ctr + i );
 			}
-			if ( _capacity ) _alloc.deallocate( _container, _capacity );
-			_capacity  = n;
-			_container = _alloc.allocate( _capacity );
-			for ( size_type i = 0; i < _size; i++ ) _alloc.construct( _container + i, temp[ i ] );
-		}
+			if ( tmp_capacity ) _alloc.deallocate( tmp_ctr, tmp_capacity );
+		} // reserve
 		/* ------------------------------------------------------------------------ */
 		/*                              Element Access                              */
 		/*                                  ..::..                                  */
 		/* ------------------------------ operator [] ----------------------------- */
-		reference		operator[]( size_type n ) { return _container[ n ]; }
-		const_reference operator[]( size_type n ) const { return _container[ n ]; }
+		reference		operator[]( size_type n ) { return _container[ n ]; }		// []
+		const_reference operator[]( size_type n ) const { return _container[ n ]; } // const []
 		/* ---------------------------------- at ---------------------------------- */
 		reference at( size_type n ) {
-			if ( n >= _size ) throw std::out_of_range( "vector : range_check" );
+			if ( n >= _size ) RANGE_EXCPT;
 			return _container[ n ];
-		}
+		} // at
 		const_reference at( size_type n ) const {
-			if ( n >= _size ) throw std::out_of_range( "vector : range_check" );
+			if ( n >= _size ) RANGE_EXCPT;
 			return _container[ n ];
-		}
+		} // const at
 		/* --------------------------------- front -------------------------------- */
-		reference		front( void ) { return _container[ 0 ]; }
-		const_reference front( void ) const { return _container[ 0 ]; }
+		reference		front( void ) { return _container[ 0 ]; }		// front
+		const_reference front( void ) const { return _container[ 0 ]; } // const front
 		/* --------------------------------- back --------------------------------- */
-		reference		back( void ) { return _container[ _size - 1 ]; }
-		const_reference back( void ) const { return _container[ _size - 1 ]; }
+		reference		back( void ) { return _container[ _size - 1 ]; }	   // back
+		const_reference back( void ) const { return _container[ _size - 1 ]; } // const back
 		/* ------------------------------------------------------------------------ */
 		/*                                 Modifiers                                */
 		/*                                  ..::..                                  */
 		/* ------------------------------- push_back ------------------------------ */
 		void push_back( const T &val ) {
-			if ( _size == _capacity ) {
-				ft::vector< T > temp;
-				temp.reserve( _size );
-				for ( size_type i = 0; i < _size; i++ ) {
-					temp[ i ] = _container[ i ];
-					_alloc.destroy( _container + i );
-				}
-				if ( _capacity ) _alloc.deallocate( _container, _capacity );
-				_capacity += _capacity ? _capacity : 1;
-				_container = _alloc.allocate( _capacity );
-				for ( size_type i = 0; i < _size; i++ )
-					_alloc.construct( _container + i, temp[ i ] );
-			}
+			if ( _size == _capacity )
+				reserve( std::min( max_size(),
+								   std::max( _capacity * 2, static_cast< size_type >( 1 ) ) ) );
 			_alloc.construct( _container + _size++, val );
-		}
+		} // push_back
 		/* ------------------------------- pop_back ------------------------------- */
-		void pop_back( void ) { _alloc.destroy( _container + --_size ); }
+		void pop_back( void ) { _alloc.destroy( _container + --_size ); } // pop_back
 		/* -------------------------------- insert -------------------------------- */
 		iterator insert( iterator position, const T &val ) {
-			size_type pos = position - begin();
-			if ( _size == _capacity ) {
-				ft::vector< T > temp;
-				temp.reserve( _size );
-				for ( size_type i = 0; i < _size; i++ ) {
-					temp[ i ] = _container[ i ];
-					_alloc.destroy( _container + i );
-				}
-				if ( _capacity ) _alloc.deallocate( _container, _capacity );
-				_capacity += _capacity ? _capacity : 1;
-				_container = _alloc.allocate( _capacity );
-				_size++;
-				for ( size_type i = 0; i != pos; i++ )
-					_alloc.construct( _container + i, temp[ i ] );
-				for ( size_type i = pos + 1; i != _size; i++ )
-					_alloc.construct( _container + i, temp[ i - 1 ] );
-			} else {
-				for ( size_type i = _size; i != pos; i-- ) {
-					_alloc.construct( _container + i, _container[ i - 1 ] );
-					_alloc.destroy( _container + i - 1 );
-				}
-				_size++;
-			}
+			size_type pos = insertHelper( position, static_cast< size_type >( 1 ) );
 			_alloc.construct( _container + pos, val );
+			_size++;
 			return begin() + pos;
-		}
+		} // insert
 		void insert( iterator position, size_type n, const T &val ) {
-			size_type pos = insertHelper( position, n );
-			for ( size_type i = pos; i != pos + n; i++ ) _alloc.construct( _container + i, val );
-		}
+			size_type newSize = _size + n;
+			size_type pos	  = insertHelper( position, n );
+			for ( ; _size < newSize; pos++, _size++ ) _alloc.construct( _container + pos, val );
+		} // insert_size
 		template < class InputIterator >
 		typename ft::enable_if< !ft::is_integral< InputIterator >::value, void >::type
 		insert( iterator position, InputIterator first, InputIterator last ) {
 			insertRangeHelper( position, first, last,
 							   typename ft::iterator_traits< InputIterator >::iterator_category() );
-		}
+		} // insert_range
 		/* --------------------------------- erase -------------------------------- */
 		iterator erase( iterator position ) {
 			size_type pos = position - begin();
@@ -376,19 +415,19 @@ namespace ft {
 			_alloc.destroy( _container + _size - 1 );
 			_size--;
 			return begin() + pos;
-		}
+		} // erase
 		iterator erase( iterator first, iterator last ) {
 			if ( first == last ) return last;
-			size_type n	  = last - first;
 			size_type pos = first - begin();
-			for ( size_type i = pos; i < _size - 1; i++ ) {
+			size_type n	  = last - first;
+			for ( size_type i = pos; i < _size - n; i++ ) {
 				_alloc.destroy( _container + i );
-				if ( i + n < _size ) _alloc.construct( _container + i, _container[ i + n ] );
+				_alloc.construct( _container + i, _container[ i + n ] );
 			}
-			_alloc.destroy( _container + _size - 1 );
+			for ( size_type i = _size - n; i < _size; i++ ) _alloc.destroy( _container + i );
 			_size -= n;
 			return begin() + pos;
-		}
+		} // erase_range
 		/* --------------------------------- swap --------------------------------- */
 		void swap( ft::vector< T, Allocator > &x ) {
 			if ( this != &x ) {
@@ -405,12 +444,12 @@ namespace ft {
 				_alloc						 = tmp_alloc;
 				_container					 = tmp_container;
 			}
-		}
+		} // swap
 		/* --------------------------------- clear -------------------------------- */
 		void clear( void ) {
 			for ( size_type i = 0; i < _size; i++ ) _alloc.destroy( _container + i );
 			_size = 0;
-		}
+		} // clear
 	};
 	/* -------------------------------------------------------------------------- */
 	/*                        Non-member function overloads                       */

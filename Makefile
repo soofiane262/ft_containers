@@ -6,17 +6,17 @@
 #    By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/01/19 15:28:01 by sel-mars          #+#    #+#              #
-#    Updated: 2023/02/15 18:19:35 by sel-mars         ###   ########.fr        #
+#    Updated: 2023/02/16 15:34:44 by sel-mars         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 CPP		=	c++
 
-FLAGS	=	-g -Wall -Wextra -Werror -std=c++98
+FLAGS	=	-g -Wall -Wextra -Werror -std=c++98 -O3
 
 SRCS	=	main.cpp main.hpp
 
-ITERS	=	$(addprefix iterators/,iterator_traits.hpp vec_iterator.hpp reverse_iterator.hpp)
+ITERS	=	$(addprefix iterators/,iterator_traits.hpp random_access_iterator.hpp reverse_iterator.hpp)
 
 TESTS	=	utils vector stack
 
