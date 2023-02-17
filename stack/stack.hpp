@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/26 22:46:28 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/15 11:05:16 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/17 09:00:17 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,13 @@
 
 #include "../vector/vector.hpp"
 
-#include <cstddef>
-
 namespace ft {
 	template < class T, class Container = vector< T > > class stack {
+	  public:
+		typedef typename Container::value_type value_type;
+		typedef typename Container::size_type  size_type;
+		typedef Container					   container_type;
+
 	  private:
 		template < class U, class U_Container > friend bool
 		operator==( const stack< U, U_Container >& lhs, const stack< U, U_Container >& rhs );
@@ -31,11 +34,6 @@ namespace ft {
 		operator>( const stack< U, U_Container >& lhs, const stack< U, U_Container >& rhs );
 		template < class U, class U_Container > friend bool
 		operator>=( const stack< U, U_Container >& lhs, const stack< U, U_Container >& rhs );
-
-	  public:
-		typedef typename Container::value_type value_type;
-		typedef typename Container::size_type  size_type;
-		typedef Container					   container_type;
 
 	  protected:
 		Container c;

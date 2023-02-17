@@ -6,13 +6,13 @@
 #    By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/01/19 15:28:01 by sel-mars          #+#    #+#              #
-#    Updated: 2023/02/16 15:34:44 by sel-mars         ###   ########.fr        #
+#    Updated: 2023/02/17 08:10:41 by sel-mars         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 CPP		=	c++
 
-FLAGS	=	-g -Wall -Wextra -Werror -std=c++98 -O3
+FLAGS	=	-O3 -g -std=c++98 -Wall -Wextra -Werror -Wpedantic
 
 SRCS	=	main.cpp main.hpp
 
@@ -27,20 +27,21 @@ all: | $(TESTS)
 utils: ft_utils
 
 ft_utils: $(addprefix utils/,$(SRCS) utils.hpp) $(ITERS)
-	@$(CPP) $(FLAGS) $< -o $@
+	$(CPP) $(FLAGS) $< -o $@
 
 vector: ft_vector
 
 ft_vector: $(addprefix vector/,$(SRCS) vector.hpp) $(ITERS)
-	@$(CPP) $(FLAGS) $< -o $@
+	$(CPP) $(FLAGS) $< -o $@
 
 stack: ft_stack
 
 ft_stack: $(addprefix stack/,$(SRCS) stack.hpp)
-	@$(CPP) $(FLAGS) $< -o $@
+	$(CPP) $(FLAGS) $< -o $@
 
 clean:
 	@rm -f $(BINS) .logs
+	@rm -rf $(addsuffix .dSYM,$(BINS))
 
 fclean: clean
 

@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 17:03:51 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/01/27 19:45:11 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/17 08:18:52 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@
 #include <string>
 #include <vector>
 
-#define ESC "\e["
+#define ESC "\033["
 // Cursor
 #define CURSOR( ln ) ESC ln "H"
 #define CURSOR_HOME	 CURSOR( "0" )
@@ -70,7 +70,7 @@ template < class T > void compare( const T ft, const T std, const std::string st
 			  << "std : `" WHITE << std << RESET "`\n";
 	if ( ft == std ) return;
 	throw except( "Wrong " + err + " value", line );
-};
+}
 
 template < class T, class ft_ctr, class std_ctr > void
 check( ft::stack< T, ft_ctr > &ft_stack, std::stack< T, std_ctr > &std_stack, const int line ) {
@@ -97,4 +97,4 @@ check( ft::stack< T, ft_ctr > &ft_stack, std::stack< T, std_ctr > &std_stack, co
 		}
 	}
 	std::cout << "\n";
-};
+}
