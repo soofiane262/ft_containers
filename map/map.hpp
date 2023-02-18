@@ -6,17 +6,18 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/17 09:18:08 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/17 10:11:59 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/18 17:30:41 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
+#include "../utils/red_black_tree.hpp"
 #include "../utils/utils.hpp"
 
-#include <cstddef>
-#include <functional>
-#include <memory>
+#include <cstddef>	  // size_t - ptrdiff_t
+#include <functional> // less
+#include <memory>	  // allocator
 
 namespace ft {
 	template < class Key, class T, class Compare = std::less< Key >,
@@ -56,5 +57,84 @@ namespace ft {
 				return comp( x.first, y.first );
 			}
 		}; // class value_compare
-	};	   // class map
+		/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+		/*                             Construct / Copy / Destroy                             */
+		/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+		explicit map( const Compare& comp = Compare(),
+					  const Allocator&	  = Allocator() ); // ctor_default
+		template < class InputIterator > map( InputIterator first, InputIterator last,
+											  const Compare& comp = Compare(),
+											  const Allocator&	  = Allocator() ); // ctor_range
+		map( const ft::map< Key, T, Compare, Allocator >& x );					// ctor_copy
+		~map();																	// dtor
+		map< Key, T, Compare, Allocator >&
+		operator=( const map< Key, T, Compare, Allocator >& x ); // assignemnt
+		/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+		/*                                      Iterators                                     */
+		/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+		// iterator			   begin();		   // begin
+		// const_iterator		   begin() const;  // const_begin
+		// iterator			   end();		   // end
+		// const_iterator		   end() const;	   // const_end
+		// reverse_iterator	   rbegin();	   // rbegin
+		// const_reverse_iterator rbegin() const; // const_rbegin
+		// reverse_iterator	   rend();		   // rend
+		// const_reverse_iterator rend() const;   // const_rend
+		/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+		/*                              Capacity - Element Access                             */
+		/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+		bool	  empty() const;	// empty
+		size_type size() const;		// size
+		size_type max_size() const; // max_size
+		T&		  operator[]( const key_type& x );
+		/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+		/*                                      Modifiers                                     */
+		/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+		// ft::pair< iterator, bool >			  insert( const value_type& x );
+		// iterator							  insert( iterator position, const value_type& x );
+		template < class InputIterator > void insert( InputIterator first, InputIterator last );
+		// void								  erase( iterator position );
+		size_type erase( const key_type& x );
+		// void								  erase( iterator first, iterator last );
+		void swap( map< Key, T, Compare, Allocator >& );
+		void clear();
+		/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+		/*                                      Observers                                     */
+		/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+		key_compare	  key_comp() const;
+		value_compare value_comp() const;
+		/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+		/*                                   Map Operations:                                  */
+		/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+		// iterator find( const key_type& x ); // find
+		// const_iterator find( const key_type& x ) const; // const_find
+		size_type count( const key_type& x ) const; // count
+		// iterator	   lower_bound( const key_type& x ); // lower_bound
+		// const_iterator lower_bound( const key_type& x ) const; // const_lower_bound
+		// iterator upper_bound( const key_type& x ); // upper_bound
+		// const_iterator			   upper_bound( const key_type& x ) const; // const_upper_bound
+		// pair< iterator, iterator > equal_range( const key_type& x ); // equal_range
+		// pair< const_iterator, const_iterator > equal_range( const key_type& x ) const; //
+		// const_equal_range
+	}; // class map
+	template < class Key, class T, class Compare, class Allocator >
+	bool operator==( const map< Key, T, Compare, Allocator >& x,
+					 const map< Key, T, Compare, Allocator >& y ); // operator==
+	template < class Key, class T, class Compare, class Allocator >
+	bool operator<( const map< Key, T, Compare, Allocator >& x,
+					const map< Key, T, Compare, Allocator >& y ); // operator <
+	template < class Key, class T, class Compare, class Allocator >
+	bool operator!=( const map< Key, T, Compare, Allocator >& x,
+					 const map< Key, T, Compare, Allocator >& y ); // operator !=
+	template < class Key, class T, class Compare, class Allocator >
+	bool operator>( const map< Key, T, Compare, Allocator >& x,
+					const map< Key, T, Compare, Allocator >& y ); // operator >
+	template < class Key, class T, class Compare, class Allocator >
+	bool operator>=( const map< Key, T, Compare, Allocator >& x,
+					 const map< Key, T, Compare, Allocator >& y ); // operator >=
+	template < class Key, class T, class Compare, class Allocator >
+	bool operator<=( const map< Key, T, Compare, Allocator >& x,
+					 const map< Key, T, Compare, Allocator >& y ); // operator <=
+	template < class Key, class T, class Compare, class Allocator >
+	void swap( map< Key, T, Compare, Allocator >& x, map< Key, T, Compare, Allocator >& y ); // swap
 } // namespace ft

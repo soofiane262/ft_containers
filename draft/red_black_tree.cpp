@@ -1,27 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   generic_rbt.cpp                                    :+:      :+:    :+:   */
+/*   red_black_tree.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/31 17:57:44 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/18 13:47:38 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/18 16:03:05 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-// for checker
-#include <algorithm>
+#include "red_black_tree.hpp"
+
 #include <climits>
-#include <random>
-#include <set>
-// end
-
-#include "generic_rbt.hpp"
-
 #include <cstdlib>
 #include <ctime>
-#include <ios>
+#include <iomanip>
+#include <iostream>
+#include <random>
 #include <unistd.h>
 #include <vector>
 
@@ -55,8 +51,8 @@ int main( void ) {
 	// random
 	{
 		std::system( "clear" );
-		for ( int test = 0, total_tests = 1, sz = 10000, range = INT_MAX / sz; test < total_tests;
-			  test++ ) {
+		for ( int test = 0, total_tests = 10, sz = 1000000, range = INT_MAX / sz;
+			  test < total_tests; test++ ) {
 			std::cout << "\e[s\e[1;37m"
 					  << "────────────────────────┤"
 					  << "    TEST " << std::setw( 3 ) << test + 1 << " of " << std::setw( 5 )
@@ -64,41 +60,39 @@ int main( void ) {
 					  << "  START    "
 						 "├────────────────────────"
 					  << "\e[0m\n";
-			// std::vector< int > in;
-			// for ( int i = 0; i < sz; i++ ) in.push_back( rand() % range + range * i );
-			// std::vector< int > out( in );
-			// std::shuffle( in.begin(), in.end(), mt );
-			// std::shuffle( out.begin(), out.end(), mt );
+			std::vector< int > in;
+			for ( int i = 0; i < sz; i++ ) in.push_back( rand() % range + range * i );
+			std::vector< int > out( in );
+			std::shuffle( in.begin(), in.end(), mt );
+			std::shuffle( out.begin(), out.end(), mt );
 			// std::cout << "insert ";
 			// for ( int i = 0; i < sz; i++ ) std::cout << in.at( i ) << ' ';
 			// std::cout << '\n';
 			// std::cout << "delete ";
 			// for ( int i = 0; i < sz; i++ ) std::cout << out.at( i ) << ' ';
 			// std::cout << '\n';
-			generic_rbt< const int, int > n;
-			// std::cout << "\e[1;34m"
-			// 		  << "────────┐    STARTING INSERTION    "
-			// 		  << "\e[0m\n";
-			// sleep( 1 );
-			for ( int i = 0, x; i < sz; i++ ) {
-				x = rand() % range + range * i;
-				n.insert( x, x, /* tmp */ i );
-			}
-			// for ( int i = 0; i < sz; i++ ) n.insert( in.at( i ), in.at( i ), /* tmp */ i );
-			// std::cout << "\e[F\e[J\e[1;32m"
-			// 		  << "────────┐    INSERTION SUCCESS    "
-			// 		  << "\e[0m\n";
-			// sleep( 1 );
-			// // n.log();
-			// std::cout << "\e[1;34m"
-			// 		  << "────────┐    STARTING DELETION    "
-			// 		  << "\e[0m\n";
-			// sleep( 1 );
-			// for ( int i = 0; i < sz; i++ ) n.del( out.at( i ), /* tmp */ i );
-			// std::cout << "\e[F\e[J\e[1;32m"
-			// 		  << "────────┐    DELETION SUCCESS    "
-			// 		  << "\e[0m\n";
-			// sleep( 1 );
+			red_black_tree< ft::pair< const int, int >, pair_value_compare< int, int > > rbt;
+			std::cout << "\e[1;34m"
+					  << "────────┐    STARTING INSERTION    "
+					  << "\e[0m\n";
+			sleep( 1 );
+			for ( int i = 0; i < sz; i++ )
+				rbt.insert( ft::pair< const int, int >( in.at( i ), in.at( i ) ), /* tmp */ i );
+			std::cout << "\e[F\e[J\e[1;32m"
+					  << "────────┐    INSERTION SUCCESS    "
+					  << "\e[0m\n";
+			sleep( 1 );
+			// n.log();
+			std::cout << "\e[1;34m"
+					  << "────────┐    STARTING DELETION    "
+					  << "\e[0m\n";
+			sleep( 1 );
+			for ( int i = 0; i < sz; i++ )
+				rbt.del( ft::pair< const int, int >( out.at( i ), out.at( i ) ), /* tmp */ i );
+			std::cout << "\e[F\e[J\e[1;32m"
+					  << "────────┐    DELETION SUCCESS    "
+					  << "\e[0m\n";
+			sleep( 1 );
 			std::cout << "\e[u\e[J\e[0;32m"
 					  << "────────────────────────┤"
 					  << "    TEST " << std::setw( 3 ) << test + 1 << " of " << std::setw( 5 )
@@ -113,6 +107,7 @@ int main( void ) {
 					 "├────────────────────────"
 				  << "\e[0m\n";
 	} // random
+	// std::system( "leaks a.out" );
 
 	// simple test
 	// {

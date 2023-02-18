@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/17 10:13:21 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/18 13:39:46 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/18 17:25:08 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,8 +30,8 @@
 #include <sstream>
 #include <unistd.h>
 
-enum e_colors { RED = 0, BLACK, DOUBLE_BLACK };
-enum e_directions { LEFT = -1, DEFAULT, RIGHT };
+enum e_colors { RED, BLACK, DOUBLE_BLACK };
+enum e_directions { DEFAULT, LEFT, RIGHT };
 
 template < class T > struct node {
 	T			 _elt;
