@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/17 10:13:21 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/17 16:14:20 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/18 13:39:46 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,8 +30,8 @@
 #include <sstream>
 #include <unistd.h>
 
-enum e_colors { RED, BLACK, DOUBLE_BLACK };
-enum e_directions { LEFT, DEFAULT, RIGHT };
+enum e_colors { RED = 0, BLACK, DOUBLE_BLACK };
+enum e_directions { LEFT = -1, DEFAULT, RIGHT };
 
 template < class T > struct node {
 	T			 _elt;
@@ -46,7 +46,7 @@ template < class T > struct node {
 	}
 	node *getSibling( void ) {
 		if ( !_parent ) return NULL;
-		else if ( _elt < _parent->_elt )
+		else if ( this == _parent->_left )
 			return _parent->_right;
 		return _parent->_left;
 	}
@@ -57,10 +57,8 @@ template < class T > struct node {
 	bool hasRedNiece( void ) {
 		node *sibling = getSibling();
 		if ( sibling && sibling->hasRedChild() &&
-			 ( ( sibling->_elt < _parent->_elt && sibling->_right &&
-				 sibling->_right->_color == RED ) ||
-			   ( sibling->_elt > _parent->_elt && sibling->_left &&
-				 sibling->_left->_color == RED ) ) )
+			 ( ( sibling == _parent->_left && sibling->_right && sibling->_right->_color == RED ) ||
+			   ( sibling == _parent->_right && sibling->_left && sibling->_left->_color == RED ) ) )
 			return true;
 		return false;
 	}
@@ -121,60 +119,108 @@ class generic_rbt {
 	}
 	node_type *leftRotation( node_type *nd ) {
 		node_type *r = nd->_right, *rl = r->_left;
+		if ( nd == root ) root = r;
 		nd->_right = rl;
 		if ( rl ) rl->_parent = nd;
 		r->_left   = nd;
 		r->_parent = nd->_parent;
-		if ( nd->_parent && nd->_elt > nd->_parent->_elt ) nd->_parent->_right = r;
-		else if ( nd->_parent && nd->_elt < nd->_parent->_elt )
+		if ( nd->_parent && nd == nd->_parent->_right ) nd->_parent->_right = r;
+		else if ( nd->_parent && nd == nd->_parent->_left )
 			nd->_parent->_left = r;
 		nd->_parent = r;
 		return r;
 	}
 	node_type *rightRotation( node_type *nd ) {
 		node_type *l = nd->_left, *lr = l->_right;
+		if ( nd == root ) root = l;
 		nd->_left = lr;
 		if ( lr ) lr->_parent = nd;
 		l->_right  = nd;
 		l->_parent = nd->_parent;
-		if ( nd->_parent && nd->_elt > nd->_parent->_elt ) nd->_parent->_right = l;
-		else if ( nd->_parent && nd->_elt < nd->_parent->_elt )
+		if ( nd->_parent && nd == nd->_parent->_right ) nd->_parent->_right = l;
+		else if ( nd->_parent && nd == nd->_parent->_left )
 			nd->_parent->_left = l;
 		nd->_parent = l;
 		return l;
 	}
-	void swapData( node_type *&x, node_type *&y ) {
-		bool	   relationship = y->_parent == x ? true : false;
-		node_type *tmp_node		= x;
-		x						= y;
-		y						= tmp_node;
-		e_colors	 tmp_color	= y->_color;
-		e_directions tmp_rotate = y->_rotate;
-		node_type	*tmp_parent = y->_parent, *tmp_left = y->_left, *tmp_right = y->_right;
-		y->_color  = x->_color;
-		y->_rotate = x->_rotate;
-		y->_parent = x->_parent;
-		y->_left   = x->_left;
-		y->_right  = x->_right;
-		log( y );
-		exit( 0 );
-		if ( value_compare( key_compare() )( y->_elt, y->_parent->_elt ) ) y->_parent->_left = y;
-		else
-			y->_parent->_right = y;
-		x->_color  = tmp_color;
-		x->_rotate = tmp_rotate;
+	void nodeInfos( node_type *&x, std::string name = "nd", e_directions dir = DEFAULT ) {
+		if ( !x ) { return; }
+		std::cout << std::setw( 12 ) << name << " : " << x->_elt.first << " - " << x->_elt.second
+				  << ", color " << x->_color;
 		if ( x->_parent )
-			std::cout << "i am " << x->_elt.second << ", my parent is " << x->_parent->_elt.second
-					  << "\n";
-		x->_parent = tmp_parent;
-		if ( x->_parent && value_compare( key_compare() )( x->_elt, x->_parent->_elt ) )
-			x->_parent->_left = x;
-		else if ( x->_parent )
+			std::cout << ", parent " << x->_parent->_elt.first << " - " << x->_parent->_elt.second;
+		if ( x->_left )
+			std::cout << ", left " << x->_left->_elt.first << " - " << x->_left->_elt.second;
+		if ( x->_right )
+			std::cout << ", right " << x->_right->_elt.first << " - " << x->_right->_elt.second;
+		std::cout << " and is " << dir << '\n';
+	}
+	void swapData( node_type *&x, node_type *&y ) {
+		bool		 relationship	 = x == y->_parent;
+		e_colors	 tmp_color[ 2 ]	 = { x->_color, y->_color };
+		e_directions tmp_rotate[ 2 ] = { x->_rotate, y->_rotate }, dir[ 2 ] = { DEFAULT, DEFAULT };
+		node_type	*tmp_node_x = x, *tmp_parent[ 2 ], *tmp_left[ 2 ], *tmp_right[ 2 ];
+		if ( !relationship ) {
+			if ( !x->_parent ) dir[ 0 ] = DEFAULT;
+			else if ( x == x->_parent->_left )
+				dir[ 0 ] = LEFT;
+			else
+				dir[ 0 ] = RIGHT;
+			if ( y == y->_parent->_left ) dir[ 1 ] = LEFT;
+			else
+				dir[ 1 ] = RIGHT;
+			tmp_parent[ 0 ] = x->_parent, tmp_parent[ 1 ] = y->_parent;
+			tmp_left[ 0 ] = x->_left, tmp_left[ 1 ] = y->_left;
+			tmp_right[ 0 ] = x->_right, tmp_right[ 1 ] = y->_right;
+		} else {
+			tmp_parent[ 0 ] = x->_parent, tmp_parent[ 1 ] = y;
+			tmp_left[ 0 ] = ( relationship == LEFT ? x : x->_left ), tmp_left[ 1 ] = y->_left;
+			tmp_right[ 0 ] = ( relationship == RIGHT ? x : x->_right ), tmp_right[ 1 ] = y->_right;
+		}
+		// std::cout << "before rotation\n";
+		// nodeInfos( x, "x", dir[ 0 ] );
+		// nodeInfos( x->_left, "x->_left" );
+		// nodeInfos( x->_right, "x->_right" );
+		// nodeInfos( x->_parent, "x->_parent" );
+		// nodeInfos( y, "y", dir[ 1 ] );
+		// nodeInfos( y->_left, "y->_left" );
+		// nodeInfos( y->_right, "y->_right" );
+		// nodeInfos( y->_parent, "y->_parent" );
+		x		   = y;
+		y		   = tmp_node_x;
+		x->_color  = tmp_color[ 0 ];
+		x->_rotate = tmp_rotate[ 0 ];
+		x->_parent = tmp_parent[ 0 ];
+		x->_left   = tmp_left[ 0 ];
+		x->_right  = tmp_right[ 0 ];
+		y->_color  = tmp_color[ 1 ];
+		y->_rotate = tmp_rotate[ 1 ];
+		y->_parent = tmp_parent[ 1 ];
+		y->_left   = tmp_left[ 1 ];
+		y->_right  = tmp_right[ 1 ];
+		if ( x->_left ) x->_left->_parent = x;
+		if ( x->_right ) x->_right->_parent = x;
+		if ( y->_left ) y->_left->_parent = y;
+		if ( y->_right ) y->_right->_parent = y;
+		if ( relationship ) return;
+		// if ( !relationship ) {
+		if ( dir[ 0 ] == LEFT ) x->_parent->_left = x;
+		else if ( dir[ 0 ] == RIGHT )
 			x->_parent->_right = x;
-		x->_left		   = tmp_left;
-		x->_left->_parent  = x;
-		x->_right		   = tmp_right;
-		x->_right->_parent = x;
+		if ( dir[ 1 ] == LEFT ) y->_parent->_left = y;
+		else if ( dir[ 1 ] == RIGHT )
+			y->_parent->_right = y;
+		// }
+		// std::cout << "\nafter rotation\n";
+		// nodeInfos( x, "x", dir[ 0 ] );
+		// nodeInfos( x->_left, "x->_left" );
+		// nodeInfos( x->_right, "x->_right" );
+		// nodeInfos( x->_parent, "x->_parent" );
+		// nodeInfos( y, "y", dir[ 1 ] );
+		// nodeInfos( y->_left, "y->_left" );
+		// nodeInfos( y->_right, "y->_right" );
+		// nodeInfos( y->_parent, "y->_parent" );
+		// log();
 	}
 	node_type *rotate( node_type *nd, const bool colorSwap ) {
 		node_type	*ret	= nd;
@@ -249,7 +295,7 @@ class generic_rbt {
 			nd->_color = BLACK;
 		else {
 			node_type	*sibling = nd->getSibling();
-			e_directions DBdir	 = ( nd->_elt < nd->_parent->_elt ? LEFT : RIGHT );
+			e_directions DBdir = ( nd->_parent->_left && nd == nd->_parent->_left ? LEFT : RIGHT );
 			if ( !sibling || ( sibling->_color == BLACK && !sibling->hasRedChild() ) ) {
 				if ( sibling ) sibling->_color = RED;
 				nd->_color			= BLACK;
@@ -268,8 +314,7 @@ class generic_rbt {
 				if ( rot->_right ) rot->_right->_color = BLACK;
 			} else {
 				nd->_parent->_rotate = DBdir;
-				node_type *rot		 = rotate( nd->_parent, true );
-				nd->_parent			 = ( DBdir == LEFT ? rot->_left : rot->_right );
+				rotate( nd->_parent, true );
 				fixDoubleBlack( nd );
 			}
 		}
@@ -412,25 +457,25 @@ class generic_rbt {
 	void insert( const key_type &key_, const mapped_type &elt_, /* tmp */ const int i ) {
 		_insert( root, value_type( key_, elt_ ), NULL );
 		// checking
-		std::map< node_type *, std::vector< int > > mp;
-		std::cout << "\e[1;31m";
-		assert( check( root, mp ) );
-		std::cout << "\e[0m";
-		std::cout << "idx " << std::setw( 10 ) << i << " INSERTED " << std::setw( 16 ) << elt_
-				  << " SUCCESSFULLY\n\e[F\e[K";
+		// std::map< node_type *, std::vector< int > > mp;
+		// std::cout << "\e[1;31m";
+		// assert( check( root, mp ) );
+		// std::cout << "\e[0m";
+		// std::cout << "idx " << std::setw( 10 ) << i << " INSERTED " << std::setw( 16 ) << elt_
+		//   << " SUCCESSFULLY\n\e[F\e[K";
+		//   << " SUCCESSFULLY\n";
 	};
 	void del( const key_type &key_, /* tmp */ const int i ) {
 		_del( root, key_ );
-		log();
-		if ( root ) {
-			// checking
-			std::map< node_type *, std::vector< int > > mp;
-			std::cout << "\e[1;31m";
-			assert( check( root, mp ) );
-			std::cout << "\e[0m";
-		}
-		std::cout << "idx " << std::setw( 10 ) << i << " DELETED ELEMENT @ " << std::setw( 16 )
-				  << key_ << " SUCCESSFULLY\n\e[F\e[K";
+		// if ( root ) {
+		// 	// checking
+		// 	std::map< node_type *, std::vector< int > > mp;
+		// 	std::cout << "\e[1;31m";
+		// 	assert( check( root, mp ) );
+		// 	std::cout << "\e[0m";
+		// }
+		// std::cout << "idx " << std::setw( 10 ) << i << " DELETED " << std::setw( 16 ) << key_
+		//   << " SUCCESSFULLY\n\e[F\e[K";
 	};
 
 	// tmp
@@ -459,9 +504,7 @@ class generic_rbt {
 	bool check( node_type *nd, std::map< node_type *, std::vector< int > > &mp ) {
 		bool ok = true;
 		if ( nd->_left != NULL ) {
-			// if nd->_elt <= nd->_left->_elt ) {
-			if ( !value_compare( key_compare() )( nd->_left->_elt,
-												  nd->_elt ) /* nd->_elt <= nd->_left->_elt */ ) {
+			if ( !value_compare( key_compare() )( nd->_left->_elt, nd->_elt ) ) {
 				std::cout << "LEFT CHILD LARGER OR EQUAL TO PARENT " << nd->_elt.first << " "
 						  << nd->_left->_elt.first << std::endl;
 				return false;
@@ -474,7 +517,6 @@ class generic_rbt {
 			ok &= check( nd->_left, mp );
 		}
 		if ( nd->_right != NULL ) {
-			// if ( nd->_elt >= nd->_right->_elt ) {
 			if ( !value_compare( key_compare() )( nd->_elt, nd->_right->_elt ) ) {
 				std::cout << "RIGHT CHILD SMALLER OR EQUAL TO PARENT " << nd->_elt.first << " "
 						  << nd->_left->_elt.first << std::endl;
