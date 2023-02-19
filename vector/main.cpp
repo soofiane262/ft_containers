@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/14 17:37:52 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/16 15:25:42 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/19 09:40:00 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -552,7 +552,7 @@ void vectorTest( const std::string executable ) {
 	testResult( error_count, testName, executable );
 }
 
-int main( void ) {
-	vectorTest( "ft_vector" );
+int main( int, char **av ) {
+	vectorTest( std::string( av[ 0 ] ).erase( 0, 2 ) );
 	return ( 0 );
 }

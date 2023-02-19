@@ -6,7 +6,7 @@
 #    By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/01/19 15:28:01 by sel-mars          #+#    #+#              #
-#    Updated: 2023/02/18 17:30:05 by sel-mars         ###   ########.fr        #
+#    Updated: 2023/02/19 16:17:59 by sel-mars         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,7 +24,7 @@ STACK	=	$(addprefix stack/,$(SRCS) stack.hpp)
 
 VECTOR	=	$(addprefix vector/,$(SRCS) vector.hpp) $(ITERS) iterators/random_access_iterator.hpp
 
-MAP		=	$(addprefix map/,$(SRCS) map.hpp) $(ITERS)
+MAP		=	$(addprefix map/,$(SRCS) map.hpp) $(ITERS) iterators/map_iterator.hpp utils/redBlackTree.hpp
 
 TESTS	=	utils stack vector map
 

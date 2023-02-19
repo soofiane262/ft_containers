@@ -6,13 +6,14 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/14 17:37:52 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/18 17:33:43 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/19 17:15:48 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "main.hpp"
 
 #include <cstddef>
+#include <unistd.h>
 
 #define compare( ctr1, ctr2, str, err ) compare( ctr1, ctr2, str, err, __LINE__ )
 #define check( ctr1, ctr2 )				check( ctr1, ctr2, __LINE__ )
@@ -75,7 +76,7 @@ void catchExcept( std::exception &e, int &error_count ) {
 	std::cout << "\n";
 }
 
-void vectorTest( const std::string executable ) {
+void mapTest( const std::string executable ) {
 	if ( !std::system( NULL ) ) {
 		std::cout << RED "No command processor available\n";
 		exit( 1 );
@@ -86,7 +87,7 @@ void vectorTest( const std::string executable ) {
 	srand( time( NULL ) );
 
 	int			error_count = 0;
-	std::string testName	= "Vector";
+	std::string testName	= "Map";
 	{
 		int	 test_idx  = 0;
 		bool waitState = false;
@@ -94,6 +95,46 @@ void vectorTest( const std::string executable ) {
 		try {
 			std::cout << MAGENTA << testName << " Test " << ++test_idx << RESET "\n\n";
 			std::cout << TITLE "Default Constructor" RESET "\n\n";
+			ft::map< int, char >							 mp;
+			ft::pair< ft::map< int, char >::iterator, bool > pr(
+				mp.insert( ft::pair< const int, char >( 'f', 'f' ) ) );
+			std::cout << "insert( " << pr.first->first << ", " << pr.first->second
+					  << " ) : " << pr.second << '\n';
+			pr = mp.insert( ft::pair< const int, char >( 'f', 'f' ) );
+			std::cout << "insert( " << pr.first->first << ", " << pr.first->second
+					  << " ) : " << pr.second << '\n';
+			pr = mp.insert( ft::pair< const int, char >( 'e', 'e' ) );
+			std::cout << "insert( " << pr.first->first << ", " << pr.first->second
+					  << " ) : " << pr.second << '\n';
+			std::cout << "erase( f ) : " << mp.erase( 'f' ) << '\n';
+			std::cout << "erase( f ) : " << mp.erase( 'f' ) << '\n';
+			std::cout << "\n" GREEN CHECK " Test " << test_idx << " : Sucess" RESET "\n\n";
+		} catch ( std::exception &e ) { catchExcept( e, error_count ); }
+		waitForTests( testName, waitState );
+		//
+		try {
+			std::cout << MAGENTA << testName << " Test " << ++test_idx << RESET "\n\n";
+			std::cout << TITLE "Default Constructor" RESET "\n\n";
+
+			ft::map< char, int > mymap;
+
+			mymap.insert( ft::pair< const char, int >( 'b', 100 ) );
+			mymap.insert( ft::pair< const char, int >( 'a', 200 ) );
+			mymap.insert( ft::pair< const char, int >( 'c', 300 ) );
+
+			// mymap[ 'b' ] = 100;
+			// mymap[ 'a' ] = 200;
+			// mymap[ 'c' ] = 300;
+
+			std::cout << mymap.begin()->first << " => " << mymap.begin()->second << '\n';
+			sleep( 2 );
+
+			for ( ft::map< char, int >::iterator it = mymap.begin(); it != mymap.end(); ++it ) {
+				std::cout << "here\n";
+				sleep( 1 );
+				std::cout << it->first << " => " << it->second << '\n';
+			}
+
 			std::cout << "\n" GREEN CHECK " Test " << test_idx << " : Sucess" RESET "\n\n";
 		} catch ( std::exception &e ) { catchExcept( e, error_count ); }
 		waitForTests( testName, waitState );
@@ -104,6 +145,6 @@ void vectorTest( const std::string executable ) {
 }
 
 int main( int, char **av ) {
-	vectorTest( std::string( av[ 0 ] ).erase( 0, 2 ) );
+	mapTest( std::string( av[ 0 ] ).erase( 0, 2 ) );
 	return ( 0 );
 }

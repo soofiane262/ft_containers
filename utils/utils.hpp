@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/23 17:18:08 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/17 11:13:09 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/19 15:33:09 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,7 +105,7 @@ namespace ft {
 		pair() : first( first_type() ), second( second_type() ) {}
 		pair( const first_type& a, const second_type& b ) : first( a ), second( b ) {}
 		template < class U, class V > pair( const ft::pair< U, V >& pr )
-			: first( first_type( pr ) ), second( second_type( pr ) ) {}
+			: first( pr.first ), second( pr.second ) {}
 		/* assignment ─────────────────────────────────────────────────────────────────────── */
 		pair& operator=( const pair& pr ) {
 			first  = pr.first;

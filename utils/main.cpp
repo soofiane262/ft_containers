@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/14 17:37:52 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/01/27 00:06:25 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/19 09:38:40 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ void catchExcept( std::exception &e, int &error_count ) {
 	std::cout << "\n";
 }
 
-int main( void ) {
+int main( int, char **av ) {
 	std::cout << CURSOR_HOME ERASE_DISP ERASE_SAVED;
 	if ( !std::system( NULL ) ) {
 		std::cout << RED "No command processor available\n";
