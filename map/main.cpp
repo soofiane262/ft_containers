@@ -6,13 +6,16 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/14 17:37:52 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/19 17:15:48 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/20 17:15:26 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "main.hpp"
 
 #include <cstddef>
+#include <cstdlib>
+#include <limits>
+#include <random>
 #include <unistd.h>
 
 #define compare( ctr1, ctr2, str, err ) compare( ctr1, ctr2, str, err, __LINE__ )
@@ -85,6 +88,8 @@ void mapTest( const std::string executable ) {
 	std::cout.imbue( std::locale( "en_US.UTF-8" ) );
 	std::cout << std::boolalpha;
 	srand( time( NULL ) );
+	std::random_device rd;
+	std::mt19937	   mt( rd() );
 
 	int			error_count = 0;
 	std::string testName	= "Map";
@@ -92,6 +97,7 @@ void mapTest( const std::string executable ) {
 		int	 test_idx  = 0;
 		bool waitState = false;
 		printHead( testName );
+		std::cout << sizeof( bool ) << '\n';
 		try {
 			std::cout << MAGENTA << testName << " Test " << ++test_idx << RESET "\n\n";
 			std::cout << TITLE "Default Constructor" RESET "\n\n";
@@ -116,25 +122,224 @@ void mapTest( const std::string executable ) {
 			std::cout << MAGENTA << testName << " Test " << ++test_idx << RESET "\n\n";
 			std::cout << TITLE "Default Constructor" RESET "\n\n";
 
-			ft::map< char, int > mymap;
+			std::map< int, int > std_map;
+			ft::map< int, int >	 ft_map;
 
-			mymap.insert( ft::pair< const char, int >( 'b', 100 ) );
-			mymap.insert( ft::pair< const char, int >( 'a', 200 ) );
-			mymap.insert( ft::pair< const char, int >( 'c', 300 ) );
+			std_map.insert( std::pair< const int, int >( 400, 400 ) );
+			std_map.insert( std::pair< const int, int >( 200, 200 ) );
+			std_map.insert( std::pair< const int, int >( 600, 600 ) );
+			std_map.insert( std::pair< const int, int >( 100, 100 ) );
+			std_map.insert( std::pair< const int, int >( 300, 300 ) );
+			std_map.insert( std::pair< const int, int >( 500, 500 ) );
+			std_map.insert( std::pair< const int, int >( 700, 700 ) );
+			std_map.insert( std::pair< const int, int >( 250, 250 ) );
+			std_map.insert( std::pair< const int, int >( 350, 350 ) );
 
-			// mymap[ 'b' ] = 100;
-			// mymap[ 'a' ] = 200;
-			// mymap[ 'c' ] = 300;
+			ft_map.insert( ft::pair< const int, int >( 400, 400 ) );
+			ft_map.insert( ft::pair< const int, int >( 200, 200 ) );
+			ft_map.insert( ft::pair< const int, int >( 600, 600 ) );
+			ft_map.insert( ft::pair< const int, int >( 100, 100 ) );
+			ft_map.insert( ft::pair< const int, int >( 300, 300 ) );
+			ft_map.insert( ft::pair< const int, int >( 500, 500 ) );
+			ft_map.insert( ft::pair< const int, int >( 700, 700 ) );
+			ft_map.insert( ft::pair< const int, int >( 250, 250 ) );
+			ft_map.insert( ft::pair< const int, int >( 350, 350 ) );
 
-			std::cout << mymap.begin()->first << " => " << mymap.begin()->second << '\n';
-			sleep( 2 );
+			compare( ft_map.find( 100 ), std_map.find( 100 ), "find ( 100 )", "find" );
+			compare( ft_map.count( 100 ), std_map.count( 100 ), "count ( 100 )", "count" );
 
-			for ( ft::map< char, int >::iterator it = mymap.begin(); it != mymap.end(); ++it ) {
-				std::cout << "here\n";
-				sleep( 1 );
-				std::cout << it->first << " => " << it->second << '\n';
+			std::cout << TITLE "erase ( 100 )" RESET "\n\n";
+			std_map.erase( 100 );
+			ft_map.erase( 100 );
+
+			compare( ft_map.count( 100 ), std_map.count( 100 ), "count ( 100 )", "count" );
+
+			check( ft_map, std_map );
+			ft_map.clear();
+			std_map.clear();
+			check( ft_map, std_map );
+
+			std::cout << "\n" GREEN CHECK " Test " << test_idx << " : Sucess" RESET "\n\n";
+		} catch ( std::exception &e ) { catchExcept( e, error_count ); }
+		waitForTests( testName, waitState );
+		try {
+			std::cout << MAGENTA << testName << " Test " << ++test_idx << RESET "\n\n";
+			std::cout << TITLE "Default Constructor" RESET "\n\n";
+
+			int range = 100;
+
+			std::vector< int > in;
+			for ( int i = 0; i < 20; i++ ) in.push_back( rand() % range + range * i );
+			std::vector< int > out( in );
+			std::shuffle( in.begin(), in.end(), mt );
+			std::shuffle( out.begin(), out.end(), mt );
+
+			ft::pair< int, int >  ft_in_pr[ 20 ];
+			std::pair< int, int > std_in_pr[ 20 ];
+			ft::pair< int, int >  ft_out_pr[ 20 ];
+			std::pair< int, int > std_out_pr[ 20 ];
+
+			for ( int i = 0; i < 20; i++ ) {
+				ft_in_pr[ i ]	= ft::make_pair( in[ i ], in[ i ] );
+				std_in_pr[ i ]	= std::make_pair( in[ i ], in[ i ] );
+				ft_out_pr[ i ]	= ft::make_pair( out[ i ], out[ i ] );
+				std_out_pr[ i ] = std::make_pair( out[ i ], out[ i ] );
 			}
 
+			std::map< int, int > std_map;
+			ft::map< int, int >	 ft_map;
+
+			ft_map.insert( ft_in_pr, ft_in_pr + 20 );
+			std_map.insert( std_in_pr, std_in_pr + 20 );
+
+			check( ft_map, std_map );
+
+			std::map< int, int > std_map2( std_map );
+			ft::map< int, int >	 ft_map2( ft_map );
+
+			check( ft_map2, std_map2 );
+
+			std::cout << "\n" GREEN CHECK " Test " << test_idx << " : Sucess" RESET "\n\n";
+		} catch ( std::exception &e ) { catchExcept( e, error_count ); }
+		waitForTests( testName, waitState );
+		try {
+			std::cout << MAGENTA << testName << " Test " << ++test_idx << RESET "\n\n";
+			std::cout << TITLE "Default Constructor" RESET "\n\n";
+
+			int range = 100;
+
+			std::vector< int > in;
+			for ( int i = 0; i < 20; i++ ) in.push_back( rand() % range + range * i );
+			std::vector< int > out( in );
+			std::shuffle( in.begin(), in.end(), mt );
+			std::shuffle( out.begin(), out.end(), mt );
+
+			ft::pair< int, int >  ft_in_pr[ 20 ];
+			std::pair< int, int > std_in_pr[ 20 ];
+
+			for ( int i = 0; i < 20; i++ ) {
+				ft_in_pr[ i ]  = ft::make_pair( in[ i ], in[ i ] );
+				std_in_pr[ i ] = std::make_pair( in[ i ], in[ i ] );
+			}
+
+			std::map< int, int > std_map;
+			ft::map< int, int >	 ft_map;
+
+			ft_map.insert( ft_in_pr, ft_in_pr + 20 );
+			std_map.insert( std_in_pr, std_in_pr + 20 );
+
+			check( ft_map, std_map );
+
+			for ( int i = 0; i < 20; i++ ) {
+				ft_map.erase( out[ i ] );
+				std_map.erase( out[ i ] );
+			}
+
+			check( ft_map, std_map );
+
+			std::cout << "\n" GREEN CHECK " Test " << test_idx << " : Sucess" RESET "\n\n";
+		} catch ( std::exception &e ) { catchExcept( e, error_count ); }
+		waitForTests( testName, waitState );
+		try {
+			std::cout << MAGENTA << testName << " Test " << ++test_idx << RESET "\n\n";
+			std::cout << TITLE "Default Constructor" RESET "\n\n";
+
+			std::map< int, int > std_map;
+			ft::map< int, int >	 ft_map;
+
+			std_map[ 400 ] = 400;
+			std_map[ 200 ] = 200;
+			std_map[ 600 ] = 600;
+			std_map[ 100 ] = 100;
+			std_map[ 300 ] = 300;
+			std_map[ 500 ] = 500;
+			std_map[ 700 ] = 700;
+			std_map[ 250 ] = 250;
+			std_map[ 350 ] = 350;
+
+			ft_map[ 400 ] = 400;
+			ft_map[ 200 ] = 200;
+			ft_map[ 600 ] = 600;
+			ft_map[ 100 ] = 100;
+			ft_map[ 300 ] = 300;
+			ft_map[ 500 ] = 500;
+			ft_map[ 700 ] = 700;
+			ft_map[ 250 ] = 250;
+			ft_map[ 350 ] = 350;
+
+			check( ft_map, std_map );
+
+			std::cout << "\n" GREEN CHECK " Test " << test_idx << " : Sucess" RESET "\n\n";
+		} catch ( std::exception &e ) { catchExcept( e, error_count ); }
+		waitForTests( testName, waitState );
+		try {
+			std::cout << MAGENTA << testName << " Test " << ++test_idx << RESET "\n\n";
+			std::cout << TITLE "max_size()" << RESET "\n\n";
+			// ft::map< int, char >  ft_char_mp;
+			// std::map< int, char > std_char_mp;
+			// compare( ft_char_mp.max_size(), std_char_mp.max_size(), "char\t\t", "max_size" );
+			// ft::map< int, signed char >	 ft_schar_mp;
+			// std::map< int, signed char > std_schar_mp;
+			// compare( ft_schar_mp.max_size(), std_schar_mp.max_size(), "signed_char\t", "max_size"
+			// ); ft::map< int, unsigned char >  ft_uschar_mp; std::map< int, unsigned char >
+			// std_uschar_mp; compare( ft_uschar_mp.max_size(), std_uschar_mp.max_size(),
+			// "unsigned_char\t", 		 "max_size" ); ft::map< int, short >  ft_short_mp; std::map<
+			// int, short > std_short_mp; compare( ft_short_mp.max_size(), std_short_mp.max_size(),
+			// "short\t\t", "max_size" ); ft::map< int, short int >  ft_short_int_mp; std::map< int,
+			// short int > std_short_int_mp; compare( ft_short_int_mp.max_size(),
+			// std_short_int_mp.max_size(), "short_int\t", 		 "max_size" ); ft::map< int, signed
+			// short >  ft_sshort_mp; std::map< int, signed short > std_sshort_mp; compare(
+			// ft_sshort_mp.max_size(), std_sshort_mp.max_size(), "signed_short\t", "max_size"
+			// ); ft::map< int, unsigned short >	ft_ushort_mp; std::map< int, unsigned short >
+			// std_ushort_mp; compare( ft_ushort_mp.max_size(), std_ushort_mp.max_size(),
+			// "signed_short_int", 		 "max_size" ); ft::map< int, unsigned short int >
+			// ft_ushort_int_mp; std::map< int, unsigned short int > std_ushort_int_mp; compare(
+			// ft_ushort_int_mp.max_size(), std_ushort_int_mp.max_size(), "unsigned_short\t\t",
+			// "max_size" ); ft::map< int, int >	 ft_int_mp; std::map< int, int > std_int_mp;
+			// compare( ft_int_mp.max_size(), std_int_mp.max_size(), "unsigned_short_int",
+			// 		 "max_size" );
+			// ft::map< int, signed >	ft_signed_mp;
+			// std::map< int, signed > std_signed_mp;
+			// compare( ft_signed_mp.max_size(), std_signed_mp.max_size(), "int\t\t", "max_size" );
+			// ft::map< int, signed int >	ft_signed_int_mp;
+			// std::map< int, signed int > std_signed_int_mp;
+			// compare( ft_signed_int_mp.max_size(), std_signed_int_mp.max_size(), "signed\t\t",
+			// 		 "max_size" );
+			// ft::map< int, unsigned >  ft_unsigned_mp;
+			// std::map< int, unsigned > std_unsigned_mp;
+			// compare( ft_unsigned_mp.max_size(), std_unsigned_mp.max_size(), "signed_int\t",
+			// 		 "max_size" );
+			// ft::map< int, unsigned int >  ft_uint_mp;
+			// std::map< int, unsigned int > std_uint_mp;
+			// compare( ft_uint_mp.max_size(), std_uint_mp.max_size(), "unsigned\t", "max_size" );
+			// ft::map< int, long >  ft_long_mp;
+			// std::map< int, long > std_long_mp;
+			// compare( ft_long_mp.max_size(), std_long_mp.max_size(), "unsigned_int\t", "max_size"
+			// ); ft::map< int, long int >  ft_lint_mp; std::map< int, long int > std_lint_mp;
+			// compare( ft_lint_mp.max_size(), std_lint_mp.max_size(), "long\t\t", "max_size" );
+			// ft::map< int, signed long >	 ft_slong_mp;
+			// std::map< int, signed long > std_slong_mp;
+			// compare( ft_slong_mp.max_size(), std_slong_mp.max_size(), "long_int\t", "max_size" );
+			// ft::map< int, signed long int >	 ft_slint_mp;
+			// std::map< int, signed long int > std_slint_mp;
+			// compare( ft_slint_mp.max_size(), std_slint_mp.max_size(), "signed_long\t", "max_size"
+			// ); ft::map< int, unsigned long >  ft_ulong_mp; std::map< int, unsigned long >
+			// std_ulong_mp; compare( ft_ulong_mp.max_size(), std_ulong_mp.max_size(),
+			// "signed_long_int\t", 		 "max_size" ); ft::map< int, unsigned long int >
+			// ft_ulint_mp; std::map< int, unsigned long int > std_ulint_mp; compare(
+			// ft_ulint_mp.max_size(), std_ulint_mp.max_size(), "unsigned_long\t", 		 "max_size"
+			// ); ft::map< int, char * >	ft_charptr_mp; std::map< int, char * > std_charptr_mp;
+			// compare( ft_charptr_mp.max_size(), std_charptr_mp.max_size(), "unsigned_long_int",
+			// 		 "max_size" );
+			// ft::map< int, std::string >	 ft_string_mp;
+			// std::map< int, std::string > std_string_mp;
+			// compare( ft_string_mp.max_size(), std_string_mp.max_size(), "char_*\t\t", "max_size"
+			// ); ft::map< int, std::map< char, char > >	ft_stdcharmap_mp; std::map< int,
+			// std::map< char, char > > std_stdcharmap_mp; compare( ft_stdcharmap_mp.max_size(),
+			// std_stdcharmap_mp.max_size(), 		 "std::map<char, char>\t\t", "max_size" );
+			// ft::map< int, ft::map< char, char > >  ft_ftcharmap_mp; std::map< int, ft::map< char,
+			// char > > std_ftcharmap_mp; compare( ft_ftcharmap_mp.max_size(),
+			// std_ftcharmap_mp.max_size(), 		 "ft::map<char, char>\t", "max_size" );
 			std::cout << "\n" GREEN CHECK " Test " << test_idx << " : Sucess" RESET "\n\n";
 		} catch ( std::exception &e ) { catchExcept( e, error_count ); }
 		waitForTests( testName, waitState );

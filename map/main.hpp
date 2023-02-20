@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 17:03:51 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/18 17:21:50 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/20 16:38:16 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,17 +74,26 @@ template < class T > void compare( const T ft, const T std, const std::string st
 	throw except( "Wrong " + err + " value", line );
 }
 
+template < class TIter, class UIter > void
+compare( TIter ft_it, UIter std_it, const std::string str, const std::string err, const int line ) {
+	std::cout << str << "\tft : `" WHITE << ft_it->first << " => " << ft_it->second << RESET "`\t"
+			  << "std : `" WHITE << std_it->first << " => " << std_it->second << RESET "`\n";
+	if ( ft_it->first == std_it->first && ft_it->second == std_it->second ) return;
+	throw except( "Wrong " + err + " value", line );
+}
+
 template < class T, class U >
-void check( const ft::map< T, U > &ft_vec, const std::map< T, U > &std_vec, const int line ) {
-	compare( ft_vec.size(), std_vec.size(), "size\t", "size", line );
-	compare( ft_vec.capacity(), std_vec.capacity(), "capacity", "capacity", line );
-	if ( !std_vec.empty() ) {
+void check( ft::map< T, U > &ft_mp, std::map< T, U > &std_mp, const int line ) {
+	compare( ft_mp.size(), std_mp.size(), "size\t", "size", line );
+	if ( !std_mp.empty() ) {
 		std::cout << DIM STRIKE;
 		for ( int i = 0; i < 40; i++ ) std::cout << ' ';
 		std::cout << RESET "\n";
-		for ( std::size_t i = 0; i < std_vec.size(); i++ ) {
-			std::cout << "@ " << i;
-			compare( ft_vec.at( i ), std_vec.at( i ), "\t", "vector", line );
+		typename ft::map< T, U >::iterator	ft_it;
+		typename std::map< T, U >::iterator std_it;
+		for ( ft_it = ft_mp.begin(), std_it = std_mp.begin();
+			  ft_it != ft_mp.end() || std_it != std_mp.end(); ++ft_it, ++std_it ) {
+			compare( ft_it, std_it, "", "map", line );
 		}
 	}
 	std::cout << "\n";

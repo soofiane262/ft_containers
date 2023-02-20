@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/14 17:37:52 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/19 09:40:00 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/20 14:24:42 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -494,21 +494,21 @@ void vectorTest( const std::string executable ) {
 			compare( ft::vector< char >().max_size(), std::vector< char >().max_size(), "char\t\t",
 					 "max_size" );
 			compare( ft::vector< signed char >().max_size(),
-					 std::vector< signed char >().max_size(), "signed char\t", "max_size" );
+					 std::vector< signed char >().max_size(), "signed_char\t", "max_size" );
 			compare( ft::vector< unsigned char >().max_size(),
-					 std::vector< unsigned char >().max_size(), "unsigned char\t", "max_size" );
+					 std::vector< unsigned char >().max_size(), "unsigned_char\t", "max_size" );
 			compare( ft::vector< short >().max_size(), std::vector< short >().max_size(),
 					 "short\t\t", "max_size" );
 			compare( ft::vector< short int >().max_size(), std::vector< short int >().max_size(),
 					 "short int\t", "max_size" );
 			compare( ft::vector< signed short >().max_size(),
-					 std::vector< signed short >().max_size(), "signed short\t", "max_size" );
+					 std::vector< signed short >().max_size(), "signed_short\t", "max_size" );
 			compare( ft::vector< signed short int >().max_size(),
-					 std::vector< signed short int >().max_size(), "signed short int", "max_size" );
+					 std::vector< signed short int >().max_size(), "signed_short int", "max_size" );
 			compare( ft::vector< unsigned short >().max_size(),
-					 std::vector< unsigned short >().max_size(), "unsigned short\t", "max_size" );
+					 std::vector< unsigned short >().max_size(), "unsigned_short\t", "max_size" );
 			compare( ft::vector< unsigned short int >().max_size(),
-					 std::vector< unsigned short int >().max_size(), "unsigned short int",
+					 std::vector< unsigned short int >().max_size(), "unsigned_short_int",
 					 "max_size" );
 			compare( ft::vector< int >().max_size(), std::vector< int >().max_size(), "int\t\t",
 					 "max_size" );
@@ -519,22 +519,22 @@ void vectorTest( const std::string executable ) {
 			compare( ft::vector< unsigned >().max_size(), std::vector< unsigned >().max_size(),
 					 "unsigned\t", "max_size" );
 			compare( ft::vector< unsigned int >().max_size(),
-					 std::vector< unsigned int >().max_size(), "unsigned int\t", "max_size" );
+					 std::vector< unsigned int >().max_size(), "unsigned_int\t", "max_size" );
 			compare( ft::vector< long >().max_size(), std::vector< long >().max_size(), "long\t\t",
 					 "max_size" );
 			compare( ft::vector< long int >().max_size(), std::vector< long int >().max_size(),
-					 "long int\t", "max_size" );
+					 "long_int\t", "max_size" );
 			compare( ft::vector< signed long >().max_size(),
-					 std::vector< signed long >().max_size(), "signed long\t", "max_size" );
+					 std::vector< signed long >().max_size(), "signed_long\t", "max_size" );
 			compare( ft::vector< signed long int >().max_size(),
-					 std::vector< signed long int >().max_size(), "signed long int\t", "max_size" );
+					 std::vector< signed long int >().max_size(), "signed_long int\t", "max_size" );
 			compare( ft::vector< unsigned long >().max_size(),
-					 std::vector< unsigned long >().max_size(), "unsigned long\t", "max_size" );
+					 std::vector< unsigned long >().max_size(), "unsigned_long\t", "max_size" );
 			compare( ft::vector< unsigned long int >().max_size(),
-					 std::vector< unsigned long int >().max_size(), "unsigned long int",
+					 std::vector< unsigned long int >().max_size(), "unsigned_long_int",
 					 "max_size" );
 			compare( ft::vector< char * >().max_size(), std::vector< char * >().max_size(),
-					 "char*\t\t", "max_size" );
+					 "char_*\t\t", "max_size" );
 			compare( ft::vector< std::string >().max_size(),
 					 std::vector< std::string >().max_size(), "std::string\t", "max_size" );
 			compare( ft::vector< std::vector< int > >().max_size(),

@@ -56,7 +56,7 @@ namespace ft {
 		pointer	  operator->( void ) const { return &( operator*() ); }
 		/* operations ─────────────────────────────────────────────────────────────────────── */
 		map_iterator& operator++( void ) {
-			++_nd;
+			_nd = _nd->next();
 			return *this;
 		}
 		map_iterator operator++( int ) {
@@ -65,7 +65,7 @@ namespace ft {
 			return tmp;
 		}
 		map_iterator& operator--( void ) {
-			--_nd;
+			_nd = _nd->previous();
 			return *this;
 		}
 		map_iterator operator--( int ) {

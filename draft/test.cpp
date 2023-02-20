@@ -4,9 +4,19 @@
 #include <iostream>
 #include <map>
 #include <random>
+#include <string>
 #include <unistd.h>
 #include <utility>
 #include <vector>
+
+class A {
+	std::string& str;
+
+  public:
+	A( std::string& x ) : str( x ) {}
+	std::string& getStr( void ) { return str; }
+	void		 log( void ) { std::cout << "inside : " << str << '\n'; }
+};
 
 template < class T > struct S {
 	T* elt;
@@ -25,6 +35,24 @@ int main() {
 	srand( time( NULL ) );
 	std::random_device rd;
 	std::mt19937	   mt( rd() );
+	{
+		std::string init = "salam";
+		A			a( init );
+		// std::string mstr( a.getStr() );
+		std::cout << "outside : " << init << '\n';
+		a.log();
+		init = "coucou";
+		std::cout << "outside : " << init << '\n';
+		a.log();
+	}
+	// {
+	// 	std::map< int, int > mp;
+	// 	for ( int i = 0; i < 4; i++ ) mp[ i ] = i;
+	// 	for ( int i = 0; i < 4; i++ ) std::cout << "key : " << i << ", elt : " << mp[ i ] << '\n';
+	// 	std::cout << '\n';
+	// 	mp.erase( 1 );
+	// 	for ( int i = 0; i < 4; i++ ) std::cout << "key : " << i << ", elt : " << mp[ i ] << '\n';
+	// }
 	// {
 	// 	std::map< int, int > mp;
 	// 	for ( int i = 0; i < 4; i++ ) mp[ i ] = i;

@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/17 09:18:08 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/19 16:58:27 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/20 17:40:27 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,9 @@
 #include <algorithm>  // min
 #include <cstddef>	  // size_t - ptrdiff_t
 #include <functional> // less
-#include <limits>	  // numeric_limits
-#include <memory>	  // allocator
+#include <iostream>
+#include <limits> // numeric_limits
+#include <memory> // allocator
 
 namespace ft {
 	template < class Key, class T, class Compare = std::less< Key >,
@@ -86,20 +87,34 @@ namespace ft {
 					  const allocator_type& alloc = allocator_type() )
 			: _size( 0 ), _key_comp( comp ), _value_comp( value_compare( comp ) ), _alloc( alloc ),
 			  _tree( red_black_tree( _value_comp, _alloc ) ) {}; // ctor_default
-		template < class InputIterator > map( InputIterator first, InputIterator last,
-											  const Compare& comp = Compare(),
-											  const Allocator&	  = Allocator() ); // ctor_range
-		map( const ft::map< Key, T, Compare, Allocator >& x );					// ctor_copy
-		~map( void ) {};														// dtor
-		map< Key, T, Compare, Allocator >&
-		operator=( const map< Key, T, Compare, Allocator >& x ); // assignemnt
+		template < class InputIterator >
+		map( InputIterator first, InputIterator last, const Compare& comp = Compare(),
+			 const Allocator& alloc = Allocator() )
+			: _size( 0 ), _key_comp( comp ), _value_comp( value_compare( comp ) ), _alloc( alloc ),
+			  _tree( red_black_tree( _value_comp, _alloc ) ) {
+			insert( first, last );
+		} // ctor_range
+		map( const ft::map< Key, T, Compare, Allocator >& x )
+			: _key_comp( x.key_comp() ), _value_comp( x.value_comp() ), _alloc( x.get_allocator() ),
+			  _tree( red_black_tree( _value_comp, _alloc ) ) {
+			(void)x;
+			// insert( const_cast< red_black_tree& >( x ).begin() );
+		}										   // ctor_copy
+		~map( void ) { _tree.~red_black_tree(); }; // dtor
+		map< Key, T, Compare, Allocator >& operator=( const map< Key, T, Compare, Allocator >& x ) {
+			_key_comp	= x.key_comp();
+			_value_comp = x.value_comp();
+			_alloc		= x.get_allocator();
+			clear();
+			// _tree = x._tree;
+		} // assignemnt
 		/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 		/*                                      Iterators                                     */
 		/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 		iterator begin( void ) { return _tree.begin(); } // begin
-		// const_iterator		   begin() const;  // const_begin
+		// const_iterator begin( void ) const { return _tree.begin(); }; // const_begin
 		iterator end( void ) { return _tree.end(); } // end
-		// const_iterator		   end() const;	   // const_end
+		// const_iterator end( void ) const { return _tree.end(); };	  // const_end
 		// reverse_iterator	   rbegin();	   // rbegin
 		// const_reverse_iterator rbegin() const; // const_rbegin
 		// reverse_iterator	   rend();		   // rend
@@ -111,12 +126,13 @@ namespace ft {
 		size_type size() const { return _size; };		// size
 		size_type max_size() const {
 			return std::min(
-				std::numeric_limits< size_type >::max() / sizeof( value_type ),
+				std::numeric_limits< size_type >::max() / sizeof( node_type ),
 				static_cast< size_type >( std::numeric_limits< difference_type >::max() ) );
 		} // max_size
 		mapped_type& operator[]( const key_type& x ) {
 			return insert( ft::make_pair( x, mapped_type() ) ).first->second;
 		}
+		allocator_type get_allocator() const { return _alloc; }
 		/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 		/*                                      Modifiers                                     */
 		/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
@@ -125,15 +141,29 @@ namespace ft {
 			_size += ret.second;
 			return ft::pair< iterator, bool >( ret );
 		}
-		// iterator insert( iterator position, const value_type& x );
-		// template < class InputIterator > void insert( InputIterator first, InputIterator last );
-		// void								  erase( iterator position );
+		iterator insert( iterator position, const value_type& x ) {
+			(void)position;
+			return insert( x ).first;
+		}
+		template < class InputIterator > void insert( InputIterator first, InputIterator last ) {
+			while ( first != last ) insert( *first++ );
+		}
+		void	  erase( iterator position ) { erase( position._nd->first ); }
 		size_type erase( const key_type& x ) {
+			if ( _size ) _size--;
 			return _tree.erase( value_type( x, mapped_type() ) );
 		}
-		// void								  erase( iterator first, iterator last );
+		void erase( iterator first, iterator last ) {
+			while ( first != last ) {
+				erase( first._nd->first );
+				first++;
+			}
+		}
 		void swap( map< Key, T, Compare, Allocator >& );
-		void clear();
+		void clear( void ) {
+			_tree.~redBlackTree();
+			_size = 0;
+		};
 		/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 		/*                                      Observers                                     */
 		/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
@@ -142,17 +172,25 @@ namespace ft {
 		/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 		/*                                   Map Operations:                                  */
 		/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-		// iterator find( const key_type& x ); // find
+		iterator find( const key_type& x ) {
+			node_type* nd = ( _tree.find( ft::make_pair( x, mapped_type() ) ) );
+			if ( nd ) return iterator( nd );
+			return end();
+		} // find
 		// const_iterator find( const key_type& x ) const; // const_find
-		size_type count( const key_type& x ) const; // count
-		// iterator	   lower_bound( const key_type& x ); // lower_bound
-		// const_iterator lower_bound( const key_type& x ) const; // const_lower_bound
-		// iterator upper_bound( const key_type& x ); // upper_bound
-		// const_iterator			   upper_bound( const key_type& x ) const; // const_upper_bound
-		// pair< iterator, iterator > equal_range( const key_type& x ); // equal_range
-		// pair< const_iterator, const_iterator > equal_range( const key_type& x ) const; //
-		// const_equal_range
-	}; // class map
+		size_type count( const key_type& x ) const {
+			const node_type* nd = ( _tree.find( ft::make_pair( x, mapped_type() ) ) );
+			return nd != NULL;
+		} // count
+		  // iterator	   lower_bound( const key_type& x ); // lower_bound
+		  // const_iterator lower_bound( const key_type& x ) const; // const_lower_bound
+		  // iterator upper_bound( const key_type& x ); // upper_bound
+		  // const_iterator			   upper_bound( const key_type& x ) const; //
+		  // const_upper_bound
+		  // pair< iterator, iterator > equal_range( const key_type& x ); // equal_range
+		  // pair< const_iterator, const_iterator > equal_range( const key_type& x ) const; //
+		  // const_equal_range
+	};	  // class map
 	template < class Key, class T, class Compare, class Allocator >
 	bool operator==( const map< Key, T, Compare, Allocator >& x,
 					 const map< Key, T, Compare, Allocator >& y ); // operator==
