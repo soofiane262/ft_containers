@@ -36,15 +36,24 @@ int main() {
 	std::random_device rd;
 	std::mt19937	   mt( rd() );
 	{
-		std::string init = "salam";
-		A			a( init );
-		// std::string mstr( a.getStr() );
-		std::cout << "outside : " << init << '\n';
-		a.log();
-		init = "coucou";
-		std::cout << "outside : " << init << '\n';
-		a.log();
+		std::map< int, int > mp;
+		for ( int i = 0; i < 20; i++ ) mp[ i ] = i;
+		for ( int i = 0; i < 20; i++ ) std::cout << "key : " << i << ", elt : " << mp[ i ] << '\n';
+		std::cout << '\n';
+		mp.erase( mp.lower_bound( 20 ), mp.upper_bound( 10 ) );
+		for ( std::map< int, int >::iterator it = mp.begin(); it != mp.end(); ++it )
+			std::cout << it->first << " => " << it->second << '\n';
 	}
+	// {
+	// 	std::string init = "salam";
+	// 	A			a( init );
+	// 	// std::string mstr( a.getStr() );
+	// 	std::cout << "outside : " << init << '\n';
+	// 	a.log();
+	// 	init = "coucou";
+	// 	std::cout << "outside : " << init << '\n';
+	// 	a.log();
+	// }
 	// {
 	// 	std::map< int, int > mp;
 	// 	for ( int i = 0; i < 4; i++ ) mp[ i ] = i;
