@@ -6,17 +6,17 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 17:03:51 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/22 15:20:14 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/22 18:21:56 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "map.hpp"
+#include "set.hpp"
 
 #include <algorithm>
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
-#include <map>
+#include <set>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -78,26 +78,17 @@ template < class T > void compare( const T ft, const T std, const std::string st
 	throw except( "Wrong " + err + " value", line );
 }
 
-template < class TIter, class UIter > void
-compare( TIter ft_it, UIter std_it, const std::string str, const std::string err, const int line ) {
-	std::cout << str << "\tft : `" WHITE << ft_it->first << " => " << ft_it->second << RESET "`\t"
-			  << "std : `" WHITE << std_it->first << " => " << std_it->second << RESET "`\n";
-	if ( ft_it->first == std_it->first && ft_it->second == std_it->second ) return;
-	throw except( "Wrong " + err + " value", line );
-}
-
-template < class T, class U >
-void check( ft::map< T, U > &ft_mp, std::map< T, U > &std_mp, const int line ) {
-	compare( ft_mp.size(), std_mp.size(), "size\t", "size", line );
-	if ( !std_mp.empty() ) {
+template < class T > void check( ft::set< T > &ft_set, std::set< T > &std_set, const int line ) {
+	compare( ft_set.size(), std_set.size(), "size\t", "size", line );
+	if ( !std_set.empty() ) {
 		std::cout << DIM STRIKE;
 		for ( int i = 0; i < 40; i++ ) std::cout << ' ';
 		std::cout << RESET "\n";
-		typename ft::map< T, U >::iterator	ft_it;
-		typename std::map< T, U >::iterator std_it;
-		for ( ft_it = ft_mp.begin(), std_it = std_mp.begin(); ft_it != ft_mp.end();
-			  ++ft_it, ++std_it ) {
-			compare( ft_it, std_it, "", "map", line );
+		typename ft::set< T >::iterator	 ft_it;
+		typename std::set< T >::iterator std_it;
+		for ( ft_it = ft_set.begin(), std_it = std_set.begin(); ft_it != ft_set.end();
+			  ft_it++, std_it++ ) {
+			compare( *ft_it, *std_it, "", "set", line );
 		}
 	}
 	std::cout << "\n";

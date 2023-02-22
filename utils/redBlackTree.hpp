@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/18 14:54:13 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/21 18:52:59 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/22 18:35:27 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,27 +29,27 @@
 template < class T, class Compare = std::less< T >, class Allocator = std::allocator< T > >
 struct node {
 	/* member types ────────────────────────────────────────────────────────────────────── */
-	typedef T  value_type;
-	typedef T &reference;
-	typedef T *pointer;
+	typedef T		  value_type;
+	typedef T		 &reference;
+	typedef T		 *pointer;
+	typedef Compare	  compare_type;
+	typedef Allocator allocator_type;
 	/* member attributes ──────────────────────────────────────────────────────────────── */
 	T			_elt;
 	Compare		_compare;
 	signed char _color;
 	signed char _rotate;
-	node	   *_parent, *_left, *_right;
+	node	   *_parent, *_left, *_right, *_end_;
 	/* ctor - dtor ────────────────────────────────────────────────────────────────────── */
-	node( const Compare &comp = Compare() ) : _compare( comp ) { _parent = _left = _right = NULL; }
-	node( const T &elt, node *parent, const Compare &comp = Compare() )
-		: _elt( elt ), _compare( comp ) {
-		_color	= RED_COLOR;
-		_rotate = DEFAULT_DIR;
-		_parent = parent;
-		_left = _right = NULL;
-	}												   // ctor
-	~node( void ) { _parent = _left = _right = NULL; } // dtor
+	node( const Compare &comp = Compare() ) : _compare( comp ) {
+		_parent = _left = _right = _end_ = NULL;
+	}
+	node( const T &elt, node *parent, node *end, const Compare &comp = Compare() )
+		: _elt( elt ), _compare( comp ), _color( RED_COLOR ), _rotate( DEFAULT_DIR ),
+		  _parent( parent ), _left( NULL ), _right( NULL ), _end_( end ) {} // ctor_param
+	~node( void ) { _parent = _left = _right = _end_ = NULL; }				// dtor
 	/* ────────────────────────────────────────────────────────────────────────────────── */
-	static node *_end_;
+	// static node *_end_;
 	/* helper functions ───────────────────────────────────────────────────────────────── */
 	node *getSibling( void ) {
 		if ( !_parent ) return NULL;
@@ -83,22 +83,13 @@ struct node {
 		while ( min_->_left ) min_ = min_->_left;
 		return min_;
 	}
-	const node *min( void ) const {
-		node *min_ = this;
-		while ( min_->_left ) min_ = min_->_left;
-		return min_;
-	}
 	node *max( void ) {
 		node *max_ = this;
 		while ( max_->_right ) max_ = max_->_right;
 		return max_;
 	}
 	/* successor - predecessor ────────────────────────────────────────────────────────── */
-	node *successor( void ) {
-		if ( !_right ) return _parent;
-		return _right->min();
-	}
-	const node *successor( void ) const {
+	node *successor( void ) const {
 		if ( !_right ) return _parent;
 		return _right->min();
 	}
@@ -106,21 +97,8 @@ struct node {
 		if ( !_left ) return _parent;
 		return _left->max();
 	}
-	const node *predecessor( void ) const {
-		if ( !_left ) return _parent;
-		return _left->max();
-	}
 	/* next ───────────────────────────────────────────────────────────────────────────── */
-	node *next( void ) {
-		node *next_ = successor();
-		if ( _parent && this != _parent->_left && next_ == _parent ) {
-			while ( next_->_parent && next_ == next_->_parent->_right ) next_ = next_->_parent;
-			next_ = next_->_parent;
-		}
-		if ( !next_ ) return _end_;
-		return next_;
-	}
-	const node *next( void ) const {
+	node *next( void ) const {
 		node *next_ = successor();
 		if ( _parent && this != _parent->_left && next_ == _parent ) {
 			while ( next_->_parent && next_ == next_->_parent->_right ) next_ = next_->_parent;
@@ -138,15 +116,13 @@ struct node {
 		}
 		return prev_;
 	}
-	/* overloads ──────────────────────────────────────────────────────────────────────── */
-	bool operator==( const node *&other ) {
+	/* eq - diff ───────────────────────────────────────────────────────────────────────── */
+	bool eq( const node *other ) const {
+		if ( this == other ) return true;
 		return !_compare( _elt, other->_elt ) && !_compare( other->_elt, _elt );
 	}
-	bool operator!=( const node *&other ) { return !( this == other ); }
+	bool diff( const node *other ) const { return !eq( other ); }
 }; // struct node
-
-template < class T, class Compare, class Allocator >
-node< T, Compare, Allocator > *node< T, Compare, Allocator >::_end_;
 
 template < class T, class Compare = std::less< T >, class Allocator = std::allocator< T > >
 class redBlackTree {
@@ -161,13 +137,13 @@ class redBlackTree {
 	typedef node< T, Compare, Allocator >							node_type;
 	typedef typename Allocator::template rebind< node_type >::other node_allocator_type;
 	/* clone_node ──────────────────────────────────────────────────────────────────────── */
-	void cloneNode( node_type *&nd, const node_type *x, node_type *parent ) {
+	void cloneNode( node_type *&nd, const node_type *x, node_type *end, node_type *parent ) {
 		if ( !x ) return;
 		nd = _node_alloc.allocate( 1 );
-		_node_alloc.construct( nd, node_type( x->_elt, parent, _compare ) );
+		_node_alloc.construct( nd, node_type( x->_elt, parent, end, _compare ) );
 		nd->_color = x->_color;
-		cloneNode( nd->_left, x->_left, nd );
-		cloneNode( nd->_right, x->_right, nd );
+		cloneNode( nd->_left, x->_left, end, nd );
+		cloneNode( nd->_right, x->_right, end, nd );
 	}
 	/* rotations ───────────────────────────────────────────────────────────────────────── */
 	node_type *leftRotation( node_type *nd ) {
@@ -261,32 +237,25 @@ class redBlackTree {
 			y->_parent->_right = y;
 	}
 	/* find_helper ─────────────────────────────────────────────────────────────────────── */
-	node_type *_find( node_type *nd, const value_type &elt ) {
-		if ( nd && !_compare( elt, nd->_elt ) && !_compare( nd->_elt, elt ) ) return nd;
+	ft::pair< node_type *, bool > _find( node_type *nd, const value_type &elt ) const {
+		if ( nd && !_compare( elt, nd->_elt ) && !_compare( nd->_elt, elt ) )
+			return ft::pair< node_type *, bool >( nd, true );
 		else if ( nd && _compare( elt, nd->_elt ) && nd->_left )
 			return _find( nd->_left, elt );
 		else if ( nd && _compare( nd->_elt, elt ) && nd->_right )
 			return _find( nd->_right, elt );
-		return NULL;
-	} // find_helper
-	const node_type *_find( const node_type *nd, const value_type &elt ) const {
-		if ( nd && !_compare( elt, nd->_elt ) && !_compare( nd->_elt, elt ) ) return nd;
-		else if ( nd && _compare( elt, nd->_elt ) && nd->_left )
-			return _find( nd->_left, elt );
-		else if ( nd && _compare( nd->_elt, elt ) && nd->_right )
-			return _find( nd->_right, elt );
-		return NULL;
+		return ft::pair< node_type *, bool >( NULL, false );
 	} // find_helper
 	/* insert_helper ───────────────────────────────────────────────────────────────────── */
 	void _insert( ft::pair< node_type *, bool > &ret, node_type *&nd, const value_type &elt,
-				  node_type *parent = NULL ) {
-		if ( nd && _compare( elt, nd->_elt ) ) _insert( ret, nd->_left, elt, nd );
+				  node_type *end, node_type *parent = NULL ) {
+		if ( nd && _compare( elt, nd->_elt ) ) _insert( ret, nd->_left, elt, end, nd );
 		else if ( nd && _compare( nd->_elt, elt ) )
-			_insert( ret, nd->_right, elt, nd );
+			_insert( ret, nd->_right, elt, end, nd );
 		else {
 			if ( !nd ) {
 				nd = _node_alloc.allocate( 1 );
-				_node_alloc.construct( nd, node_type( elt, parent, _compare ) );
+				_node_alloc.construct( nd, node_type( elt, parent, end, _compare ) );
 				ret.second = true;
 			}
 			ret.first = nd;
@@ -359,7 +328,8 @@ class redBlackTree {
 			if ( !nd->_left && !nd->_right ) {
 				if ( nd->_color == BLACK_COLOR ) nd->_color = DOUBLE_BLACK_COLOR;
 				fixDoubleBlack( nd );
-				delete nd;
+				_node_alloc.destroy( nd );
+				_node_alloc.deallocate( nd, 1 );
 				nd = NULL;
 			} else if ( !nd->_left || !nd->_right ) {
 				node_type *tmp = nd, *sub = nd->_left ? nd->_left : nd->_right;
@@ -398,23 +368,21 @@ class redBlackTree {
 		: _root( NULL ), _node_alloc( node_alloc ), _alloc( alloc ), _compare( compare ) {
 		__end_ = _node_alloc.allocate( 1 );
 		_node_alloc.construct( __end_, node_type( _compare ) );
-		node_type::_end_ = __end_;
 	} // ctor_default
 	redBlackTree( const redBlackTree &x )
 		: _root( NULL ), _node_alloc( x._node_alloc ), _alloc( x._alloc ), _compare( x._compare ) {
 		__end_ = _node_alloc.allocate( 1 );
 		_node_alloc.construct( __end_, node_type( _compare ) );
-		cloneNode( _root, x._root, NULL );
-		__end_->_left	 = _root;
-		node_type::_end_ = __end_;
-	} // ctor_default
+		cloneNode( _root, x._root, __end_, NULL );
+		__end_->_left = _root;
+	} // ctor_copy
 	~redBlackTree( void ) {
 		destruct( _root );
 		_node_alloc.destroy( __end_ );
 		_node_alloc.deallocate( __end_, 1 );
 		__end_ = NULL;
 	}; // dtor
-	/* assignment ──────────────────────────────────────────────────────────────────────── */
+	/* swap ────────────────────────────────────────────────────────────────────────────── */
 	void swap( redBlackTree &other ) {
 		node_type		   *tmp_root = _root, *tmp__end_ = __end_;
 		node_allocator_type tmp_node_alloc = _node_alloc;
@@ -431,59 +399,42 @@ class redBlackTree {
 		other._alloc					   = tmp_alloc;
 		other._compare					   = tmp_compare;
 	}
-	/* main_functions ──────────────────────────────────────────────────────────────────── */
+	/* clone - clear ───────────────────────────────────────────────────────────────────── */
+	void clone( const redBlackTree &x ) {
+		cloneNode( _root, x._root, __end_, NULL );
+		// node_type::_end_ = __end_;
+		__end_->_left = _root;
+	} // clone
 	void clear( void ) {
 		destruct( _root );
 		__end_->_left = NULL;
 	}; // clear
-	void clone( const redBlackTree &x ) {
-		cloneNode( _root, x._root, NULL );
-		node_type::_end_ = __end_;
-		__end_->_left	 = _root;
-	}																			  // clone
-	node_type		*begin( void ) { return _root ? _root->min() : NULL; };		  // begin
-	const node_type *begin( void ) const { return _root ? _root->min() : NULL; }; // begin
-	node_type		*end( void ) { return _root ? __end_ : NULL; };				  // end
-	const node_type *end( void ) const { return _root ? __end_ : NULL; };		  // end
-	node_type		*find( const value_type &elt ) {
-		  if ( !_root ) return NULL;
-		  return _find( _root, elt );
-	} // find
+	/* begin - end ─────────────────────────────────────────────────────────────────────── */
+	node_type *begin( void ) const { return _root ? _root->min() : NULL; }; // begin
+	node_type *end( void ) const { return _root ? __end_ : NULL; };			// end
 	/* lower_bound ────────────────────────────────────────────────────────────── */
-	node_type *lower_bound( const value_type &elt ) {
-		node_type *nd = begin();
-		if ( !nd ) nd = end();
-		for ( ; nd != end() && _compare( nd->_elt, elt ); nd = nd->next() ) continue;
-		return nd;
-	} // lower_bound
-	const node_type *lower_bound( const value_type &elt ) const {
+	node_type *lower_bound( const value_type &elt ) const {
 		node_type *nd = begin();
 		if ( !nd ) nd = end();
 		for ( ; nd != end() && _compare( nd->_elt, elt ); nd = nd->next() ) continue;
 		return nd;
 	} // lower_bound
 	/* upper_bound ─────────────────────────────────────────────────────────────────────── */
-	node_type *upper_bound( const value_type &elt ) {
-		node_type *nd = begin();
-		if ( !nd ) nd = end();
-		for ( ; nd != end() && !_compare( elt, nd->_elt ); nd = nd->next() ) continue;
-		return nd;
-	} // upper_bound
-	const node_type *upper_bound( const value_type &elt ) const {
+	node_type *upper_bound( const value_type &elt ) const {
 		node_type *nd = begin();
 		if ( !nd ) nd = end();
 		for ( ; nd != end() && !_compare( elt, nd->_elt ); nd = nd->next() ) continue;
 		return nd;
 	} // upper_bound
 	/* find ────────────────────────────────────────────────────────────────────────────── */
-	const node_type *find( const value_type &elt ) const {
-		if ( !_root ) return NULL;
+	ft::pair< node_type *, bool > find( const value_type &elt ) const {
+		if ( !_root ) return ft::pair< node_type *, bool >( NULL, false );
 		return _find( _root, elt );
 	} // find
 	/* insert - erase ──────────────────────────────────────────────────────────────────── */
 	ft::pair< node_type *, bool > insert( const value_type &elt ) {
 		ft::pair< node_type *, bool > ret( NULL, false );
-		_insert( ret, _root, elt );
+		_insert( ret, _root, elt, __end_ );
 		__end_->_left = _root;
 		return ret;
 	} // insert

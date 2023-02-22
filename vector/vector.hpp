@@ -6,14 +6,14 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/17 21:02:04 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/17 09:59:58 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/22 14:57:37 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-#include "../iterators/random_access_iterator.hpp"
-#include "../iterators/reverse_iterator.hpp"
+#include "../utils/random_access_iterator.hpp"
+#include "../utils/reverse_iterator.hpp"
 #include "../utils/utils.hpp"
 
 #include <algorithm> // min - max

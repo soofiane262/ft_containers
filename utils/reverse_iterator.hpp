@@ -12,8 +12,6 @@
 
 #pragma once
 
-#include "iterator_traits.hpp"
-
 namespace ft {
 
 	template < class Iterator > class reverse_iterator {
@@ -21,12 +19,12 @@ namespace ft {
 		Iterator _iter;
 
 	  public:
-		typedef Iterator													 iterator_type;
-		typedef typename iterator_traits< iterator_type >::difference_type	 difference_type;
-		typedef typename iterator_traits< iterator_type >::value_type		 value_type;
-		typedef typename iterator_traits< iterator_type >::pointer			 pointer;
-		typedef typename iterator_traits< iterator_type >::reference		 reference;
-		typedef typename iterator_traits< iterator_type >::iterator_category iterator_category;
+		typedef Iterator								  iterator_type;
+		typedef typename iterator_type::difference_type	  difference_type;
+		typedef typename iterator_type::value_type		  value_type;
+		typedef typename iterator_type::pointer			  pointer;
+		typedef typename iterator_type::reference		  reference;
+		typedef typename iterator_type::iterator_category iterator_category;
 		/* ctors ──────────────────────────────────────────────────────────────────────────── */
 		reverse_iterator( void ) : _iter( iterator_type() ) {}
 		explicit reverse_iterator( iterator_type it ) : _iter( it ) {}

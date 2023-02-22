@@ -12,25 +12,25 @@
 
 #pragma once
 
-#include "iterator_traits.hpp"
-
+#include <cstddef>	// ptrdiff_t
 #include <iterator> // bidirectional_iterator_tag
 
 namespace ft {
-	template < class NodeType > class map_iterator {
+	template < class T, class NodeType > class map_iterator {
 	  private:
-		template < class FirstType, class SecondType >
-		friend bool operator==( const ft::map_iterator< FirstType >&  lhs,
-								const ft::map_iterator< SecondType >& rhs );
-		template < class FirstType, class SecondType >
-		friend bool operator!=( const ft::map_iterator< FirstType >&  lhs,
-								const ft::map_iterator< SecondType >& rhs );
+		template < class T1, class NodeType1, class T2, class NodeType2 >
+		friend bool operator==( const ft::map_iterator< T1, NodeType1 >& lhs,
+								const ft::map_iterator< T2, NodeType2 >& rhs );
+		template < class T1, class NodeType1, class T2, class NodeType2 >
+		friend bool operator!=( const ft::map_iterator< T1, NodeType1 >& lhs,
+								const ft::map_iterator< T2, NodeType2 >& rhs );
 
 	  public:
 		/* Member Types ───────────────────────────────────────────────────────────────────── */
-		typedef typename NodeType::value_type			 value_type;
-		typedef typename NodeType::reference			 reference;
-		typedef typename NodeType::pointer				 pointer;
+		typedef std::ptrdiff_t							 difference_type;
+		typedef T										 value_type;
+		typedef value_type*								 pointer;
+		typedef value_type&								 reference;
 		typedef typename std::bidirectional_iterator_tag iterator_category;
 
 	  protected:
@@ -43,10 +43,6 @@ namespace ft {
 		/* dtor ───────────────────────────────────────────────────────────────────────────── */
 		~map_iterator( void ) { _nd = NULL; }
 		/* assignment ─────────────────────────────────────────────────────────────────────── */
-		map_iterator& operator=( map_iterator& other ) {
-			if ( this != &other ) _nd = other._nd;
-			return *this;
-		}
 		map_iterator& operator=( const map_iterator& other ) {
 			if ( this != &other ) _nd = other._nd;
 			return *this;
@@ -61,7 +57,7 @@ namespace ft {
 		}
 		map_iterator operator++( int ) {
 			map_iterator tmp = *this;
-			++_nd;
+			_nd				 = _nd->next();
 			return tmp;
 		}
 		map_iterator& operator--( void ) {
@@ -70,19 +66,20 @@ namespace ft {
 		}
 		map_iterator operator--( int ) {
 			map_iterator tmp = *this;
-			--_nd;
+			_nd				 = _nd->previous();
 			return tmp;
 		}
 	};
 
-	template < class FirstType, class SecondType >
-	bool operator==( const ft::map_iterator< FirstType >&  lhs,
-					 const ft::map_iterator< SecondType >& rhs ) {
-		return lhs._nd == rhs._nd;
+	template < class T1, class NodeType1, class T2, class NodeType2 >
+	bool operator==( const ft::map_iterator< T1, NodeType1 >& lhs,
+					 const ft::map_iterator< T2, NodeType2 >& rhs ) {
+		return lhs._nd->eq( rhs._nd );
 	}
-	template < class FirstType, class SecondType >
-	bool operator!=( const ft::map_iterator< FirstType >&  lhs,
-					 const ft::map_iterator< SecondType >& rhs ) {
-		return lhs._nd != rhs._nd;
+	template < class T1, class NodeType1, class T2, class NodeType2 >
+	bool operator!=( const ft::map_iterator< T1, NodeType1 >& lhs,
+					 const ft::map_iterator< T2, NodeType2 >& rhs ) {
+		return lhs._nd->diff( rhs._nd );
 	}
+
 } // namespace ft

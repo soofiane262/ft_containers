@@ -6,11 +6,13 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/23 17:18:08 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/19 15:33:09 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/22 14:58:24 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
+
+#include "iterator_traits.hpp"
 
 #include <algorithm>
 #include <cstddef>
