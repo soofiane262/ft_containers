@@ -6,7 +6,7 @@
 #    By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/01/19 15:28:01 by sel-mars          #+#    #+#              #
-#    Updated: 2023/02/22 16:50:22 by sel-mars         ###   ########.fr        #
+#    Updated: 2023/02/23 18:23:46 by sel-mars         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,13 +20,13 @@ ITERS	=	$(addprefix utils/,iterator_traits.hpp reverse_iterator.hpp)
 
 UTILS	=	$(addprefix utils/,$(SRCS) utils.hpp) $(ITERS)
 
-STACK	=	$(addprefix stack/,$(SRCS) stack.hpp)
+STACK	=	$(addprefix stack/,$(SRCS) stack.hpp) $(UTILS)
 
-VECTOR	=	$(addprefix vector/,$(SRCS) vector.hpp) $(ITERS) utils/random_access_iterator.hpp
+VECTOR	=	$(addprefix vector/,$(SRCS) vector.hpp) $(UTILS) utils/random_access_iterator.hpp
 
-MAP		=	$(addprefix map/,$(SRCS) map.hpp) $(ITERS) $(addprefix utils/,map_iterator.hpp redBlackTree.hpp)
+MAP		=	$(addprefix map/,$(SRCS) map.hpp) $(UTILS) $(addprefix utils/,rbt_iterator.hpp redBlackTree.hpp)
 
-SET		=	$(addprefix set/,$(SRCS) set.hpp) $(ITERS) $(addprefix utils/,map_iterator.hpp redBlackTree.hpp)
+SET		=	$(addprefix set/,$(SRCS) set.hpp) $(UTILS) $(addprefix utils/,rbt_iterator.hpp redBlackTree.hpp)
 
 TESTS	=	utils stack vector map set
 

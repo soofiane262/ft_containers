@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/14 17:37:52 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/22 18:28:41 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/23 16:32:49 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -209,6 +209,18 @@ void mapTest( const std::string executable ) {
 
 			compare( ft_it == ft_it2, std_it == std_it2, "it == it2", "iterator" );
 			compare( ft_it != ft_it2, std_it != std_it2, "it != it2", "iterator" );
+
+			int idxToFind = rand() % in.size();
+
+			std::cout << TITLE "find( " << idxToFind << " )" RESET "\n\n";
+
+			const std::set< int >			c_std_set( std_set );
+			const ft::set< int >			c_ft_set( ft_set );
+			std::set< int >::const_iterator cstd_it = c_std_set.find( in[ idxToFind ] );
+			ft::set< int >::const_iterator	cft_it	= c_ft_set.find( in[ idxToFind ] );
+
+			compare( *cft_it, *cstd_it, "find", "find" );
+
 			std::cout << "\n" GREEN CHECK " Test " << test_idx << " : Sucess" RESET "\n\n";
 		} catch ( std::exception &e ) { catchExcept( e, error_count ); }
 		waitForTests( testName, waitState );
@@ -232,6 +244,7 @@ void mapTest( const std::string executable ) {
 			std::cout << "erase( f ) : " << mp.erase( 'f' ) << '\n';
 
 			std::cout << "erase( f ) : " << mp.erase( 'f' ) << '\n';
+			mp.erase( mp.begin() );
 
 			std::cout << "\n" GREEN CHECK " Test " << test_idx << " : Sucess" RESET "\n\n";
 		} catch ( std::exception &e ) { catchExcept( e, error_count ); }

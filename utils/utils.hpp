@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/23 17:18:08 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/22 14:58:24 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/23 18:27:34 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,6 +90,7 @@ namespace ft {
 	/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 	template < class T > struct is_integral {
 		typedef bool			value_type;
+								operator value_type() { return value; };
 		static const value_type value =
 			std::numeric_limits< T >::is_integer && std::numeric_limits< T >::is_specialized;
 	}; // is_integral

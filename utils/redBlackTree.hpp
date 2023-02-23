@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/18 14:54:13 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/22 18:35:27 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/23 16:56:59 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,30 +26,22 @@
 #define LEFT_DIR	-1
 #define RIGHT_DIR	1
 
-template < class T, class Compare = std::less< T >, class Allocator = std::allocator< T > >
-struct node {
+template < class T > struct node {
 	/* member types ────────────────────────────────────────────────────────────────────── */
-	typedef T		  value_type;
-	typedef T		 &reference;
-	typedef T		 *pointer;
-	typedef Compare	  compare_type;
-	typedef Allocator allocator_type;
+	typedef T  value_type;
+	typedef T &reference;
+	typedef T *pointer;
 	/* member attributes ──────────────────────────────────────────────────────────────── */
 	T			_elt;
-	Compare		_compare;
 	signed char _color;
 	signed char _rotate;
 	node	   *_parent, *_left, *_right, *_end_;
 	/* ctor - dtor ────────────────────────────────────────────────────────────────────── */
-	node( const Compare &comp = Compare() ) : _compare( comp ) {
-		_parent = _left = _right = _end_ = NULL;
-	}
-	node( const T &elt, node *parent, node *end, const Compare &comp = Compare() )
-		: _elt( elt ), _compare( comp ), _color( RED_COLOR ), _rotate( DEFAULT_DIR ),
-		  _parent( parent ), _left( NULL ), _right( NULL ), _end_( end ) {} // ctor_param
-	~node( void ) { _parent = _left = _right = _end_ = NULL; }				// dtor
-	/* ────────────────────────────────────────────────────────────────────────────────── */
-	// static node *_end_;
+	node( void ) { _parent = _left = _right = _end_ = NULL; }
+	node( const T &elt, node *parent, node *end )
+		: _elt( elt ), _color( RED_COLOR ), _rotate( DEFAULT_DIR ), _parent( parent ),
+		  _left( NULL ), _right( NULL ), _end_( end ) {}	   // ctor_param
+	~node( void ) { _parent = _left = _right = _end_ = NULL; } // dtor
 	/* helper functions ───────────────────────────────────────────────────────────────── */
 	node *getSibling( void ) {
 		if ( !_parent ) return NULL;
@@ -116,12 +108,6 @@ struct node {
 		}
 		return prev_;
 	}
-	/* eq - diff ───────────────────────────────────────────────────────────────────────── */
-	bool eq( const node *other ) const {
-		if ( this == other ) return true;
-		return !_compare( _elt, other->_elt ) && !_compare( other->_elt, _elt );
-	}
-	bool diff( const node *other ) const { return !eq( other ); }
 }; // struct node
 
 template < class T, class Compare = std::less< T >, class Allocator = std::allocator< T > >
@@ -134,13 +120,13 @@ class redBlackTree {
 	typedef Allocator												allocator_type;
 	typedef Compare													compare_type;
 	typedef std::size_t												size_type;
-	typedef node< T, Compare, Allocator >							node_type;
+	typedef node< T >												node_type;
 	typedef typename Allocator::template rebind< node_type >::other node_allocator_type;
 	/* clone_node ──────────────────────────────────────────────────────────────────────── */
 	void cloneNode( node_type *&nd, const node_type *x, node_type *end, node_type *parent ) {
 		if ( !x ) return;
 		nd = _node_alloc.allocate( 1 );
-		_node_alloc.construct( nd, node_type( x->_elt, parent, end, _compare ) );
+		_node_alloc.construct( nd, node_type( x->_elt, parent, end ) );
 		nd->_color = x->_color;
 		cloneNode( nd->_left, x->_left, end, nd );
 		cloneNode( nd->_right, x->_right, end, nd );
@@ -255,7 +241,7 @@ class redBlackTree {
 		else {
 			if ( !nd ) {
 				nd = _node_alloc.allocate( 1 );
-				_node_alloc.construct( nd, node_type( elt, parent, end, _compare ) );
+				_node_alloc.construct( nd, node_type( elt, parent, end ) );
 				ret.second = true;
 			}
 			ret.first = nd;
@@ -318,7 +304,7 @@ class redBlackTree {
 			}
 		}
 	} // fixDoubleBlack
-	/* delete_helper ───────────────────────────────────────────────────────────────────── */
+	/* erase_helper ───────────────────────────────────────────────────────────────────── */
 	void _erase( bool &ret, node_type *&nd, const value_type &elt ) {
 		if ( nd && _compare( elt, nd->_elt ) ) _erase( ret, nd->_left, elt );
 		else if ( nd && _compare( nd->_elt, elt ) )
@@ -336,7 +322,8 @@ class redBlackTree {
 				sub->_color	 = nd->_color;
 				sub->_parent = nd->_parent;
 				nd			 = sub;
-				delete tmp;
+				_node_alloc.destroy( tmp );
+				_node_alloc.deallocate( tmp, 1 );
 				tmp = NULL;
 			} else {
 				node_type *sub = nd->_right;
@@ -367,12 +354,12 @@ class redBlackTree {
 				  const node_allocator_type &node_alloc = node_allocator_type() )
 		: _root( NULL ), _node_alloc( node_alloc ), _alloc( alloc ), _compare( compare ) {
 		__end_ = _node_alloc.allocate( 1 );
-		_node_alloc.construct( __end_, node_type( _compare ) );
+		_node_alloc.construct( __end_, node_type() );
 	} // ctor_default
 	redBlackTree( const redBlackTree &x )
 		: _root( NULL ), _node_alloc( x._node_alloc ), _alloc( x._alloc ), _compare( x._compare ) {
 		__end_ = _node_alloc.allocate( 1 );
-		_node_alloc.construct( __end_, node_type( _compare ) );
+		_node_alloc.construct( __end_, node_type() );
 		cloneNode( _root, x._root, __end_, NULL );
 		__end_->_left = _root;
 	} // ctor_copy
@@ -431,13 +418,14 @@ class redBlackTree {
 		if ( !_root ) return ft::pair< node_type *, bool >( NULL, false );
 		return _find( _root, elt );
 	} // find
-	/* insert - erase ──────────────────────────────────────────────────────────────────── */
+	/* insert ──────────────────────────────────────────────────────────────────────────── */
 	ft::pair< node_type *, bool > insert( const value_type &elt ) {
 		ft::pair< node_type *, bool > ret( NULL, false );
 		_insert( ret, _root, elt, __end_ );
 		__end_->_left = _root;
 		return ret;
 	} // insert
+	/* erase ───────────────────────────────────────────────────────────────────────────── */
 	bool erase( const value_type &elt ) {
 		bool ret = false;
 		if ( _root ) {
@@ -445,5 +433,5 @@ class redBlackTree {
 			__end_->_left = _root;
 		}
 		return ret;
-	} // delete
+	} // erase
 };

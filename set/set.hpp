@@ -6,13 +6,13 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/17 09:18:08 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/22 16:48:54 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/23 18:41:38 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-#include "../utils/map_iterator.hpp"
+#include "../utils/rbt_iterator.hpp"
 #include "../utils/redBlackTree.hpp"
 #include "../utils/utils.hpp"
 
@@ -44,11 +44,11 @@ namespace ft {
 
 	  private:
 		typedef redBlackTree< value_type, value_compare, allocator_type > red_black_tree;
-		typedef node< value_type, value_compare, allocator_type >		  node_type;
+		typedef node< value_type >										  node_type;
 
 	  public:
-		typedef ft::map_iterator< value_type, node_type >		iterator;
-		typedef ft::map_iterator< const value_type, node_type > const_iterator;
+		typedef ft::rbt_iterator< value_type, node_type >		iterator;
+		typedef ft::rbt_iterator< const value_type, node_type > const_iterator;
 		typedef std::reverse_iterator< iterator >				reverse_iterator;
 		typedef std::reverse_iterator< const_iterator >			const_reverse_iterator;
 
@@ -123,23 +123,23 @@ namespace ft {
 			ft::pair< node_type*, bool > ret = _tree.insert( x );
 			_size += ret.second;
 			return ft::pair< iterator, bool >( ret );
-		} // insert
+		} // insert_value
 		iterator insert( iterator position, const value_type& x ) {
 			(void)position;
 			return insert( x ).first;
-		} // insert
+		} // insert_hint
 		template < class InputIterator > void insert( InputIterator first, InputIterator last ) {
 			while ( first != last ) insert( *first++ );
-		}															 // insert
-		void	  erase( iterator position ) { erase( *position ); } // erase
+		}															 // insert_range
+		void	  erase( iterator position ) { erase( *position ); } // erase_hint
 		size_type erase( const key_type& x ) {
 			bool erased = _tree.erase( x );
 			_size -= erased;
 			return erased;
-		} // erase
+		} // erase_value
 		void erase( iterator first, iterator last ) {
 			while ( first != last ) erase( *first++ );
-		} // erase
+		} // erase_range
 		void swap( set< Key, Compare, Allocator >& other ) {
 			size_type	   tmp_size		  = _size;
 			value_compare  tmp_value_comp = _value_comp;
@@ -151,7 +151,7 @@ namespace ft {
 			other._value_comp			  = tmp_value_comp;
 			other._alloc				  = tmp_alloc;
 			_tree.swap( other._tree );
-		}
+		} // swap
 		void clear( void ) {
 			_tree.clear();
 			_size = 0;
@@ -183,10 +183,10 @@ namespace ft {
 		const_iterator upper_bound( const key_type& x ) const {
 			return _tree.upper_bound( x );
 		} // const_upper_bound
-		pair< iterator, iterator > equal_range( const key_type& x ) {
+		ft::pair< iterator, iterator > equal_range( const key_type& x ) {
 			return ft::make_pair( lower_bound( x ), upper_bound( x ) );
 		} // equal_range
-		pair< const_iterator, const_iterator > equal_range( const key_type& x ) const {
+		ft::pair< const_iterator, const_iterator > equal_range( const key_type& x ) const {
 			return ft::make_pair( lower_bound( x ), upper_bound( x ) );
 		} // const_equal_range
 	};	  // class set
@@ -204,8 +204,7 @@ namespace ft {
 
 	template < class Key, class Compare, class Allocator > bool
 	operator<( const set< Key, Compare, Allocator >& x, const set< Key, Compare, Allocator >& y ) {
-		return ft::lexicographical_compare( x.begin(), x.end(), y.begin(), y.end(),
-											x.value_comp() );
+		return ft::lexicographical_compare( x.begin(), x.end(), y.begin(), y.end() );
 	} // operator <
 
 	template < class Key, class Compare, class Allocator > bool
@@ -215,8 +214,7 @@ namespace ft {
 
 	template < class Key, class Compare, class Allocator > bool
 	operator>( const set< Key, Compare, Allocator >& x, const set< Key, Compare, Allocator >& y ) {
-		return ft::lexicographical_compare( y.begin(), y.end(), x.begin(), x.end(),
-											x.value_comp() );
+		return ft::lexicographical_compare( y.begin(), y.end(), x.begin(), x.end() );
 	} // operator >
 
 	template < class Key, class Compare, class Allocator > bool

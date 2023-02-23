@@ -6,13 +6,13 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/17 09:18:08 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/22 16:06:23 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/23 18:25:29 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
-#include "../utils/map_iterator.hpp"
+#include "../utils/rbt_iterator.hpp"
 #include "../utils/redBlackTree.hpp"
 #include "../utils/utils.hpp"
 
@@ -58,11 +58,11 @@ namespace ft {
 		}; // class value_compare
 	  private:
 		typedef redBlackTree< value_type, value_compare, allocator_type > red_black_tree;
-		typedef node< value_type, value_compare, allocator_type >		  node_type;
+		typedef node< value_type >										  node_type;
 
 	  public:
-		typedef ft::map_iterator< value_type, node_type >		iterator;
-		typedef ft::map_iterator< const value_type, node_type > const_iterator;
+		typedef ft::rbt_iterator< value_type, node_type >		iterator;
+		typedef ft::rbt_iterator< const value_type, node_type > const_iterator;
 		typedef std::reverse_iterator< iterator >				reverse_iterator;
 		typedef std::reverse_iterator< const_iterator >			const_reverse_iterator;
 
@@ -223,46 +223,44 @@ namespace ft {
 	};	  // class map
 
 	template < class Key, class T, class Compare, class Allocator >
-	bool operator==( const map< Key, T, Compare, Allocator >& x,
-					 const map< Key, T, Compare, Allocator >& y ) {
+	bool operator==( const ft::map< Key, T, Compare, Allocator >& x,
+					 const ft::map< Key, T, Compare, Allocator >& y ) {
 		if ( x.size() != y.size() ) return false;
 		return ft::equal( x.begin(), x.end(), y.begin() );
 	} // operator==
 
 	template < class Key, class T, class Compare, class Allocator >
-	bool operator!=( const map< Key, T, Compare, Allocator >& x,
-					 const map< Key, T, Compare, Allocator >& y ) {
+	bool operator!=( const ft::map< Key, T, Compare, Allocator >& x,
+					 const ft::map< Key, T, Compare, Allocator >& y ) {
 		return !( x == y );
 	} // operator !=
 
 	template < class Key, class T, class Compare, class Allocator >
-	bool operator<( const map< Key, T, Compare, Allocator >& x,
-					const map< Key, T, Compare, Allocator >& y ) {
-		return ft::lexicographical_compare( x.begin(), x.end(), y.begin(), y.end(),
-											x.value_comp() );
+	bool operator<( const ft::map< Key, T, Compare, Allocator >& x,
+					const ft::map< Key, T, Compare, Allocator >& y ) {
+		return ft::lexicographical_compare( x.begin(), x.end(), y.begin(), y.end() );
 	} // operator <
 
 	template < class Key, class T, class Compare, class Allocator >
-	bool operator<=( const map< Key, T, Compare, Allocator >& x,
-					 const map< Key, T, Compare, Allocator >& y ) {
+	bool operator<=( const ft::map< Key, T, Compare, Allocator >& x,
+					 const ft::map< Key, T, Compare, Allocator >& y ) {
 		return !( x > y );
 	} // operator <=
 
 	template < class Key, class T, class Compare, class Allocator >
-	bool operator>( const map< Key, T, Compare, Allocator >& x,
-					const map< Key, T, Compare, Allocator >& y ) {
-		return ft::lexicographical_compare( y.begin(), y.end(), x.begin(), x.end(),
-											x.value_comp() );
+	bool operator>( const ft::map< Key, T, Compare, Allocator >& x,
+					const ft::map< Key, T, Compare, Allocator >& y ) {
+		return ft::lexicographical_compare( y.begin(), y.end(), x.begin(), x.end() );
 	} // operator >
 
 	template < class Key, class T, class Compare, class Allocator >
-	bool operator>=( const map< Key, T, Compare, Allocator >& x,
-					 const map< Key, T, Compare, Allocator >& y ) {
+	bool operator>=( const ft::map< Key, T, Compare, Allocator >& x,
+					 const ft::map< Key, T, Compare, Allocator >& y ) {
 		return !( x < y );
 	} // operator >=
 
-	template < class Key, class T, class Compare, class Allocator >
-	void swap( map< Key, T, Compare, Allocator >& x, map< Key, T, Compare, Allocator >& y ) {
+	template < class Key, class T, class Compare, class Allocator > void
+	swap( ft::map< Key, T, Compare, Allocator >& x, ft::map< Key, T, Compare, Allocator >& y ) {
 		x.swap( y );
 	} // swap
 

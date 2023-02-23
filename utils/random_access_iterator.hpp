@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/20 21:09:54 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/17 09:02:59 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/23 17:08:46 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,11 +41,12 @@ namespace ft {
 
 	  public:
 		/* Member Types ───────────────────────────────────────────────────────────────────── */
-		typedef typename iterator_traits< T* >::value_type		  value_type;
-		typedef typename iterator_traits< T* >::difference_type	  difference_type;
-		typedef typename iterator_traits< T* >::pointer			  pointer;
-		typedef typename iterator_traits< T* >::reference		  reference;
-		typedef typename iterator_traits< T* >::iterator_category iterator_category;
+		typedef random_access_iterator								  iterator_type;
+		typedef typename ft::iterator_traits< T* >::value_type		  value_type;
+		typedef typename ft::iterator_traits< T* >::difference_type	  difference_type;
+		typedef typename ft::iterator_traits< T* >::pointer			  pointer;
+		typedef typename ft::iterator_traits< T* >::reference		  reference;
+		typedef typename ft::iterator_traits< T* >::iterator_category iterator_category;
 		/* ctors ──────────────────────────────────────────────────────────────────────────── */
 		random_access_iterator( void ) { _ptr = NULL; }
 		template < class Iter > random_access_iterator( const Iter& other ) : _ptr( &*other ) {}
