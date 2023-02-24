@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/23 17:18:08 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/24 10:11:42 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/24 13:27:51 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,27 +107,27 @@ namespace ft {
 	template < class T1, class T2 >
 	bool operator==( const pair< T1, T2 >& lhs, const pair< T1, T2 >& rhs ) {
 		return lhs.first == rhs.first && lhs.second == rhs.second;
-	}
+	} // operator ==
 	template < class T1, class T2 >
 	bool operator!=( const pair< T1, T2 >& lhs, const pair< T1, T2 >& rhs ) {
 		return !( lhs == rhs );
-	}
+	} // operator !=
 	template < class T1, class T2 >
 	bool operator<( const pair< T1, T2 >& lhs, const pair< T1, T2 >& rhs ) {
 		return lhs.first < rhs.first || ( !( rhs.first < lhs.first ) && lhs.second < rhs.second );
-	}
+	} // operator <
 	template < class T1, class T2 >
 	bool operator<=( const pair< T1, T2 >& lhs, const pair< T1, T2 >& rhs ) {
 		return !( rhs < lhs );
-	}
+	} // operator <=
 	template < class T1, class T2 >
 	bool operator>( const pair< T1, T2 >& lhs, const pair< T1, T2 >& rhs ) {
 		return rhs.first < lhs.first || ( !( lhs.first < rhs.first ) && rhs.second < lhs.second );
-	}
+	} // operator >
 	template < class T1, class T2 >
 	bool operator>=( const pair< T1, T2 >& lhs, const pair< T1, T2 >& rhs ) {
 		return !( lhs < rhs );
-	}
+	} // operator >=
 	/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 	/*                                      make_pair                                      */
 	/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */

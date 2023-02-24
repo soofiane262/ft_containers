@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/17 09:18:08 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/24 12:00:34 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/24 13:29:11 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -218,47 +218,39 @@ namespace ft {
 			return ft::make_pair( lower_bound( x ), upper_bound( x ) );
 		} // const_equal_range
 	};	  // class map
-
 	template < class Key, class T, class Compare, class Allocator >
 	bool operator==( const ft::map< Key, T, Compare, Allocator >& x,
 					 const ft::map< Key, T, Compare, Allocator >& y ) {
 		if ( x.size() != y.size() ) return false;
 		return ft::equal( x.begin(), x.end(), y.begin() );
 	} // operator==
-
 	template < class Key, class T, class Compare, class Allocator >
 	bool operator!=( const ft::map< Key, T, Compare, Allocator >& x,
 					 const ft::map< Key, T, Compare, Allocator >& y ) {
 		return !( x == y );
 	} // operator !=
-
 	template < class Key, class T, class Compare, class Allocator >
 	bool operator<( const ft::map< Key, T, Compare, Allocator >& x,
 					const ft::map< Key, T, Compare, Allocator >& y ) {
 		return ft::lexicographical_compare( x.begin(), x.end(), y.begin(), y.end() );
 	} // operator <
-
 	template < class Key, class T, class Compare, class Allocator >
 	bool operator<=( const ft::map< Key, T, Compare, Allocator >& x,
 					 const ft::map< Key, T, Compare, Allocator >& y ) {
 		return !( x > y );
 	} // operator <=
-
 	template < class Key, class T, class Compare, class Allocator >
 	bool operator>( const ft::map< Key, T, Compare, Allocator >& x,
 					const ft::map< Key, T, Compare, Allocator >& y ) {
 		return ft::lexicographical_compare( y.begin(), y.end(), x.begin(), x.end() );
 	} // operator >
-
 	template < class Key, class T, class Compare, class Allocator >
 	bool operator>=( const ft::map< Key, T, Compare, Allocator >& x,
 					 const ft::map< Key, T, Compare, Allocator >& y ) {
 		return !( x < y );
 	} // operator >=
-
 	template < class Key, class T, class Compare, class Allocator > void
 	swap( ft::map< Key, T, Compare, Allocator >& x, ft::map< Key, T, Compare, Allocator >& y ) {
 		x.swap( y );
 	} // swap
-
 } // namespace ft

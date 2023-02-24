@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/18 14:54:13 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/24 11:59:22 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/24 13:24:24 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,8 @@
 
 #include "../utils/utils.hpp"
 
-#include <cstddef>
-#include <iostream>
-#include <unistd.h>
+#include <functional> // less
+#include <memory>	  // allocator
 
 #define RED_COLOR		   0
 #define BLACK_COLOR		   1

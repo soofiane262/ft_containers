@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/17 21:02:04 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/24 11:11:49 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/24 13:17:19 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@
 
 #include <algorithm> // min - max
 #include <cstddef>	 // size_t - ptrdiff_t
-#include <iostream>
 #include <iterator>	 // iterator_tags
 #include <limits>	 // numeric_limits
 #include <memory>	 // allocator
@@ -26,6 +25,7 @@
 
 #define LENGTH_EXCPT \
 	throw std::length_error( "ft::vector<T> : 'new_capacity' exceeds maximum supported size" );
+
 #define RANGE_EXCPT throw std::out_of_range( "ft::vector<T> : range_check" );
 
 namespace ft {
@@ -46,7 +46,6 @@ namespace ft {
 		typedef ft::random_access_iterator< const T >  const_iterator;
 		typedef ft::reverse_iterator< iterator >	   reverse_iterator;
 		typedef ft::reverse_iterator< const_iterator > const_reverse_iterator;
-		// memeber types
 
 	  private:
 		/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
@@ -56,7 +55,6 @@ namespace ft {
 		size_type	   _capacity;
 		allocator_type _alloc;
 		pointer		   _container;
-		// member attributes
 		/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 		/*                                  Helper Functions                                  */
 		/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
@@ -372,7 +370,7 @@ namespace ft {
 		/* front ──────────────────────────────────────────────────────────────────────────── */
 		reference		front( void ) { return _container[ 0 ]; }		// front
 		const_reference front( void ) const { return _container[ 0 ]; } // const front
-		/* --------------------------------- back --------------------------------- */
+		/* back ───────────────────────────────────────────────────────────────────────────── */
 		reference		back( void ) { return _container[ _size - 1 ]; }	   // back
 		const_reference back( void ) const { return _container[ _size - 1 ]; } // const back
 		/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
