@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/17 21:02:04 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/23 15:29:30 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/24 11:11:49 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 
 #include <algorithm> // min - max
 #include <cstddef>	 // size_t - ptrdiff_t
+#include <iostream>
 #include <iterator>	 // iterator_tags
 #include <limits>	 // numeric_limits
 #include <memory>	 // allocator

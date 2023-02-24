@@ -6,9 +6,11 @@
 #    By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/01/19 15:28:01 by sel-mars          #+#    #+#              #
-#    Updated: 2023/02/23 18:23:46 by sel-mars         ###   ########.fr        #
+#    Updated: 2023/02/24 12:44:55 by sel-mars         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
+
+NAME	=	ft_containers
 
 CPP		=	c++
 
@@ -33,6 +35,8 @@ TESTS	=	utils stack vector map set
 BINS	=	$(addprefix ft_,$(TESTS))
 
 all: | $(TESTS)
+
+$(NAME): all
 
 utils: ft_utils
 

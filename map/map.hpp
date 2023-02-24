@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/17 09:18:08 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/23 18:25:29 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/24 12:00:34 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -157,10 +157,7 @@ namespace ft {
 			return erased;
 		} // erase
 		void erase( iterator first, iterator last ) {
-			while ( first != last ) {
-				erase( first->first );
-				first++;
-			}
+			while ( first != last ) erase( first++ );
 		} // erase
 		void swap( map< Key, T, Compare, Allocator >& other ) {
 			size_type	   tmp_size		  = _size;
@@ -190,14 +187,14 @@ namespace ft {
 		/*                                   Map Operations:                                  */
 		/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 		iterator find( const key_type& x ) {
-			ft::pair< node_type*, bool > pr = _tree.find( ft::make_pair( x, mapped_type() ) );
-			if ( pr.second ) return iterator( pr.first );
-			return end();
+			ft::pair< node_type*, bool > pr( _tree.find( ft::make_pair( x, mapped_type() ) ) );
+			if ( pr.second ) return pr.first;
+			return _tree.end();
 		} // find
 		const_iterator find( const key_type& x ) const {
-			ft::pair< node_type*, bool > pr = _tree.find( ft::make_pair( x, mapped_type() ) );
-			if ( pr.second ) return const_iterator( pr.first );
-			return end();
+			ft::pair< node_type*, bool > pr( _tree.find( ft::make_pair( x, mapped_type() ) ) );
+			if ( pr.second ) return pr.first;
+			return _tree.end();
 		} // const_find
 		size_type count( const key_type& x ) const {
 			return ( _tree.find( ft::make_pair( x, mapped_type() ) ) ).second;

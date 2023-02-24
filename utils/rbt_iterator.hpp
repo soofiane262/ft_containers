@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/23 14:54:01 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/23 18:50:53 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/24 11:49:45 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ namespace ft {
 		template < class T1, class NodeType1, class T2, class NodeType2 >
 		friend bool operator!=( const ft::rbt_iterator< T1, NodeType1 >&,
 								const ft::rbt_iterator< T2, NodeType2 >& );
+		template < class, class > friend class rbt_iterator;
 
 	  public:
 		/* Member Types ───────────────────────────────────────────────────────────────────── */

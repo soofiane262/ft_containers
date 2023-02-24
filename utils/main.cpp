@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/14 17:37:52 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/19 09:38:40 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/24 13:02:45 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,7 +148,7 @@ int main( int, char **av ) {
 		waitForTests( testName, waitState );
 		//
 		std::cout << MAGENTA << testName << " Test " << ++test_idx << RESET "\n\n";
-		testResult( error_count, testName );
+		testResult( error_count, std::string( av[ 0 ] ).erase( 0, 2 ) );
 	} // utils
 
 	return ( 0 );

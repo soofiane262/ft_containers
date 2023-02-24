@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/23 17:18:08 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/23 18:27:34 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/24 10:11:42 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,7 @@
 
 #include "iterator_traits.hpp"
 
-#include <algorithm>
-#include <cstddef>
-#include <iterator>
-#include <limits>
+#include <limits> // numeric_limits
 
 namespace ft {
 	/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
@@ -27,15 +24,6 @@ namespace ft {
 	template < class T > struct enable_if< true, T > {
 		typedef T type;
 	}; // enable_if
-	/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-	/*                                       is_same                                       */
-	/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-	template < class T, class U > struct is_same {
-		static const bool value = false;
-	}; // is_same : false
-	template < class T > struct is_same< T, T > {
-		static const bool value = true;
-	}; // is_same : true
 	/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 	/*                                        equal                                        */
 	/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */

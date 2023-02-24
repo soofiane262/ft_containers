@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/18 14:54:13 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/23 16:56:59 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/24 11:59:22 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -230,7 +230,7 @@ class redBlackTree {
 			return _find( nd->_left, elt );
 		else if ( nd && _compare( nd->_elt, elt ) && nd->_right )
 			return _find( nd->_right, elt );
-		return ft::pair< node_type *, bool >( NULL, false );
+		return ft::pair< node_type *, bool >( __end_, false );
 	} // find_helper
 	/* insert_helper ───────────────────────────────────────────────────────────────────── */
 	void _insert( ft::pair< node_type *, bool > &ret, node_type *&nd, const value_type &elt,
@@ -389,7 +389,6 @@ class redBlackTree {
 	/* clone - clear ───────────────────────────────────────────────────────────────────── */
 	void clone( const redBlackTree &x ) {
 		cloneNode( _root, x._root, __end_, NULL );
-		// node_type::_end_ = __end_;
 		__end_->_left = _root;
 	} // clone
 	void clear( void ) {
@@ -403,19 +402,18 @@ class redBlackTree {
 	node_type *lower_bound( const value_type &elt ) const {
 		node_type *nd = begin();
 		if ( !nd ) nd = end();
-		for ( ; nd != end() && _compare( nd->_elt, elt ); nd = nd->next() ) continue;
+		while ( nd != end() && _compare( nd->_elt, elt ) ) nd = nd->next();
 		return nd;
 	} // lower_bound
 	/* upper_bound ─────────────────────────────────────────────────────────────────────── */
 	node_type *upper_bound( const value_type &elt ) const {
 		node_type *nd = begin();
 		if ( !nd ) nd = end();
-		for ( ; nd != end() && !_compare( elt, nd->_elt ); nd = nd->next() ) continue;
+		while ( nd != end() && !_compare( elt, nd->_elt ) ) nd = nd->next();
 		return nd;
 	} // upper_bound
 	/* find ────────────────────────────────────────────────────────────────────────────── */
 	ft::pair< node_type *, bool > find( const value_type &elt ) const {
-		if ( !_root ) return ft::pair< node_type *, bool >( NULL, false );
 		return _find( _root, elt );
 	} // find
 	/* insert ──────────────────────────────────────────────────────────────────────────── */
