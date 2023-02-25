@@ -135,86 +135,92 @@ int main() {
 	std::mt19937	   mt( rd() );
 
 	{
-		std::vector< int > std_v;
-		std::vector< int > std_vector;
-
-		ft::vector< int > ft_v;
-		ft::vector< int > ft_vector;
-
-		std_vector.assign( 11, 11 );
-		ft_vector.assign( 11, 11 );
-
-		std::vector< int > std_tmp( 5, 5 ), std_tmp2( 10, 10 ), std_tmp3( 15, 15 ),
-			std_tmp4( 30, 30 );
-		ft::vector< int > ft_tmp( 5, 5 ), ft_tmp2( 10, 10 ), ft_tmp3( 15, 15 ), ft_tmp4( 30, 30 );
-
-		std_v.push_back( std_vector[ 2 ] );
-		std_v.push_back( std_vector.size() );
-		std_v.push_back( std_vector.capacity() );
-
-		ft_v.push_back( ft_vector[ 2 ] );
-		ft_v.push_back( ft_vector.size() );
-		ft_v.push_back( ft_vector.capacity() );
-
-		long *std_adr1 = reinterpret_cast< long * >( &std_vector );
-		long *std_adr2 = reinterpret_cast< long * >( &std_tmp );
-
-		long *ft_adr1 = reinterpret_cast< long * >( &ft_vector );
-		long *ft_adr2 = reinterpret_cast< long * >( &ft_tmp );
-
-		std_vector.swap( std_tmp );
-		ft_vector.swap( ft_tmp );
-
-		if ( reinterpret_cast< long * >( &std_vector ) == std_adr1 &&
-			 reinterpret_cast< long * >( &std_tmp ) == std_adr2 )
-			std_v.push_back( 1 );
-
-		if ( reinterpret_cast< long * >( &ft_vector ) == ft_adr1 &&
-			 reinterpret_cast< long * >( &ft_tmp ) == ft_adr2 )
-			ft_v.push_back( 1 );
-
-		std_v.push_back( std_vector[ 2 ] );
-		std_v.push_back( std_vector.size() );
-		std_v.push_back( std_vector.capacity() );
-
-		ft_v.push_back( ft_vector[ 2 ] );
-		ft_v.push_back( ft_vector.size() );
-		ft_v.push_back( ft_vector.capacity() );
-
-		std_vector.swap( std_tmp3 );
-		ft_vector.swap( ft_tmp3 );
-
-		std_v.push_back( std_vector[ 2 ] );
-		std_v.push_back( std_vector.size() );
-		std_v.push_back( std_vector.capacity() );
-
-		ft_v.push_back( ft_vector[ 2 ] );
-		ft_v.push_back( ft_vector.size() );
-		ft_v.push_back( ft_vector.capacity() );
-
-		std::swap( std_vector, std_tmp2 );
-		ft::swap( ft_vector, ft_tmp2 );
-
-		std_v.push_back( std_vector[ 2 ] );
-		std_v.push_back( std_vector.size() );
-		std_v.push_back( std_vector.capacity() );
-
-		ft_v.push_back( ft_vector[ 2 ] );
-		ft_v.push_back( ft_vector.size() );
-		ft_v.push_back( ft_vector.capacity() );
-
-		std::swap( std_vector, std_tmp4 );
-		ft::swap( ft_vector, ft_tmp4 );
-
-		std_v.push_back( std_vector[ 2 ] );
-		std_v.push_back( std_vector.size() );
-		std_v.push_back( std_vector.capacity() );
-
-		ft_v.push_back( ft_vector[ 2 ] );
-		ft_v.push_back( ft_vector.size() );
-		ft_v.push_back( ft_vector.capacity() );
-		check( ft_v, std_v, __LINE__ );
+		std::vector< int > vec;
+		int				   i = vec.back();
+		// std::cout << vec.back() << '\n';
 	}
+
+	// {
+	// 	std::vector< int > std_v;
+	// 	std::vector< int > std_vector;
+
+	// 	ft::vector< int > ft_v;
+	// 	ft::vector< int > ft_vector;
+
+	// 	std_vector.assign( 11, 11 );
+	// 	ft_vector.assign( 11, 11 );
+
+	// 	std::vector< int > std_tmp( 5, 5 ), std_tmp2( 10, 10 ), std_tmp3( 15, 15 ),
+	// 		std_tmp4( 30, 30 );
+	// 	ft::vector< int > ft_tmp( 5, 5 ), ft_tmp2( 10, 10 ), ft_tmp3( 15, 15 ), ft_tmp4( 30, 30 );
+
+	// 	std_v.push_back( std_vector[ 2 ] );
+	// 	std_v.push_back( std_vector.size() );
+	// 	std_v.push_back( std_vector.capacity() );
+
+	// 	ft_v.push_back( ft_vector[ 2 ] );
+	// 	ft_v.push_back( ft_vector.size() );
+	// 	ft_v.push_back( ft_vector.capacity() );
+
+	// 	long *std_adr1 = reinterpret_cast< long * >( &std_vector );
+	// 	long *std_adr2 = reinterpret_cast< long * >( &std_tmp );
+
+	// 	long *ft_adr1 = reinterpret_cast< long * >( &ft_vector );
+	// 	long *ft_adr2 = reinterpret_cast< long * >( &ft_tmp );
+
+	// 	std_vector.swap( std_tmp );
+	// 	ft_vector.swap( ft_tmp );
+
+	// 	if ( reinterpret_cast< long * >( &std_vector ) == std_adr1 &&
+	// 		 reinterpret_cast< long * >( &std_tmp ) == std_adr2 )
+	// 		std_v.push_back( 1 );
+
+	// 	if ( reinterpret_cast< long * >( &ft_vector ) == ft_adr1 &&
+	// 		 reinterpret_cast< long * >( &ft_tmp ) == ft_adr2 )
+	// 		ft_v.push_back( 1 );
+
+	// 	std_v.push_back( std_vector[ 2 ] );
+	// 	std_v.push_back( std_vector.size() );
+	// 	std_v.push_back( std_vector.capacity() );
+
+	// 	ft_v.push_back( ft_vector[ 2 ] );
+	// 	ft_v.push_back( ft_vector.size() );
+	// 	ft_v.push_back( ft_vector.capacity() );
+
+	// 	std_vector.swap( std_tmp3 );
+	// 	ft_vector.swap( ft_tmp3 );
+
+	// 	std_v.push_back( std_vector[ 2 ] );
+	// 	std_v.push_back( std_vector.size() );
+	// 	std_v.push_back( std_vector.capacity() );
+
+	// 	ft_v.push_back( ft_vector[ 2 ] );
+	// 	ft_v.push_back( ft_vector.size() );
+	// 	ft_v.push_back( ft_vector.capacity() );
+
+	// 	std::swap( std_vector, std_tmp2 );
+	// 	ft::swap( ft_vector, ft_tmp2 );
+
+	// 	std_v.push_back( std_vector[ 2 ] );
+	// 	std_v.push_back( std_vector.size() );
+	// 	std_v.push_back( std_vector.capacity() );
+
+	// 	ft_v.push_back( ft_vector[ 2 ] );
+	// 	ft_v.push_back( ft_vector.size() );
+	// 	ft_v.push_back( ft_vector.capacity() );
+
+	// 	std::swap( std_vector, std_tmp4 );
+	// 	ft::swap( ft_vector, ft_tmp4 );
+
+	// 	std_v.push_back( std_vector[ 2 ] );
+	// 	std_v.push_back( std_vector.size() );
+	// 	std_v.push_back( std_vector.capacity() );
+
+	// 	ft_v.push_back( ft_vector[ 2 ] );
+	// 	ft_v.push_back( ft_vector.size() );
+	// 	ft_v.push_back( ft_vector.capacity() );
+	// 	check( ft_v, std_v, __LINE__ );
+	// }
 
 	// {
 	// 	std::ifstream					 s( "a b c e f g h" );

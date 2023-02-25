@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/02/17 09:18:08 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/24 13:29:11 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/25 13:21:26 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 #include "../utils/rbt_iterator.hpp"
 #include "../utils/redBlackTree.hpp"
+#include "../utils/reverse_iterator.hpp"
 #include "../utils/utils.hpp"
 
 #include <algorithm>  // min
@@ -63,8 +64,8 @@ namespace ft {
 	  public:
 		typedef ft::rbt_iterator< value_type, node_type >		iterator;
 		typedef ft::rbt_iterator< const value_type, node_type > const_iterator;
-		typedef std::reverse_iterator< iterator >				reverse_iterator;
-		typedef std::reverse_iterator< const_iterator >			const_reverse_iterator;
+		typedef ft::reverse_iterator< iterator >				reverse_iterator;
+		typedef ft::reverse_iterator< const_iterator >			const_reverse_iterator;
 
 	  private:
 		/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */

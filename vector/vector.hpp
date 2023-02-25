@@ -6,7 +6,7 @@
 /*   By: sel-mars <sel-mars@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/17 21:02:04 by sel-mars          #+#    #+#             */
-/*   Updated: 2023/02/24 13:17:19 by sel-mars         ###   ########.fr       */
+/*   Updated: 2023/02/25 13:14:15 by sel-mars         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -384,7 +384,9 @@ namespace ft {
 			_alloc.construct( _container + _size++, val );
 		} // push_back
 		/* pop_back ───────────────────────────────────────────────────────────────────────── */
-		void pop_back( void ) { _alloc.destroy( _container + --_size ); } // pop_back
+		void pop_back( void ) {
+			if ( _size ) _alloc.destroy( _container + --_size );
+		} // pop_back
 		/* insert ─────────────────────────────────────────────────────────────────────────── */
 		iterator insert( iterator position, const_reference val ) {
 			size_type pos = insertHelper( position, static_cast< size_type >( 1 ) );
